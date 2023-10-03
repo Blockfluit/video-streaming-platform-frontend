@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Quicksand:wght@300&family=Space+Mono&display=swap');
+
+:root {
+    --font-family-1: 'Quicksand',
+        monospace,
+        sans-serif;
+    --font-size-1: 40px;
+    --font-size-2: 30px;
+    --font-size-3: 22px;
+    --font-size-4: 18px;
+    --font-size-5: 14px;
+    --text-color-1: rgb(255, 253, 243);
+    --text-color-2: rgb(196, 193, 185);
+    --background-gradiant-1: linear-gradient(90deg, #292929 0%, #1a1824 100%);
+    --background-color-1: rgb(0, 0, 0);
+    --box-shadow-1: 0px 0px 14px 2px rgba(0, 0, 0, 0.75);
+    --box-shadow-2: 0px 0px 24px 10px rgba(0, 0, 0, 0.75);
+    --navbar-height: 60px;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family-1);
+    color: var(--text-color-1);
+}
+
+h1 {
+    font-size: var(--font-size-1);
+}
+
+h3 {
+    font-size: var(--font-size-3);
+    font-weight: 300;
+}
+
+p {
+    margin: 0;
+    font-size: var(--font-size-3);
+}
+
+a {
+    font-size: var(--font-size-3);
+    color: var(--text-color-1);
+}
+
+
+input {
+    color: var(--text-color-1);
+    font-size: var(--font-size-3);
+    background-color: rgba(0, 0, 0, 0);
+    font-family: var(--font-family-1);
+}
+
+/* Firefox */
+::placeholder {
+    font-family: var(--font-family-1);
+    font-size: var(--font-size-3);
+    color: var(--text-color-2);
+    opacity: 1;
+    text-align: center;
+}
+
+/* Edge 12 -18 */
+::-ms-input-placeholder {
+    font-family: var(--font-family-1);
+    font-size: var(--font-size-3);
+    color: var(--text-color-2);
+    text-align: center;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
