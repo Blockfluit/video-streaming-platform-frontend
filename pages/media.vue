@@ -3,6 +3,8 @@ import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
 
+const config = useRuntimeConfig()
+
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
 
@@ -60,7 +62,8 @@ const parseTrailer = (trailer) => {
                     allow="autoplay; encrypted-media;"></iframe>
             </div>
             <div v-if="seasons.includes(-1)" v-for="video in media.videos.sort((a, b) => a.index - b.index)">
-                <span @click="playVideo(video)">{{ video.name }}</span>
+                <span @click="playVideo(video)">{{ video.name }}<img
+                        :src="`${config.public.baseURL}/stream/snapshot/${video.id}`"></span>
             </div>
             <div v-if="!seasons.includes(-1)" v-for="season in seasons.sort()">
                 <span @click="selectedSeason = season">Season {{ season }}</span>
@@ -68,7 +71,7 @@ const parseTrailer = (trailer) => {
                     <li
                         v-for="video in  media.videos.filter((video => video.season === season)).sort((a, b) => a.index - b.index) ">
                         <span @click="playVideo(video)">{{
-                            video.name }}</span>
+                            video.name }}<img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`"></span>
                     </li>
                 </ul>
             </div>
@@ -77,6 +80,10 @@ const parseTrailer = (trailer) => {
 </template>
 
 <style scoped>
+img {
+    width: 200px;
+}
+
 .youtube-container {
     position: relative;
     overflow: hidden;

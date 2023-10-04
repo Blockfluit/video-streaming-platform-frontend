@@ -19,18 +19,6 @@ onMounted(() => {
 })
 
 const sendMail = () => {
-    const errors = []
-    if (email.value === "") {
-        errors.push("Please provide an email.")
-    }
-    if (emailValidation(email)) {
-        errors.push("Email invalid.")
-    }
-    if (errors.length) {
-        alert(errors)
-        return
-    }
-
     fetch(config.public.baseURL + "/change-password", {
         method: "POST",
         headers: {
@@ -52,23 +40,6 @@ const sendMail = () => {
 }
 
 const reset = () => {
-    const errors = []
-
-    if (password === "") {
-        errors.push("Password can't be empty")
-    }
-    if (password.value !== passwordConfirm.value) {
-        errors.push("Password does not match.")
-    }
-    if (token.value === "") {
-        errors.push("Token missing.")
-    }
-
-    if (errors.length) {
-        alert(errors)
-        return
-    }
-
     fetch(config.public.baseURL + "/change-password?token=" + token.value, {
         method: "PATCH",
         headers: {
@@ -92,20 +63,24 @@ const reset = () => {
 
 <template>
     <div class="container">
-        <div v-if="!isReset" class="container-mail">
-            <header>RESET PASSWORD</header>
-            <section>A mail will be send to the email you provide with a reset token</section>
-            <input v-model="email" type="email" placeholder="email">
-            <button @click="sendMail()" type="button">Send</button>
-        </div>
-        <div v-if="isReset" class="container-mail">
-            <header>RESET PASSWORD</header>
-            <section>Please provide a new password</section>
-            <input v-model="password" type="password" placeholder="new password">
-            <input v-model="passwordConfirm" type="password" placeholder="confirm password">
-            <input v-if="hideToken" v-model="token" type="text" placeholder="token">
-            <button @click="reset()" type="button">Send</button>
-        </div>
+        <form v-if="!isReset" @submit.prevent="sendMail">
+            <div class="container-mail">
+                <header>RESET PASSWORD</header>
+                <section>A mail will be send to the email you provide with a reset token</section>
+                <input v-model="email" type="email" placeholder="email">
+                <input type="submit" />
+            </div>
+        </form>
+        <form v-if="isReset" @submit.prevent="reset">
+            <div class="container-mail">
+                <header>RESET PASSWORD</header>
+                <section>Please provide a new password</section>
+                <input v-model="password" type="password" placeholder="new password" required>
+                <input v-model="passwordConfirm" type="password" placeholder="confirm password" required>
+                <input v-if="hideToken" v-model="token" type="text" placeholder="token" required>
+                <input type="submit" />
+            </div>
+        </form>
     </div>
 </template>
 

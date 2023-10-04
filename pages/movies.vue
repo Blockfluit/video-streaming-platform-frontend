@@ -58,9 +58,9 @@ watch(searchbox, (o, n) => {
     <NuxtLayout name="main">
         <div class="container">
             <div class="container-filter">
-                <span :style="activeFilters.has(1) ? 'color: yellow' : 'color: white'"
+                <span :style="activeFilters.has(1) ? 'color: green' : 'color: white'"
                     @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('comedy')), 1)">comedy</span>
-                <span :style="activeFilters.has(2) ? 'color: yellow' : 'color: white'"
+                <span :style="activeFilters.has(2) ? 'color: green' : 'color: white'"
                     @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('action')), 2)">action</span>
             </div>
             <div v-if="!showFilteredMedia" class="container-cards">

@@ -3,23 +3,10 @@ import { useJwtStore } from "~/stores/jwtStore"
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 
-const username = ref("")
-const password = ref("")
+const username = ref()
+const password = ref()
 
 const login = () => {
-    const errors = []
-
-    if (username.value === "") {
-        errors.push("Username missing")
-    }
-    if (password.value === "") {
-        errors.push("Password missing")
-    }
-    if (errors.length) {
-        alert(errors)
-        return
-    }
-
     fetch(config.public.baseURL + "/auth/authenticate", {
         method: "POST",
         headers: {
@@ -50,17 +37,19 @@ const login = () => {
 
 <template>
     <div class="container">
-        <div @keyup.enter="login()" class="container-login">
-            <header>LOGIN</header>
-            <section>Please enter your username and password</section>
-            <input v-model="username" type="text" placeholder="username">
-            <input v-model="password" type="password" placeholder="password">
-            <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
-            </span>
-            <button @click="login()" type="button">Sign in</button>
-            <span class="got-token">Got a token? <NuxtLink to="/register">Signup</NuxtLink>
-            </span>
-        </div>
+        <form @submit.prevent="login">
+            <div class="container-login">
+                <header>LOGIN</header>
+                <section>Please enter your username and password</section>
+                <input v-model="username" type="text" placeholder="username" required>
+                <input v-model="password" type="password" placeholder="password" required>
+                <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
+                </span>
+                <input type="submit" />
+                <span class="got-token">Got a token? <NuxtLink to="/register">Signup</NuxtLink>
+                </span>
+            </div>
+        </form>
     </div>
 </template>
 
