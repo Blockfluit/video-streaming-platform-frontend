@@ -20,8 +20,8 @@ const searchActors = ref("")
 
 const name = ref(localStorage.getItem("upload-name"))
 const type = ref(localStorage.getItem("upload-type"))
-const selectedActors = ref(localStorage.getItem("upload-actors"))
-const selectedGenres = ref(localStorage.getItem("upload-genres"))
+const selectedActors = ref([])
+const selectedGenres = ref([])
 const plot = ref(localStorage.getItem("upload-plot"))
 const trailer = ref(localStorage.getItem("upload-trailer"))
 const year = ref(localStorage.getItem("upload-year"))
@@ -29,19 +29,30 @@ const thumbnail = ref()
 
 const previewImageUrl = ref()
 
+window.onmousemove = () => {
+    console.log(selectedGenres.value)
+}
+
 onBeforeMount(() => {
-    mainStore.setActors()
-    mainStore.setGenres()
+    if (process.client) {
+        selectedActors.value = localStorage.getItem("upload-actors").split(",").filter(a => a !== "")
+        selectedGenres.value = localStorage.getItem("upload-genres").split(",").filter(a => a !== "")
+
+        mainStore.setActors()
+        mainStore.setGenres()
+    }
 })
 
 onBeforeUnmount(() => {
-    localStorage.setItem("upload-name", name.value)
-    localStorage.setItem("upload-type", type.value)
-    localStorage.setItem("upload-actors", selectedActors.value)
-    localStorage.setItem("upload-genres", selectedGenres.value)
-    localStorage.setItem("upload-plot", plot.value)
-    localStorage.setItem("upload-trailer", trailer.value)
-    localStorage.setItem("upload-year", year.value)
+    if (process.client) {
+        localStorage.setItem("upload-name", name.value)
+        localStorage.setItem("upload-type", type.value)
+        localStorage.setItem("upload-actors", selectedActors.value)
+        localStorage.setItem("upload-genres", selectedGenres.value)
+        localStorage.setItem("upload-plot", plot.value)
+        localStorage.setItem("upload-trailer", trailer.value)
+        localStorage.setItem("upload-year", year.value)
+    }
 })
 
 const thumbnailHandler = (e) => {
@@ -54,7 +65,7 @@ const thumbnailHandler = (e) => {
 }
 
 const addMedia = () => {
-    if (!acceptedFileExt.includes(fileElement.value.files[0].type.split("/")[1])) {
+    if (!acceptedFileExt.includes(thumbnail.value.type.split("/")[1])) {
         alert("Invalid File extension")
         return
     }
@@ -78,13 +89,13 @@ const addMedia = () => {
         body: formData,
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            name = null
-            type = null
-            selectedActors = null
-            selectedGenres = null
-            plot = null
-            trailer = null
-            year = null
+            name.value = null
+            type.value = null
+            selectedActors.value = []
+            selectedGenres.value = []
+            plot.value = null
+            trailer.value = null
+            year.value = null
             alert("Upload successful")
         }
     }).catch(e => {
@@ -139,7 +150,7 @@ const deleteGenre = (genre) => {
                 <input @change="e => thumbnailHandler(e)" type="file" accept="image/jpeg, image/png" required>
                 <input v-model="name" placeholder="name" type="text" required>
                 <select v-model="type" required>
-                    <option selected="MOVIE">Movie</option>
+                    <option value="MOVIE" selected>Movie</option>
                     <option value="SERIES">Series</option>
                 </select>
                 <input v-model="plot" placeholder="plot" type="text" required>
@@ -150,9 +161,8 @@ const deleteGenre = (genre) => {
                 <AddActor />
                 <div>
                     <template v-for="actor in actors.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(searchActors.toLowerCase()))
-                        .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))"
-                        v-model="selectedActors">
-                        <input type="checkbox" :id="actor.id" :value="actor.id">
+                        .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))">
+                        <input v-model="selectedActors" type="checkbox" :id="actor.id" :value="actor.id">
                         <label :for="actor.id">{{ `${actor.firstname} ${actor.lastname}` }}</label>
                         <Icon @click="deleteActor(actor.id)" name="fa-solid:poo"></Icon>
                     </template>
@@ -162,8 +172,8 @@ const deleteGenre = (genre) => {
                 <AddGenre />
                 <div>
                     <template v-for="genre in genres.filter(genre => genre.name.toLowerCase().includes(searchGenres.toLowerCase()))
-                        .sort((a, b) => a.name.localeCompare(b.name))" v-model="selectedGenres">
-                        <input type="checkbox" :id="genre.name" :value="genre.name">
+                        .sort((a, b) => a.name.localeCompare(b.name))">
+                        <input v-model="selectedGenres" type="checkbox" :id="genre.name" :value="genre.name">
                         <label :for="genre.name">{{ genre.name }}</label>
                         <Icon @click="deleteGenre(genre.name)" name="fa-solid:poo"></Icon>
                     </template>
