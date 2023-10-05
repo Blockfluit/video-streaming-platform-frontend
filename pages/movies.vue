@@ -2,6 +2,10 @@
 import { storeToRefs } from "pinia";
 import { useMainStore } from "~/stores/mainStore";
 
+definePageMeta({
+    layout: "main",
+});
+
 const mainStore = useMainStore()
 
 const { allMedia, searchbox } = storeToRefs(mainStore)
@@ -55,12 +59,11 @@ watch(searchbox, (o, n) => {
 </script>
 
 <template>
-    <NuxtLayout name="main">
         <div class="container">
             <div class="container-filter">
-                <span :style="activeFilters.has(1) ? 'color: green' : 'color: white'"
+                <span class="filter" :style="activeFilters.has(1) ? 'color: var(--primary-color-100)' : 'color: white'"
                     @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('comedy')), 1)">comedy</span>
-                <span :style="activeFilters.has(2) ? 'color: green' : 'color: white'"
+                <span class="filter" :style="activeFilters.has(2) ? 'color: var(--primary-color-100)' : 'color: white'"
                     @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('action')), 2)">action</span>
             </div>
             <div v-if="!showFilteredMedia" class="container-cards">
@@ -86,7 +89,6 @@ watch(searchbox, (o, n) => {
                 </div>
             </div>
         </div>
-    </NuxtLayout>
 </template>
 
 <style scoped>
@@ -113,5 +115,10 @@ h2 {
 .container-filtered-cards {
     display: flex;
     flex-direction: row;
+}
+
+.filter:hover {
+    cursor: pointer;
+    color: var(--primary-color-100);
 }
 </style>

@@ -1,10 +1,11 @@
 <script setup>
-import { Navbar } from '#components'
 </script>
 
 <template>
     <div>
-        <Navbar />
-        <slot />
+        <Navbar/>
+        <div>
+            <slot />
+        </div>
     </div>
 </template>

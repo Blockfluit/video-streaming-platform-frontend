@@ -1,6 +1,10 @@
 <script setup>
 import { useJwtStore } from '~/stores/jwtStore';
 
+definePageMeta({
+    layout: "main",
+});
+
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 
@@ -90,7 +94,6 @@ const deleteRequest = (id) => {
 </script>
 
 <template>
-    <NuxtLayout name="main">
         <div class="container">
             <div class="container-add-request">
                 <h1>Request movie/series</h1>
@@ -125,7 +128,6 @@ const deleteRequest = (id) => {
                 </tbody>
             </table>
         </div>
-    </NuxtLayout>
 </template>
 
 <style scoped>

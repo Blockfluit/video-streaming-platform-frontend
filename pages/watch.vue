@@ -26,7 +26,7 @@ onBeforeUnmount(() => {
 <template>
     <div class="container">
         <div @click="navigateTo(`media?id=${media.id}`)" class="information">
-            <Icon name="bi:chevron-compact-left" size="30px" />
+            <Icon name="bi:chevron-left" class="back-icon" size="1.5rem" />
             <div class="container-vertical">
                 <span style="font-size: var(--font-size-2); text-transform: capitalize;">{{ video.name
                 }}</span>
@@ -49,15 +49,21 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin: 50px;
-
+    margin: 40px 30px;
+    padding: 5px 15px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 250px;
 }
-
+.information:hover {
+    cursor: pointer;
+}
 .container-vertical {
     display: flex;
     flex-direction: column;
 }
-
+.back-icon {
+    margin-right: 15px;
+}
 .container {
     position: fixed;
     top: 0;

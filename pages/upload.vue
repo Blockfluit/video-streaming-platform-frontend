@@ -1,6 +1,10 @@
 <script setup>
 import { useJwtStore } from '~/stores/jwtStore';
 
+definePageMeta({
+    layout: "main",
+});
+
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 
@@ -111,7 +115,6 @@ const getAllActors = () => {
 </script>
 
 <template>
-    <NuxtLayout name="main">
         <div class="container">
             <div class="container-add-media">
                 <span>Thumbnail:</span>
@@ -142,7 +145,6 @@ const getAllActors = () => {
             </div>
             <img :src="previewImageUrl" style="width: 300px;">
         </div>
-    </NuxtLayout>
 </template>
 
 <style scoped>

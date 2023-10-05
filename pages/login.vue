@@ -78,7 +78,7 @@ button {
     font-size: var(--font-size-4);
     font-weight: bolder;
     background-color: var(--text-color-1);
-    color: var(--background-color-1);
+    color: var(--background-color-100);
     border-radius: 100px;
     border-width: 0;
     width: 160px;

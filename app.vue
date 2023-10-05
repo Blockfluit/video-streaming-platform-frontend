@@ -1,9 +1,12 @@
 <template>
-    <NuxtPage />
+    <NuxtLayout>
+        <NuxtPage />
+    </NuxtLayout>
 </template>
 
-<style> html {
-     background: var(--background-gradiant-1);
+<style> 
+html {
+     background: var(--background-color-200);
      color: white;
  }
 </style>
