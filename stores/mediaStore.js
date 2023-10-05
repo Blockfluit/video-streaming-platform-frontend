@@ -52,6 +52,6 @@ export const useMediaStore = defineStore("mediaStore", {
             }).catch(e => {
                 console.log(e)
             })
-        }
+        },
     }
 })

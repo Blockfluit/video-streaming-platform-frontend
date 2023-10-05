@@ -45,7 +45,7 @@ const login = () => {
                 <input v-model="password" type="password" placeholder="password" required>
                 <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
                 </span>
-                <input type="submit" />
+                <button type="submit">Login</button>
                 <span class="got-token">Got a token? <NuxtLink to="/register">Signup</NuxtLink>
                 </span>
             </div>

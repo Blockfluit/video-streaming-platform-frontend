@@ -8,6 +8,8 @@ export const useMainStore = defineStore("mainStore", {
         allMedia: useLocalStorage("all-media", []),
         watched: [],
         searchbox: "",
+        actors: [],
+        genres: [],
     }),
     getters: {
         getAllMovies: (state) => state.allMedia.filter(media => media["type"] === "MOVIE"),
@@ -46,6 +48,42 @@ export const useMainStore = defineStore("mainStore", {
                 }
             }).then((data) => {
                 this.watched = data
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+        setGenres() {
+            fetch(this.config.public.baseURL + "/genres", {
+                method: "GET",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+            }).then((data) => {
+                this.genres = data
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+        setActors() {
+            fetch(this.config.public.baseURL + "/actors", {
+                method: "GET",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+            }).then((data) => {
+                this.actors = data
             }).catch(e => {
                 console.log(e)
             })

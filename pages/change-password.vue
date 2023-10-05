@@ -68,7 +68,7 @@ const reset = () => {
                 <header>RESET PASSWORD</header>
                 <section>A mail will be send to the email you provide with a reset token</section>
                 <input v-model="email" type="email" placeholder="email">
-                <input type="submit" />
+                <button type="submit">Send Mail</button>
             </div>
         </form>
         <form v-if="isReset" @submit.prevent="reset">
@@ -78,7 +78,7 @@ const reset = () => {
                 <input v-model="password" type="password" placeholder="new password" required>
                 <input v-model="passwordConfirm" type="password" placeholder="confirm password" required>
                 <input v-if="hideToken" v-model="token" type="text" placeholder="token" required>
-                <input type="submit" />
+                <button type="submit">Change Password</button>
             </div>
         </form>
     </div>
