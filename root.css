@@ -1,7 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Quicksand:wght@300&family=Space+Mono&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 :root {
-    --font-family-1: 'Quicksand',
+    --font-family-1: 'Poppins',
         monospace,
         sans-serif;
     --font-size-1: 40px;
@@ -9,10 +8,26 @@
     --font-size-3: 22px;
     --font-size-4: 18px;
     --font-size-5: 14px;
+
     --text-color-1: rgb(255, 253, 243);
     --text-color-2: rgb(196, 193, 185);
-    --background-gradiant-1: linear-gradient(90deg, #292929 0%, #1a1824 100%);
-    --background-color-1: rgb(0, 0, 0);
+    --text-color-3: rgb(160, 160, 160);
+
+    --primary-color-100: #f44336;
+    --primary-color-200: #f95e4a;
+    --primary-color-300: #fe755f;
+    --primary-color-400: #ff8a75;
+    --primary-color-500: #ff9f8a;
+    --primary-color-600: #ffb2a1;
+
+    --background-gradiant-1: linear-gradient(210deg, #f44336 0%, #1a1824 100%);
+    --background-color-100: #121212;
+    --background-color-200: #282828;
+    --background-color-300: #3f3f3f;
+    --background-color-400: #575757;
+    --background-color-500: #717171;
+    --background-color-600: #8b8b8b;
+
     --box-shadow-1: 0px 0px 14px 2px rgba(0, 0, 0, 0.75);
     --box-shadow-2: 0px 0px 24px 10px rgba(0, 0, 0, 0.75);
     --navbar-height: 60px;

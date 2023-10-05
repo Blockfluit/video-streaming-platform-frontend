@@ -2,6 +2,10 @@
 import { useMainStore } from "~/stores/mainStore";
 import { storeToRefs } from "pinia";
 
+definePageMeta({
+    layout: "main",
+});
+
 const mainStore = useMainStore()
 
 const { allMedia, searchbox } = storeToRefs(mainStore)
@@ -19,7 +23,6 @@ watch(allMedia, (o, n) => {
 </script>
 
 <template>
-    <NuxtLayout name="main">
         <div class="container">
             <h2>Continue Watching</h2>
             <CardRow
@@ -35,7 +38,6 @@ watch(allMedia, (o, n) => {
             <h2>Popular</h2>
             <CardRow :allMedia="mainStore.getAllSeries"></CardRow>
         </div>
-    </NuxtLayout>
 </template>
 
 <style scoped>

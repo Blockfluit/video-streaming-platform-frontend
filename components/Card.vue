@@ -52,12 +52,17 @@ const navigateToMedia = (e, media) => {
             <div v-show="showLastVideo" class="time" ref="timeElement"></div>
             <span v-show="showLastVideo" class="last-video-name">{{
                 lastVideoName }}</span>
-            <span>{{ media.name }}</span>
+            <div class="title">
+                <span class="name">{{ media.name }}</span>
+                <span v-if="media.videos > 1" class="total-videos">{{ media.videos }}</span>
+            </div>
         </div>
         <div @click="(e) => navigateToMedia(e, media)" @mouseleave="showExtraInformation = false"
             v-if="showExtraInformation" class="extra-information">
-            <Icon id="showTrailer" v-if="media.trailer !== undefined" @click="showTrailer = true;" name="iconoir:youtube"
+            <button v-if="media.trailer !== undefined" id="showTrailer" class="trailer-btn" @click="showTrailer = true;">
+                <Icon name="fluent:movies-and-tv-16-regular"
                 size="40px" class="overlay-icon" />
+            </button>
             <div class="plot">
                 <p class="plot-text">{{ media.plot }}</p>
             </div>
@@ -93,12 +98,43 @@ iframe {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-.time {
-    height: 3px;
-    background-color: aqua;
+path {
+    z-index: 1;
 }
 
+.time {
+    height: 4px;
+    background-color: var(--primary-color-100);
+    margin-bottom: 5px;
+}
+.last-video-name {
+    margin: 0px 10px;
+}
+.title {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin: 0px 10px;
+}
+.name {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-top: 5px;
+}
+.total-videos {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 0.9rem;
+    color: var(--text-color-3);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 25px;
+}
 .plot {
     flex-grow: 1;
 
@@ -119,15 +155,30 @@ iframe {
     width: 100vw;
     height: 100vh;
 }
-
+.trailer-btn {
+    background-color: transparent;
+    border: none;
+    color: white;
+    z-index: 99;
+}
+.trailer-btn:hover {
+    cursor: pointer;
+}
+.trailer-btn:hover .overlay-icon {
+    color: red;
+}
+.overlay-icon {
+    width: 25px;
+    height: 25px;
+}
 .overlay-icon:hover {
-    color: red
+    color: red;
 }
 
 .information {
     display: flex;
     flex-direction: column;
-    padding: 4px 0;
+    padding-bottom: 4px;
     text-transform: capitalize;
     font-size: var(--font-size-3);
 }
@@ -143,14 +194,14 @@ iframe {
     background-color: rgba(0, 0, 0, 0.85);
     height: 100%;
     width: 100%;
-    border-radius: 0 0 10px 10px;
+    border-radius: 14px;
 }
 
 .extra-information span,
 p,
 svg {
     white-space: nowrap;
-    padding: 5px 12px;
+    padding: 5px 10px;
 }
 
 
@@ -159,12 +210,15 @@ svg {
     position: relative;
     display: flex;
     flex-direction: column;
-    max-width: 180px;
-    min-width: 160px;
+    max-width: 250px;
+    min-width: 200px;
     margin: 6px;
+    border-radius: 15px;
+    background-color: var(--background-color-100);
 }
 
 .card img {
     width: 100%;
+    border-radius: 15px 15px 0px 0px;
 }
 </style>

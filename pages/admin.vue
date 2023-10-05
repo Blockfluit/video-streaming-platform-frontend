@@ -1,6 +1,10 @@
 <script setup>
 import { useJwtStore } from '~/stores/jwtStore';
 
+definePageMeta({
+    layout: "main",
+});
+
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 
@@ -144,7 +148,6 @@ const deleteToken = (token) => {
 </script>
 
 <template>
-    <NuxtLayout name="main">
         <div class="container">
             <div class="container-horizontal">
                 <form @submit.prevent="addUser">
@@ -219,7 +222,6 @@ const deleteToken = (token) => {
                 </table>
             </div>
         </div>
-    </NuxtLayout>
 </template>
 
 <style scoped>

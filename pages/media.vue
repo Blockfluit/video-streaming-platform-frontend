@@ -3,6 +3,10 @@ import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
 
+definePageMeta({
+    layout: "main",
+});
+
 const config = useRuntimeConfig()
 
 const mainStore = useMainStore()
@@ -37,25 +41,23 @@ const playVideo = (video) => {
 }
 
 const parseTrailer = (trailer) => {
+    let trailerId = trailer.split('watch?v=')[1]
     if (trailer === undefined) {
         return ""
     }
-    return trailer.replace('watch?v=', 'embed/') + '?autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0'
+    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0`
 }
 
 </script>
 
 <template>
-    <NuxtLayout name="main">
         <div>
             <div class="youtube-container">
                 <div class="container-information">
-                    <h1 style="text-transform: uppercase;">{{ media.name }}</h1>
-                    <span>{{ media.year }}</span>
-                    <span>{{ media.genre.join(" ") }}</span>
-                    <p>{{ media.plot }}</p>
-                    <span>Cast:</span>
-                    <span>{{ media.actors.map(actor => `${actor.firstname} ${actor.lastname}`).join() }}</span>
+                    <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
+                    <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
+                    <p style="font-size: 16px">{{ media.plot }}</p>
+                    <span>Cast: {{ media.actors.map(actor => `${actor.firstname} ${actor.lastname}`).join(', ') }}</span>
                 </div>
                 <div class="overlay"></div>
                 <iframe class="trailer" ref="iframe" :src="parseTrailer(media.trailer)" name="Trailer"
@@ -76,28 +78,37 @@ const parseTrailer = (trailer) => {
                 </ul>
             </div>
         </div>
-    </NuxtLayout>
 </template>
 
 <style scoped>
 img {
     width: 200px;
 }
-
+.info {
+    text-transform: capitalize;
+    font-size: 16px;
+    margin-bottom: 16px;
+}
 .youtube-container {
     position: relative;
     overflow: hidden;
-    width: 100%;
+    min-height: 60vh;
+    width: 100vw;
     aspect-ratio: 16/9;
     pointer-events: none;
     margin-top: -20%;
 }
+.container-information {
+    padding: 0px 30px;
+    width: 100%;
+    overflow-wrap: break-all;
+    margin-bottom: 50px;
+}
 
-.youtube-container iframe {
+.trailer {
     z-index: 10;
-    width: 300%;
+    width: 100%;
     height: 100%;
-    margin-left: -100%;
     border: 0;
 }
 
@@ -105,8 +116,7 @@ img {
     position: absolute;
     width: 100%;
     height: 100%;
-    -webkit-box-shadow: inset 0px -10vh 50px -30px #000000;
-    box-shadow: inset 0px -10vh 50px -30px #000000;
+    background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(255,255,255,0) 100%);
 }
 
 .hide-video-player {
@@ -148,5 +158,11 @@ img {
     object-fit: cover;
     width: 100%;
     height: auto;
+}
+
+@media screen and (max-width: 992px) {
+  .youtube-container {
+    aspect-ratio: 9/16;
+  }
 }
 </style>
