@@ -53,6 +53,7 @@ watch(inputValue, (o, n) => {
                 <Icon v-if="showSearch" @click="showSearchField = !showSearchField" name="fa-solid:search" size="20" />
             </div>
             <div class="menu-right">
+                <NuxtLink to="/request">REQUEST</NuxtLink>
                 <NuxtLink v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
                 <NuxtLink v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
                 <span @click="logout">LOGOUT</span>
@@ -76,11 +77,13 @@ nav {
     background-color: var(--background-color-100);
     box-shadow: var(--box-shadow-2);
 }
+
 .desktop-nav {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
+
 .mobile-menu {
     display: flex;
     align-items: center;
@@ -95,10 +98,12 @@ nav a {
     font-size: var(--font-size-3);
     font-weight: 600;
 }
+
 .hamburger-menu {
     padding: 5px;
     margin-right: 25px;
 }
+
 a:hover {
     color: var(--primary-color-100)
 }
@@ -119,10 +124,12 @@ span:hover {
 .icon {
     min-width: 50px;
 }
+
 .icon:hover {
     cursor: pointer;
     color: var(--primary-color-100)
 }
+
 .placeholder {
     position: relative;
     width: 100%;
@@ -137,33 +144,38 @@ span:hover {
     background-color: var(--background-color-100);
 }
 
-.container-dropdown a, .container-dropdown span {
+.container-dropdown a,
+.container-dropdown span {
     margin: 5px;
 }
 
 .mobile-menu {
     display: none;
 }
+
 .desktop-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
 }
-.menu-left, .menu-right {
+
+.menu-left,
+.menu-right {
     display: flex;
     align-items: center;
 }
 
 @media screen and (max-width: 992px) {
-  .mobile-menu {
-    display: flex;
-  }
-  nav{
-    justify-content: end;
-  }
-  .desktop-nav{
-    display: none;
-  }
-}
-</style>
+    .mobile-menu {
+        display: flex;
+    }
+
+    nav {
+        justify-content: end;
+    }
+
+    .desktop-nav {
+        display: none;
+    }
+}</style>

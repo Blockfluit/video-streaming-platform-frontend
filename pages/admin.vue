@@ -148,80 +148,80 @@ const deleteToken = (token) => {
 </script>
 
 <template>
-        <div class="container">
-            <div class="container-horizontal">
-                <form @submit.prevent="addUser">
-                    <div class="container-add-user">
-                        <h1>Add User</h1>
-                        <input v-model="username" placeholder="username" type="text" required>
-                        <input v-model="email" placeholder="email" type="email">
-                        <input v-model="password" placeholder="password" type="text" required>
-                        <select v-model="role">
-                            <option value="USER">User</option>
-                            <option value="CRITIC">Critic</option>
-                            <option value="ADMIN">Admin</option>
-                        </select>
-                        <input type="submit" />
-                    </div>
-                </form>
-                <table class="container-users">
-                    <thead>
-                        <tr>
-                            <td>Username</td>
-                            <td>Email</td>
-                            <td>Role</td>
-                            <td>Last Active</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for=" user  in  users ">
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>{{ user.role }}</td>
-                            <td>{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
-                            <td @click="deleteUser(user.username)">
-                                <Icon name="fa-solid:poo"></Icon>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="container-horizontal">
-                <form @submit.prevent="addToken">
-                    <div class="container-add-token">
-                        <h1>Add Token</h1>
-                        <input v-model="expiration" type="date" required>
-                        <select v-model="tokenRole" required>
-                            <option value="USER">User</option>
-                            <option value="CRITIC">Critic</option>
-                            <option value="ADMIN">Admin</option>
-                        </select>
-                        <input type="submit" />
-                    </div>
-                </form>
-                <table class="container-users">
-                    <thead>
-                        <tr>
-                            <td>Token</td>
-                            <td>Role</td>
-                            <td>Expiration</td>
-                            <td>Created By</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for=" token  in  tokens ">
-                            <td>{{ token.token }}</td>
-                            <td>{{ token.role }}</td>
-                            <td>{{ new Date(token.expiration).toLocaleString() }}</td>
-                            <td>{{ token.createdBy }}</td>
-                            <td @click="deleteToken(token.token)">
-                                <Icon name="fa-solid:poo"></Icon>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <div class="container">
+        <div class="container-horizontal">
+            <form @submit.prevent="addUser">
+                <div class="container-add-user">
+                    <h1>Add User</h1>
+                    <input v-model="username" placeholder="username" type="text" required>
+                    <input v-model="email" placeholder="email" type="email">
+                    <input v-model="password" placeholder="password" type="text" required>
+                    <select v-model="role">
+                        <option value="USER">User</option>
+                        <option value="CRITIC">Critic</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                    <button type="submit">Add User</button>
+                </div>
+            </form>
+            <table class="container-users">
+                <thead>
+                    <tr>
+                        <td>Username</td>
+                        <td>Email</td>
+                        <td>Role</td>
+                        <td>Last Active</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for=" user  in  users ">
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
+                        <td @click="deleteUser(user.username)">
+                            <Icon name="fa-solid:poo"></Icon>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+        <div class="container-horizontal">
+            <form @submit.prevent="addToken">
+                <div class="container-add-token">
+                    <h1>Add Token</h1>
+                    <input v-model="expiration" type="date" required>
+                    <select v-model="tokenRole" required>
+                        <option value="USER">User</option>
+                        <option value="CRITIC">Critic</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                    <button type="submit">Add Token</button>
+                </div>
+            </form>
+            <table class="container-users">
+                <thead>
+                    <tr>
+                        <td>Token</td>
+                        <td>Role</td>
+                        <td>Expiration</td>
+                        <td>Created By</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for=" token  in  tokens ">
+                        <td>{{ token.token }}</td>
+                        <td>{{ token.role }}</td>
+                        <td>{{ new Date(token.expiration).toLocaleString() }}</td>
+                        <td>{{ token.createdBy }}</td>
+                        <td @click="deleteToken(token.token)">
+                            <Icon name="fa-solid:poo"></Icon>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </template>
 
 <style scoped>

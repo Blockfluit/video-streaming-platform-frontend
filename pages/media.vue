@@ -16,7 +16,7 @@ const { media } = storeToRefs(mediaStore)
 const seasons = ref([])
 const iframe = ref(null)
 const selectedSeason = ref(-1)
-let urlParams;
+let urlParams
 
 watch(media, async (o, n) => {
     seasons.value = [...new Set(media.value.videos.map(video => video.season))]

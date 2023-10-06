@@ -20,8 +20,8 @@ const searchActors = ref("")
 
 const name = ref(localStorage.getItem("upload-name"))
 const type = ref(localStorage.getItem("upload-type"))
-const selectedActors = ref([])
-const selectedGenres = ref([])
+const selectedActors = ref(localStorage.getItem("upload-actors").split(",").filter(a => a !== ""))
+const selectedGenres = ref(localStorage.getItem("upload-genres").split(",").filter(a => a !== ""))
 const plot = ref(localStorage.getItem("upload-plot"))
 const trailer = ref(localStorage.getItem("upload-trailer"))
 const year = ref(localStorage.getItem("upload-year"))
@@ -29,15 +29,8 @@ const thumbnail = ref()
 
 const previewImageUrl = ref()
 
-window.onmousemove = () => {
-    console.log(selectedGenres.value)
-}
-
 onBeforeMount(() => {
     if (process.client) {
-        selectedActors.value = localStorage.getItem("upload-actors").split(",").filter(a => a !== "")
-        selectedGenres.value = localStorage.getItem("upload-genres").split(",").filter(a => a !== "")
-
         mainStore.setActors()
         mainStore.setGenres()
     }
@@ -89,13 +82,13 @@ const addMedia = () => {
         body: formData,
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            name.value = null
-            type.value = null
+            name.value = ""
+            type.value = "MOVIE"
             selectedActors.value = []
             selectedGenres.value = []
-            plot.value = null
-            trailer.value = null
-            year.value = null
+            plot.value = ""
+            trailer.value = ""
+            year.value = ""
             alert("Upload successful")
         }
     }).catch(e => {

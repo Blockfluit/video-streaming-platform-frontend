@@ -41,7 +41,7 @@ const navigateToMedia = (e, media) => {
         return
     }
     mediaStore.setMedia(media.id)
-    navigateTo(`media?id=${media.id}`)
+    navigateTo(`/media?id=${media.id}`)
 }
 </script>
 
@@ -59,9 +59,8 @@ const navigateToMedia = (e, media) => {
         </div>
         <div @click="(e) => navigateToMedia(e, media)" @mouseleave="showExtraInformation = false"
             v-if="showExtraInformation" class="extra-information">
-            <button v-if="media.trailer !== undefined" id="showTrailer" class="trailer-btn" @click="showTrailer = true;">
-                <Icon name="fluent:movies-and-tv-16-regular"
-                size="40px" class="overlay-icon" />
+            <button v-if="media.trailer !== undefined" class="trailer-btn" @click="showTrailer = true;">
+                <Icon name="fluent:movies-and-tv-16-regular" size="40px" class="overlay-icon" />
             </button>
             <div class="plot">
                 <p class="plot-text">{{ media.plot }}</p>
@@ -71,10 +70,10 @@ const navigateToMedia = (e, media) => {
             <span>unique views: {{ media.views }}</span>
             <span>rating: {{ media.rating === -1 ? "No ratings" : media.rating }}</span>
         </div>
-        <div @click="showTrailer = false; showExtraInformation = false" v-if="showTrailer" class="hide-trailer"></div>
-        <iframe v-if="showTrailer" :src="media.trailer.replace('watch?v=', 'embed/')" name="Trailer"
-            allow="autoplay; encrypted-media;"></iframe>
     </div>
+    <div @click="showTrailer = false; showExtraInformation = false" v-if="showTrailer" class="hide-trailer"></div>
+    <iframe v-if="showTrailer" :src="media.trailer.replace('watch?v=', 'embed/')" name="Trailer"
+        allow="autoplay; encrypted-media;"></iframe>
 </template>
 
 <style scoped>
@@ -98,24 +97,24 @@ iframe {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-path {
-    z-index: 1;
-}
 
 .time {
     height: 4px;
     background-color: var(--primary-color-100);
     margin-bottom: 5px;
 }
+
 .last-video-name {
     margin: 0px 10px;
 }
+
 .title {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
     margin: 0px 10px;
 }
+
 .name {
     font-weight: 700;
     white-space: nowrap;
@@ -123,6 +122,7 @@ path {
     text-overflow: ellipsis;
     padding-top: 5px;
 }
+
 .total-videos {
     display: flex;
     align-items: center;
@@ -135,6 +135,7 @@ path {
     text-overflow: ellipsis;
     min-width: 25px;
 }
+
 .plot {
     flex-grow: 1;
 
@@ -155,22 +156,27 @@ path {
     width: 100vw;
     height: 100vh;
 }
+
 .trailer-btn {
     background-color: transparent;
     border: none;
     color: white;
     z-index: 99;
 }
+
 .trailer-btn:hover {
     cursor: pointer;
 }
+
 .trailer-btn:hover .overlay-icon {
     color: red;
 }
+
 .overlay-icon {
     width: 25px;
     height: 25px;
 }
+
 .overlay-icon:hover {
     color: red;
 }
@@ -212,13 +218,11 @@ svg {
     flex-direction: column;
     max-width: 250px;
     min-width: 200px;
-    margin: 6px;
     border-radius: 15px;
     background-color: var(--background-color-100);
 }
 
 .card img {
-    width: 100%;
     border-radius: 15px 15px 0px 0px;
 }
 </style>
