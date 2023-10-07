@@ -20,8 +20,8 @@ const searchActors = ref("")
 
 const name = ref(localStorage.getItem("upload-name"))
 const type = ref(localStorage.getItem("upload-type"))
-const selectedActors = ref(localStorage.getItem("upload-actors").split(",").filter(a => a !== ""))
-const selectedGenres = ref(localStorage.getItem("upload-genres").split(",").filter(a => a !== ""))
+const selectedActors = ref(localStorage.getItem("upload-actors") ?? [])
+const selectedGenres = ref(localStorage.getItem("upload-genres") ?? [])
 const plot = ref(localStorage.getItem("upload-plot"))
 const trailer = ref(localStorage.getItem("upload-trailer"))
 const year = ref(localStorage.getItem("upload-year"))
@@ -33,6 +33,8 @@ onBeforeMount(() => {
     if (process.client) {
         mainStore.setActors()
         mainStore.setGenres()
+        selectedActors.value = ref(selectedActors.value.split(",").filter(a => a !== ""))
+        selectedGenres.value = ref(selectedActors.value.split(",").filter(a => a !== ""))
     }
 })
 

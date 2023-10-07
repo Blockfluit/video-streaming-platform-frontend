@@ -87,9 +87,9 @@ const parseTrailer = (trailer) => {
         <CardRow
             :allMedia="allMedia.filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7))">
         </CardRow> -->
-        <h2 style="margin: 20px 6px 0px 6px">10 Most Popular</h2>
+        <h2 style="margin: 30px 6px 10px 0px">10 Most Popular</h2>
         <CardRow :allMedia="allMedia.slice(0, 10)"></CardRow>
-        <h2 style="margin: 20px 6px 0px 6px">Popular</h2>
+        <h2 style="margin: 30px 6px 10px 0px">Popular</h2>
         <CardRow :allMedia="allMedia"></CardRow>
     </div>
 </template>

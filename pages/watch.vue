@@ -20,11 +20,11 @@ onMounted(() => {
         videoElement.value.currentTime = parseInt(time)
         videoElement.value.volume = localStorage.getItem("volume") ?? 0.5
 
-        window.onmousemove = () => {
-            clearTimeout(timeoutId)
-            showReturnElement.value = true
-            timeoutId = setTimeout(() => { showReturnElement.value = false }, 3000)
-        }
+        // window.onmousemove = () => {
+        //     clearTimeout(timeoutId)
+        //     showReturnElement.value = true
+        //     timeoutId = setTimeout(() => { showReturnElement.value = false }, 3000)
+        // }
     }
 })
 
@@ -95,8 +95,6 @@ const playNextVideo = () => {
     align-items: center;
     margin: 40px 30px;
     padding: 5px 15px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 250px;
 }
 
 .container-return:hover {
@@ -128,5 +126,11 @@ const playNextVideo = () => {
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+@media screen and (max-width: 992px) {
+    .container-vertical span {
+        font-size: 10px;
+    }
 }
 </style>

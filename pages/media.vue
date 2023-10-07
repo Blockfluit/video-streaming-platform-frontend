@@ -15,8 +15,15 @@ const mediaStore = useMediaStore()
 const { media } = storeToRefs(mediaStore)
 const seasons = ref([])
 const iframe = ref(null)
-const selectedSeason = ref(-1)
+const selectedSeason = ref(1)
+const showDropdown = ref(false)
+const episodeList = ref()
 let urlParams
+
+function scrollHorizontal(e) {
+    e.preventDefault();
+    episodeList.value.scrollLeft += e.deltaY;
+}
 
 watch(media, async (o, n) => {
     seasons.value = [...new Set(media.value.videos.map(video => video.season))]
@@ -48,6 +55,14 @@ const parseTrailer = (trailer) => {
     return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0`
 }
 
+const calcTimePercentage = (video) => {
+    const currentWatched = mainStore.watched.find(entry => entry.videoId === video.id)
+    if(currentWatched !== undefined){
+        return video.duration / currentWatched.timestamp * 100
+    }
+    return 100
+}
+
 </script>
 
 <template>
@@ -63,36 +78,145 @@ const parseTrailer = (trailer) => {
             <iframe ref="iframe" :src="parseTrailer(media.trailer)" name="Trailer"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
-        <div>
-            <div v-if="seasons.includes(-1)" v-for="video in media.videos.sort((a, b) => a.index - b.index)">
-                <span @click="playVideo(video)">{{ video.name }}<img
-                        :src="`${config.public.baseURL}/stream/snapshot/${video.id}`"></span>
+
+        <div v-if="!seasons.includes(-1)" class="season-btn" >
+            <span @click="showDropdown = !showDropdown" style="padding-left: 6px">Season {{ selectedSeason }} <Icon name="mdi:chevron-down" style="min-width: 20px;" /></span>
+            <ul v-if="showDropdown" class="season-dropdown">
+                <li v-for="season in seasons.sort((a, b) => a - b)" @click="selectedSeason = season; showDropdown = false" class="season">Season {{ season }}</li>
+            </ul>
+        </div>
+
+        <div class="container-episodes">
+            <div v-if="seasons.includes(-1)" class="wrapper">
+                <div class="episode-card" v-for="video in media.videos.sort((a, b) => a.index - b.index)">
+                    <div class="darken"></div>
+                    <span @click="playVideo(video)">{{ video.name }}</span>
+                    <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
+                </div>
             </div>
-            <div v-if="!seasons.includes(-1)" v-for="season in seasons.sort((a, b) => a - b)">
-                <span @click="selectedSeason = season">Season {{ season }}</span>
-                <ul v-if="selectedSeason === season">
-                    <li
-                        v-for="video in  media.videos.filter((video => video.season === season)).sort((a, b) => a.index - b.index) ">
-                        <span @click="playVideo(video)">{{
-                            video.name }}<img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`"></span>
-                    </li>
-                </ul>
-            </div>
+            <ul @wheel="scrollHorizontal" ref="episodeList" class="season-content" >
+                <li @click="playVideo(video)" class="episode-card"
+                    v-for="video in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index) ">
+                    <div class="darken"></div>
+                    <span >{{ video.name }}</span>
+                    <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
+                    <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
+                </li>
+            </ul>
         </div>
     </div>
 </template>
 
 <style scoped>
+::-webkit-scrollbar {
+    height: 5px !important;
+    width: 5px !important;
+}
+.time {
+    height: 4px;
+    background-color: var(--primary-color-100);
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+}
+
 img {
     width: 200px;
 }
 
+.season-dropdown {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
+  margin: 0;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: scroll;
+  box-shadow: 0px 0px 0px 1px white;
+  list-style: none;
+  z-index: 99;
+  background-color: var(--background-color-200);
+}
+.season-dropdown::-webkit-scrollbar {
+    display: none;
+}
+.season-dropdown li {
+    border-bottom: 1px solid white;
+    padding: 5px;
+}
+.season-dropdown li:last-child {
+    border: none;
+}
+.season-btn:hover {
+    cursor: pointer;
+}
+
+.season-btn {
+    background-color: transparent;
+    color: white;
+    font-family: "Poppins";
+    font-size: 1.2rem;
+    width: fit-content;
+    box-shadow: 0px 0px 0px 1px white;
+    border-radius: 3px;
+    margin: 20px 30px;
+    position: relative;
+}
+.season-content {
+  display: flex;
+  overflow-x: scroll;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+.darken {
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
+}
+.episode-card {
+    position: relative;
+    min-width: 250px;
+    height: 200px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    list-style: none;
+    overflow: hidden;
+    border-radius: 15px;
+}
+.episode-card:hover {
+    cursor: pointer;
+}
+
+.episode-card img {
+    aspect-ratio: 16/9;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.episode-card span {
+    z-index: 10;
+    position: absolute;
+    padding: 4px 8px;
+}
 .info {
     text-transform: capitalize;
     font-size: 16px;
     margin-bottom: 16px;
 }
-
+.container-episodes {
+    height: 35vh;
+    margin: 0px 30px;
+    overflow:hidden;
+}
+.wrapper {
+    display: flex;
+    width: 100%;
+}
 .container-trailer {
     position: relative;
     overflow: hidden;
