@@ -61,7 +61,7 @@ const playNextVideo = () => {
         <div v-if="showReturnElement" @click="navigateTo(`/media?id=${media.id}`)" class="container-return">
             <Icon name="bi:chevron-left" class="back-icon" size="1.5rem" />
             <div class="container-vertical">
-                <span style="font-size: var(--font-size-2); text-transform: capitalize;">{{ video.name
+                <span class="title">{{ video.name
                 }}</span>
                 <span v-if="video.season !== -1" style="font-size: var(--font-size-4);">Season
                     {{ video.season }}</span>
@@ -96,7 +96,10 @@ const playNextVideo = () => {
     margin: 40px 30px;
     padding: 5px 15px;
 }
-
+.title {
+    font-size: var(--font-size-2); 
+    text-transform: capitalize;
+}
 .container-return:hover {
     cursor: pointer;
 }
@@ -130,7 +133,8 @@ const playNextVideo = () => {
 
 @media screen and (max-width: 992px) {
     .container-vertical span {
-        font-size: 10px;
+        font-size: var(--font-size-4); 
+        text-transform: capitalize;
     }
 }
 </style>
