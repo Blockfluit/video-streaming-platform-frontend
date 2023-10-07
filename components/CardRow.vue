@@ -43,7 +43,7 @@ const previousCards = () => {
 
 <template>
     <div @mouseover="showButtons = true" @mouseleave="showButtons = false" class="container-cards">
-        <div v-if="showButtons" @click="previousCards()" class="button" style="left: 0;">
+        <div v-if="showButtons" @click="previousCards()" class="button left" style="left: 0;">
             <Icon name="fa-solid:chevron-left" />
         </div>
         <div ref="cardsElement" class="carousel">
@@ -51,7 +51,7 @@ const previousCards = () => {
                 <Card :media="media" :showLastVideo="showLastVideo ?? false" />
             </div>
         </div>
-        <div v-if="showButtons" @click="nextCards(1)" class="button" style="right: 0;">
+        <div v-if="showButtons" @click="nextCards(1)" class="button right" style="right: 0;">
             <Icon name="fa-solid:chevron-right" />
         </div>
     </div>
@@ -59,9 +59,11 @@ const previousCards = () => {
 
 <style scoped>
 .media-card {
-    padding: 5px;
+    margin-right: 10px;
 }
-
+.media-card:last-child {
+    margin-right: 0px;
+}
 .container-cards {
     position: relative;
 }
@@ -71,7 +73,11 @@ const previousCards = () => {
     position: relative;
     display: flex;
     flex-direction: row;
-    overflow-y: hidden;
+    overflow: hidden;
+}
+.carousel::-webkit-scrollbar {
+    height: 0;
+    width: 0;
 }
 
 .button {
@@ -83,6 +89,41 @@ const previousCards = () => {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    
+}
+.button:hover {
+    cursor: pointer;
+}
+
+.left {
+    border-radius: 14px 0px 0px 14px;
+}
+
+.right {
+    border-radius: 0px 14px 14px 0px;
+}
+
+@media screen  and (max-width: 992px){
+    .carousel {
+        overflow-x: scroll;
+    }
+    .carousel::-webkit-scrollbar {
+        padding-top: 5px;
+        height: 5px;
+        width: 5px;
+    }
+    .media-card {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    .left {
+        display: none;
+    }
+
+    .right {
+        display: none;
+    }
 }
 </style>

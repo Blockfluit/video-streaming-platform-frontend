@@ -68,22 +68,22 @@ watch(searchbox, (o, n) => {
             </div>
             <div v-if="!showFilteredMedia" class="container-cards">
                 <h1>{{ searchbox }}</h1>
-                <h2>Continue Watching</h2>
+                <h2 style="margin: 30px 6px 10px 0px">Continue Watching</h2>
                 <CardRow
                     :allMedia="allMovies.filter(media => mainStore.watched.map(entry => entry.mediaId).includes(media.id))"
                     :showLastVideo=true>
                 </CardRow>
-                <h2>Recently uploaded</h2>
+                <h2 style="margin: 30px 6px 10px 0px">Recently uploaded</h2>
                 <CardRow
                     :allMedia="allMovies.filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7))">
                 </CardRow>
-                <h2>Most Popular</h2>
+                <h2 style="margin: 30px 6px 10px 0px">Most Popular</h2>
                 <CardRow :allMedia="allMovies"></CardRow>
-                <h2>Popular</h2>
+                <h2 style="margin: 30px 6px 10px 0px">Popular</h2>
                 <CardRow :allMedia="allMovies"></CardRow>
             </div>
             <div v-if="showFilteredMedia" class="container-cards">
-                <h2>Filtered</h2>
+                <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>
                 <div class="container-filtered-cards">
                     <Card v-for="(media) of filteredMedia" :media="media" />
                 </div>
@@ -95,7 +95,9 @@ watch(searchbox, (o, n) => {
 h2 {
     font-weight: 600;
 }
-
+.filter-card {
+    margin-right: 10px !important;
+}
 .container {
     padding: 2vh 2vw;
 }

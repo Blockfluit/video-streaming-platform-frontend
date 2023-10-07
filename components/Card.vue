@@ -162,6 +162,7 @@ iframe {
     border: none;
     color: white;
     z-index: 99;
+    width: 100%;
 }
 
 .trailer-btn:hover {
@@ -173,8 +174,8 @@ iframe {
 }
 
 .overlay-icon {
-    width: 25px;
-    height: 25px;
+    min-width: 25px;
+    min-height: 25px;
 }
 
 .overlay-icon:hover {
@@ -220,6 +221,10 @@ svg {
     min-width: 200px;
     border-radius: 15px;
     background-color: var(--background-color-100);
+}
+
+.card:hover {
+    cursor: pointer;
 }
 
 .card img {
