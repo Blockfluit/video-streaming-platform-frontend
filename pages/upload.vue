@@ -112,8 +112,8 @@ const deleteActor = (id) => {
             alert("Upload successfully deleted actor")
         }
     }).catch(e => {
-        alert(e)
         console.log(e)
+        alert(e)
     })
 }
 

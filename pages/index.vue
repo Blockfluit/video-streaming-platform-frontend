@@ -10,10 +10,12 @@ const { allMedia, watched } = storeToRefs(mainStore)
 
 let timeoutId
 
-const recentMedia = ref([...allMedia.value].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
+// Sets 5 most recent media + all media from past 7 days
+const recentMedia = ref(allMedia.value.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
+recentMedia.value.push(...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date()).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)))
+
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
-
 
 definePageMeta({
     layout: "main",

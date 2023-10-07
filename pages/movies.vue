@@ -61,7 +61,7 @@ watch(searchbox, (o, n) => {
                 :showLastVideo=true>
             </CardRow>
             <h2 style="margin: 30px 6px 10px 0px">Recently uploaded</h2>
-            <CardRow :allMedia="allMovies.filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7))
+            <CardRow :allMedia="allMovies.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
                 .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))">
             </CardRow>
             <h2 style="margin: 30px 6px 10px 0px">Most Popular</h2>
