@@ -8,45 +8,33 @@ definePageMeta({
 
 const mainStore = useMainStore()
 
-const { allMedia, searchbox } = storeToRefs(mainStore)
+const { allMedia, searchbox, genres } = storeToRefs(mainStore)
 
 const allMovies = ref([])
-const showFilteredMedia = ref(false)
 const filteredMedia = ref([])
-const activeFilters = ref(new Set())
+const filters = ref([])
 
-const filters = []
-
-const toggleFilter = (filter, id) => {
-    activeFilters.value.has(id) ?
-        activeFilters.value.delete(id) :
-        activeFilters.value.add(id)
-
-
-    const index = filters.findIndex(entry => entry.toString() === filter.toString())
-
-    index === -1 ?
-        filters.push(filter) :
-        filters.splice(index, 1)
-
-    filterChain()
-}
-
-const filterChain = () => {
+const doFilter = (genre) => {
     filteredMedia.value = allMovies.value
 
-    for (const filter of filters) {
-        filteredMedia.value = filter(filteredMedia.value)
+    if (genre !== undefined) {
+        const index = filters.value.findIndex(entry => entry === genre)
+
+        index === -1 ?
+            filters.value.push(genre) :
+            filters.value.splice(index, 1)
     }
 
-    filteredMedia.value = filteredMedia.value.filter(media => media.name.includes(searchbox.value))
-
-    showFilteredMedia.value = (filters.length !== 0 || searchbox.value !== "")
+    for (const entry of filters.value) {
+        filteredMedia.value = filteredMedia.value.filter(media => media.genre.includes(entry))
+        // filter searchbox
+    }
 }
 
 onBeforeMount(() => {
     mainStore.setAllMedia()
     mainStore.setWatched()
+    mainStore.setGenres()
 })
 
 watch(allMedia, (o, n) => {
@@ -54,50 +42,47 @@ watch(allMedia, (o, n) => {
 })
 
 watch(searchbox, (o, n) => {
-    filterChain()
+    doFilter()
 })
 </script>
 
 <template>
-        <div class="container">
-            <div class="container-filter">
-                <span class="filter" :style="activeFilters.has(1) ? 'color: var(--primary-color-100)' : 'color: white'"
-                    @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('comedy')), 1)">Comedy</span>
-                <span class="filter" :style="activeFilters.has(2) ? 'color: var(--primary-color-100)' : 'color: white'"
-                    @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('action')), 2)">Action</span>
-            </div>
-            <div v-if="!showFilteredMedia" class="container-cards">
-                <h1>{{ searchbox }}</h1>
-                <h2 style="margin: 30px 6px 10px 0px">Continue Watching</h2>
-                <CardRow
-                    :allMedia="allMovies.filter(media => mainStore.watched.map(entry => entry.mediaId).includes(media.id))"
-                    :showLastVideo=true>
-                </CardRow>
-                <h2 style="margin: 30px 6px 10px 0px">Recently uploaded</h2>
-                <CardRow
-                    :allMedia="allMovies.filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7))">
-                </CardRow>
-                <h2 style="margin: 30px 6px 10px 0px">Most Popular</h2>
-                <CardRow :allMedia="allMovies"></CardRow>
-                <h2 style="margin: 30px 6px 10px 0px">Popular</h2>
-                <CardRow :allMedia="allMovies"></CardRow>
-            </div>
-            <div v-if="showFilteredMedia" class="container-cards">
-                <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>
-                <div class="container-filtered-cards">
-                    <Card v-for="(media) of filteredMedia" :media="media" />
-                </div>
+    <div class="container">
+        <div class="container-filter">
+            <span v-for="(genre) in genres" class="filter"
+                :style="filters.includes(genre.name) ? 'color: var(--primary-color-100)' : 'color: white'"
+                @click="doFilter(genre.name)">{{
+                    genre.name }}</span>
+        </div>
+        <div v-if="filters.length === 0 && searchbox === ''" class="container-cards">
+            <h1>{{ searchbox }}</h1>
+            <h2 style="margin: 30px 6px 10px 0px">Continue Watching</h2>
+            <CardRow :allMedia="allMovies.filter(media => mainStore.watched.map(entry => entry.mediaId).includes(media.id))"
+                :showLastVideo=true>
+            </CardRow>
+            <h2 style="margin: 30px 6px 10px 0px">Recently uploaded</h2>
+            <CardRow
+                :allMedia="allMovies.filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7))">
+            </CardRow>
+            <h2 style="margin: 30px 6px 10px 0px">Most Popular</h2>
+            <CardRow :allMedia="allMovies"></CardRow>
+            <h2 style="margin: 30px 6px 10px 0px">Popular</h2>
+            <CardRow :allMedia="allMovies"></CardRow>
+        </div>
+        <div v-if="filters.length > 0" class="container-cards">
+            <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>
+            <div class="container-filtered-cards">
+                <Card v-for="(media) of filteredMedia" :media="media" />
             </div>
         </div>
+    </div>
 </template>
 
 <style scoped>
 h2 {
     font-weight: 600;
 }
-.filter-card {
-    margin-right: 10px !important;
-}
+
 .container {
     padding: 2vh 2vw;
 }
@@ -107,7 +92,6 @@ h2 {
     display: flex;
     flex-direction: row;
     justify-content: center;
-
 }
 
 .container-filter span {
@@ -117,6 +101,16 @@ h2 {
 .container-filtered-cards {
     display: flex;
     flex-direction: row;
+}
+
+.filter-card {
+    margin-right: 10px !important;
+}
+
+.filter {
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .filter:hover {

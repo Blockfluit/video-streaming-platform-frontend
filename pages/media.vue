@@ -13,8 +13,11 @@ const mainStore = useMainStore()
 const mediaStore = useMediaStore()
 
 const { media } = storeToRefs(mediaStore)
+const { watched } = storeToRefs(mainStore)
+
 const seasons = ref([])
 const iframe = ref(null)
+const latestVideo = ref()
 const selectedSeason = ref(1)
 const showDropdown = ref(false)
 const episodeList = ref()
@@ -25,8 +28,16 @@ function scrollHorizontal(e) {
     episodeList.value.scrollLeft += e.deltaY;
 }
 
-watch(media, async (o, n) => {
+watch(media, (o, n) => {
     seasons.value = [...new Set(media.value.videos.map(video => video.season))]
+
+})
+
+watch(watched, (o, n) => {
+    latestVideo.value = watched.value.filter(entry => entry.mediaId === media.value.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+    if (latestVideo.value !== undefined) {
+        selectedSeason.value = latestVideo.value.season
+    }
 })
 
 onMounted(() => {
@@ -43,8 +54,8 @@ onMounted(() => {
 const playVideo = (video) => {
     mediaStore.video = video
     mediaStore.setMedia(media.value.id)
-    const watched = mainStore.watched.find(entry => entry.videoId === video.id)
-    navigateTo(`/watch${watched !== undefined ? "?time=" + watched.timestamp : ""}`)
+    const currentWatched = watched.value.find(entry => entry.videoId === video.id)
+    navigateTo(`/watch${currentWatched !== undefined ? "?time=" + currentWatched.timestamp : ""}`)
 }
 
 const parseTrailer = (trailer) => {
@@ -57,10 +68,11 @@ const parseTrailer = (trailer) => {
 
 const calcTimePercentage = (video) => {
     const currentWatched = mainStore.watched.find(entry => entry.videoId === video.id)
-    if(currentWatched !== undefined){
-        return video.duration / currentWatched.timestamp * 100
+
+    if (currentWatched !== undefined) {
+        return currentWatched.timestamp / video.duration * 100
     }
-    return 100
+    return 0
 }
 
 </script>
@@ -79,10 +91,13 @@ const calcTimePercentage = (video) => {
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
 
-        <div v-if="!seasons.includes(-1)" class="season-btn" >
-            <span @click="showDropdown = !showDropdown" style="padding-left: 6px">Season {{ selectedSeason }} <Icon name="mdi:chevron-down" style="min-width: 20px;" /></span>
+        <div v-if="!seasons.includes(-1)" class="season-btn">
+            <span @click="showDropdown = !showDropdown" style="padding-left: 6px">Season {{ selectedSeason }}
+                <Icon name="mdi:chevron-down" style="min-width: 20px;" />
+            </span>
             <ul v-if="showDropdown" class="season-dropdown">
-                <li v-for="season in seasons.sort((a, b) => a - b)" @click="selectedSeason = season; showDropdown = false" class="season">Season {{ season }}</li>
+                <li v-for="season in seasons.sort((a, b) => a - b)" @click="selectedSeason = season; showDropdown = false"
+                    class="season">Season {{ season }}</li>
             </ul>
         </div>
 
@@ -94,11 +109,12 @@ const calcTimePercentage = (video) => {
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
                 </div>
             </div>
-            <ul @wheel="scrollHorizontal" ref="episodeList" class="season-content" >
+            <ul @wheel="scrollHorizontal" ref="episodeList" class="season-content">
                 <li @click="playVideo(video)" class="episode-card"
-                    v-for="video in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index) ">
+                    v-for="(video) in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
+                    :id="video.id">
                     <div class="darken"></div>
-                    <span >{{ video.name }}</span>
+                    <span>{{ video.name }}</span>
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
                     <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
                 </li>
@@ -112,11 +128,12 @@ const calcTimePercentage = (video) => {
     height: 5px !important;
     width: 5px !important;
 }
+
 .time {
     height: 4px;
     background-color: var(--primary-color-100);
     width: 100%;
-    position:absolute;
+    position: absolute;
     bottom: 0;
 }
 
@@ -125,29 +142,33 @@ img {
 }
 
 .season-dropdown {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  padding: 0px;
-  margin: 0;
-  width: 100%;
-  max-height: 300px;
-  overflow-y: scroll;
-  box-shadow: 0px 0px 0px 1px white;
-  list-style: none;
-  z-index: 99;
-  background-color: var(--background-color-200);
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    padding: 0px;
+    margin: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: scroll;
+    box-shadow: 0px 0px 0px 1px white;
+    list-style: none;
+    z-index: 99;
+    background-color: var(--background-color-200);
 }
+
 .season-dropdown::-webkit-scrollbar {
     display: none;
 }
+
 .season-dropdown li {
     border-bottom: 1px solid white;
     padding: 5px;
 }
+
 .season-dropdown li:last-child {
     border: none;
 }
+
 .season-btn:hover {
     cursor: pointer;
 }
@@ -163,13 +184,15 @@ img {
     margin: 20px 30px;
     position: relative;
 }
+
 .season-content {
-  display: flex;
-  overflow-x: scroll;
-  padding: 0;
-  margin: 0;
-  width: 100%;
+    display: flex;
+    overflow-x: scroll;
+    padding: 0;
+    margin: 0;
+    width: 100%;
 }
+
 .darken {
     z-index: 1;
     position: absolute;
@@ -177,6 +200,7 @@ img {
     height: 100%;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
 }
+
 .episode-card {
     position: relative;
     min-width: 250px;
@@ -187,6 +211,7 @@ img {
     overflow: hidden;
     border-radius: 15px;
 }
+
 .episode-card:hover {
     cursor: pointer;
 }
@@ -203,20 +228,24 @@ img {
     position: absolute;
     padding: 4px 8px;
 }
+
 .info {
     text-transform: capitalize;
     font-size: 16px;
     margin-bottom: 16px;
 }
+
 .container-episodes {
     height: 35vh;
     margin: 0px 30px;
-    overflow:hidden;
+    overflow: hidden;
 }
+
 .wrapper {
     display: flex;
     width: 100%;
 }
+
 .container-trailer {
     position: relative;
     overflow: hidden;
