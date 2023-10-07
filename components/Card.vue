@@ -138,7 +138,6 @@ iframe {
 
 .plot {
     flex-grow: 1;
-
     overflow: hidden;
 }
 
@@ -201,7 +200,7 @@ iframe {
     background-color: rgba(0, 0, 0, 0.85);
     height: 100%;
     width: 100%;
-    border-radius: 14px;
+    border-radius: var(--border-radius-1);
 }
 
 .extra-information span,
@@ -228,6 +227,6 @@ svg {
 }
 
 .card img {
-    border-radius: 15px 15px 0px 0px;
+    border-radius: var(--border-radius-1) var(--border-radius-1) 0px 0px;
 }
 </style>

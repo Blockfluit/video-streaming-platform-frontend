@@ -43,7 +43,7 @@ const nextTrailerTimeout = (index) => {
         trailerMedia.value = recentMedia.value[trailerMediaId.value]
 
         nextTrailerTimeout()
-    }, 20000)
+    }, 25000)
 }
 
 const navigateToMedia = () => {
@@ -79,17 +79,17 @@ const parseTrailer = (trailer) => {
             <iframe ref="iframe" :src="parseTrailer(trailerMedia.trailer)" name="Trailer"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
-        <!-- <h2 style="margin: 20px 6px 0px 6px">Continue Watching</h2>
+        <h2 class="carousel-title">Continue Watching</h2>
         <CardRow :allMedia="allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))"
             :showLastVideo=true>
+        </CardRow>
+        <!-- <h2 class="carousel-title">Recently uploaded</h2> -->
+        <!-- <CardRow
+            :allMedia="allMedia.filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))">
         </CardRow> -->
-        <!-- <h2 style="margin: 20px 6px 0px 6px">Recently uploaded</h2>
-        <CardRow
-            :allMedia="allMedia.filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7))">
-        </CardRow> -->
-        <h2 style="margin: 30px 6px 10px 0px">10 Most Popular</h2>
-        <CardRow :allMedia="allMedia.slice(0, 10)"></CardRow>
-        <h2 style="margin: 30px 6px 10px 0px">Popular</h2>
+        <h2 class="carousel-title">10 Most Popular</h2>
+        <CardRow :allMedia="allMedia.sort((a, b) => b.views - a.views).slice(0, 10)"></CardRow>
+        <h2 class="carousel-title">Popular</h2>
         <CardRow :allMedia="allMedia"></CardRow>
     </div>
 </template>
@@ -98,6 +98,10 @@ const parseTrailer = (trailer) => {
 h2 {
     margin: 0;
     font-weight: 600;
+}
+
+.carousel-title {
+    margin: 40px 0 10px 6px
 }
 
 .container {
@@ -109,7 +113,7 @@ h2 {
     overflow: hidden;
     height: 60vh;
     width: 100%;
-    border-radius: 15px;
+    border-radius: var(--border-radius-1);
 }
 
 .container-information {
@@ -156,7 +160,7 @@ iframe {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(255, 255, 255, 0) 100%);
 }
 
 @media screen and (max-width: 1100px) {
