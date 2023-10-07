@@ -33,8 +33,8 @@ onBeforeMount(() => {
     if (process.client) {
         mainStore.setActors()
         mainStore.setGenres()
-        selectedActors.value = ref(selectedActors.value.split(",").filter(a => a !== ""))
-        selectedGenres.value = ref(selectedActors.value.split(",").filter(a => a !== ""))
+        selectedActors.value = selectedActors.value.split(",").filter(a => a !== "")
+        selectedGenres.value = selectedGenres.value.split(",").filter(a => a !== "")
     }
 })
 
