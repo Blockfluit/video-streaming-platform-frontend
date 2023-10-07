@@ -62,9 +62,9 @@ watch(searchbox, (o, n) => {
         <div class="container">
             <div class="container-filter">
                 <span class="filter" :style="activeFilters.has(1) ? 'color: var(--primary-color-100)' : 'color: white'"
-                    @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('comedy')), 1)">comedy</span>
+                    @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('comedy')), 1)">Comedy</span>
                 <span class="filter" :style="activeFilters.has(2) ? 'color: var(--primary-color-100)' : 'color: white'"
-                    @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('action')), 2)">action</span>
+                    @click="toggleFilter((entries) => entries.filter(entry => entry.genre.includes('action')), 2)">Action</span>
             </div>
             <div v-if="!showFilteredMedia" class="container-cards">
                 <h1>{{ searchbox }}</h1>

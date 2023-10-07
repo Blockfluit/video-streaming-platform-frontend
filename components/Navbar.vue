@@ -26,21 +26,21 @@ watch(inputValue, (o, n) => {
 
 <template>
     <nav>
-        <div v-if="showDropdown" class="container-dropdown icon">
-            <NuxtLink to="/">HOME</NuxtLink>
-            <NuxtLink to="/movies">MOVIES</NuxtLink>
-            <NuxtLink to="/series">SERIES</NuxtLink>
-            <NuxtLink to="/request">REQUEST</NuxtLink>
+        <div v-if="showDropdown" class="container-dropdown">
+            <NuxtLink @click="showDropdown = false" to="/">HOME</NuxtLink>
+            <NuxtLink @click="showDropdown = false" to="/movies">MOVIES</NuxtLink>
+            <NuxtLink @click="showDropdown = false" to="/series">SERIES</NuxtLink>
+            <NuxtLink @click="showDropdown = false" to="/request">REQUEST</NuxtLink>
             <!-- <NuxtLink to="/contact">CONTACT</NuxtLink> -->
-            <NuxtLink v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
-            <NuxtLink v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
-            <span @click="logout">LOGOUT</span>
+            <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
+            <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
+            <span @click="logout(); showDropdown = false">LOGOUT</span>
         </div>
         <div class="mobile-menu">
             <NuxtLink to="/">
-                <Icon name="fa-solid:pizza-slice" class="icon" />
+                <Icon name="fa-solid:pizza-slice" class="home-icon" />
             </NuxtLink>
-            <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="fa-solid:align-justify" size="30" />
+            <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="charm:menu-hamburger" size="2.5rem" />
         </div>
         <div class="desktop-nav">
             <div class="menu-left">
@@ -74,7 +74,8 @@ nav {
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: var(--background-color-100);
+    background-color: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(5px);
     box-shadow: var(--box-shadow-2);
 }
 
@@ -124,8 +125,17 @@ span:hover {
 .icon {
     min-width: 50px;
 }
+.home-icon {
+    min-width: 50px;
+    color: var(--primary-color-300)
+}
 
 .icon:hover {
+    cursor: pointer;
+    color: var(--primary-color-100)
+}
+
+.home-icon:hover {
     cursor: pointer;
     color: var(--primary-color-100)
 }
@@ -141,7 +151,8 @@ span:hover {
     flex-direction: column;
     top: var(--navbar-height);
     position: fixed;
-    background-color: var(--background-color-100);
+    background-color: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(5px);
 }
 
 .container-dropdown a,

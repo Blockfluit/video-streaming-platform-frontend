@@ -66,7 +66,7 @@ const calcTimePercentage = (video) => {
 </script>
 
 <template>
-    <div>
+    <div style="overflow-x: hidden;">
         <div class="container-trailer">
             <div class="container-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
