@@ -17,6 +17,8 @@ recentMedia.value.push(...allMedia.value.filter(media => !recentMedia.value.incl
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 
+const iframe = ref()
+
 definePageMeta({
     layout: "main",
 });
@@ -27,25 +29,27 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-    nextTrailerTimeout()
+    setTrailerTimeout(0)
 })
 
-const nextTrailerTimeout = (index) => {
+const setTrailerTimeout = (index) => {
     clearTimeout(timeoutId)
-
+    nextTrailer(index)
     timeoutId = setTimeout(() => {
-        index !== undefined ? trailerMediaId.value = index : trailerMediaId.value++
-
-        if (trailerMediaId.value > recentMedia.value.length - 1) {
-            trailerMediaId.value = 0
-        }
-        if (trailerMediaId.value < 0) {
-            trailerMediaId.value = recentMedia.value.length - 1
-        }
-        trailerMedia.value = recentMedia.value[trailerMediaId.value]
-
-        nextTrailerTimeout()
+        setTrailerTimeout()
     }, 25000)
+}
+
+const nextTrailer = (index) => {
+    index !== undefined ? trailerMediaId.value = index : trailerMediaId.value++
+
+    if (trailerMediaId.value > recentMedia.value.length - 1) {
+        trailerMediaId.value = 0
+    }
+    if (trailerMediaId.value < 0) {
+        trailerMediaId.value = recentMedia.value.length - 1
+    }
+    trailerMedia.value = recentMedia.value[trailerMediaId.value]
 }
 
 const navigateToMedia = () => {
@@ -72,7 +76,7 @@ const parseTrailer = (trailer) => {
                 </div>
                 <div class="trailer-bullets">
                     <template v-for="(media, index) in recentMedia.length">
-                        <span @click="nextTrailerTimeout(index)" style="cursor: pointer;"
+                        <span @click="setTrailerTimeout(index)" style="cursor: pointer;"
                             :style="index === trailerMediaId ? 'color: var(--primary-color-100)' : ''">•</span>
                     </template>
                 </div>

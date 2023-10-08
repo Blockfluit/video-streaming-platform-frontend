@@ -19,16 +19,6 @@ onBeforeMount(() => {
 })
 
 const addRequest = () => {
-    const errors = []
-
-    if (name.value === "") errors.push("Name missing")
-    if (year.value === "") errors.push("Year missing")
-
-    if (errors.length) {
-        alert(errors)
-        return
-    }
-
     fetch(config.public.baseURL + "/request", {
         method: "POST",
         headers: {
@@ -47,8 +37,8 @@ const addRequest = () => {
             alert("Request Successful")
         }
     }).catch(e => {
-        alert(e)
         console.log(e)
+        alert(e)
     })
 }
 
@@ -67,8 +57,8 @@ const getRequests = () => {
     }).then((data) => {
         allRequests.value = data
     }).catch(e => {
-        alert(e)
         console.log(e)
+        alert(e)
     })
 }
 
@@ -87,8 +77,8 @@ const deleteRequest = (id) => {
             getRequests()
         }
     }).catch(e => {
-        alert(e)
         console.log(e)
+        alert(e)
     })
 }
 </script>
@@ -99,7 +89,7 @@ const deleteRequest = (id) => {
             <div class="container-add-request">
                 <h1>Request movie/series</h1>
                 <input v-model="name" placeholder="Name" type="text" required>
-                <input v-model="year" placeholder="Release year" type="email" required>
+                <input v-model="year" placeholder="Release year" type="number" required>
                 <input v-model="comment" placeholder="Comment" type="text">
                 <button type="submit">Add Request</button>
             </div>

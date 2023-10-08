@@ -8,8 +8,8 @@ export const useMainStore = defineStore("mainStore", {
         allMedia: useLocalStorage("all-media", []),
         watched: [],
         searchbox: "",
-        actors: [],
-        genres: [],
+        allActors: [],
+        allGenres: [],
     }),
     getters: {
         getAllMovies: (state) => state.allMedia.filter(media => media["type"] === "MOVIE"),
@@ -52,7 +52,7 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        setGenres() {
+        setAllGenres() {
             fetch(this.config.public.baseURL + "/genres", {
                 method: "GET",
                 headers: {
@@ -65,12 +65,12 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.genres = data
+                this.allGenres = data
             }).catch(e => {
                 console.log(e)
             })
         },
-        setActors() {
+        setAllActors() {
             fetch(this.config.public.baseURL + "/actors", {
                 method: "GET",
                 headers: {
@@ -83,7 +83,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.actors = data
+                this.allActors = data
             }).catch(e => {
                 console.log(e)
             })

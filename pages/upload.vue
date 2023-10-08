@@ -1,6 +1,7 @@
 <script setup>
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMainStore } from '~/stores/mainStore';
+import { useUploadStore } from '~/stores/uploadStore';
 import { storeToRefs } from 'pinia';
 
 definePageMeta({
@@ -9,47 +10,27 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
+const uploadStore = useUploadStore()
 const jwtStore = useJwtStore()
 
-const { genres, actors } = storeToRefs(mainStore)
+const { allGenres, allActors } = storeToRefs(mainStore)
+const { name, type, plot, trailer, year, genres, actors } = storeToRefs(uploadStore)
 
 const acceptedFileExt = ["jpeg", "png", "jpg"]
 
 const searchGenres = ref("")
 const searchActors = ref("")
 
-const name = ref(localStorage.getItem("upload-name"))
-const type = ref(localStorage.getItem("upload-type"))
-const selectedActors = ref(localStorage.getItem("upload-actors") ?? [])
-const selectedGenres = ref(localStorage.getItem("upload-genres") ?? [])
-const plot = ref(localStorage.getItem("upload-plot"))
-const trailer = ref(localStorage.getItem("upload-trailer"))
-const year = ref(localStorage.getItem("upload-year"))
 const thumbnail = ref()
 
 const previewImageUrl = ref()
 
 onBeforeMount(() => {
     if (process.client) {
-        mainStore.setActors()
-        mainStore.setGenres()
-        selectedActors.value = selectedActors.value.split(",").filter(a => a !== "")
-        selectedGenres.value = selectedGenres.value.split(",").filter(a => a !== "")
+        mainStore.setAllActors()
+        mainStore.setAllGenres()
     }
 })
-
-onBeforeUnmount(() => {
-    if (process.client) {
-        localStorage.setItem("upload-name", name.value)
-        localStorage.setItem("upload-type", type.value)
-        localStorage.setItem("upload-actors", selectedActors.value)
-        localStorage.setItem("upload-genres", selectedGenres.value)
-        localStorage.setItem("upload-plot", plot.value)
-        localStorage.setItem("upload-trailer", trailer.value)
-        localStorage.setItem("upload-year", year.value)
-    }
-})
-
 const thumbnailHandler = (e) => {
     if (!acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
         alert("Invalid File extension")
@@ -86,8 +67,8 @@ const addMedia = () => {
         if (response.status >= 200 && response.status < 300) {
             name.value = ""
             type.value = "MOVIE"
-            selectedActors.value = []
-            selectedGenres.value = []
+            actors.value = []
+            genres.value = []
             plot.value = ""
             trailer.value = ""
             year.value = ""
@@ -98,43 +79,6 @@ const addMedia = () => {
         alert(e)
     })
 }
-
-const deleteActor = (id) => {
-    fetch(config.public.baseURL + "/actors/" + id, {
-        method: "DELETE",
-        headers: {
-            Accept: 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
-        }
-    }).then((response) => {
-        if (response.status >= 200 && response.status < 300) {
-            mainStore.setActors()
-            alert("Upload successfully deleted actor")
-        }
-    }).catch(e => {
-        console.log(e)
-        alert(e)
-    })
-}
-
-const deleteGenre = (genre) => {
-    fetch(config.public.baseURL + "/genres/" + genre, {
-        method: "DELETE",
-        headers: {
-            Accept: 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
-        }
-    }).then((response) => {
-        if (response.status >= 200 && response.status < 300) {
-            mainStore.setGenres()
-            alert("Upload successfully deleted actor")
-        }
-    }).catch(e => {
-        console.log(e)
-        alert(e)
-    })
-}
-
 </script>
 
 <template>
@@ -155,22 +99,22 @@ const deleteGenre = (genre) => {
                 <input v-model="searchActors" placeholder="search actor" type="search">
                 <AddActor />
                 <div>
-                    <template v-for="actor in actors.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(searchActors.toLowerCase()))
+                    <template v-for="actor in allActors.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(searchActors.toLowerCase()))
                         .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))">
-                        <input v-model="selectedActors" type="checkbox" :id="actor.id" :value="actor.id">
+                        <input v-model="actors" type="checkbox" :id="actor.id" :value="actor.id">
                         <label :for="actor.id">{{ `${actor.firstname} ${actor.lastname}` }}</label>
-                        <Icon @click="deleteActor(actor.id)" name="fa-solid:poo"></Icon>
+                        <Icon @click="uploadStore.deleteActor(actor.id)" name="fa-solid:poo"></Icon>
                     </template>
                 </div>
                 <span>Genres:</span>
                 <input v-model="searchGenres" placeholder="search genre" type="search">
                 <AddGenre />
                 <div>
-                    <template v-for="genre in genres.filter(genre => genre.name.toLowerCase().includes(searchGenres.toLowerCase()))
+                    <template v-for="genre in allGenres.filter(genre => genre.name.toLowerCase().includes(searchGenres.toLowerCase()))
                         .sort((a, b) => a.name.localeCompare(b.name))">
-                        <input v-model="selectedGenres" type="checkbox" :id="genre.name" :value="genre.name">
+                        <input v-model="genres" type="checkbox" :id="genre.name" :value="genre.name">
                         <label :for="genre.name">{{ genre.name }}</label>
-                        <Icon @click="deleteGenre(genre.name)" name="fa-solid:poo"></Icon>
+                        <Icon @click="uploadStore.deleteGenre(genre.name)" name="fa-solid:poo"></Icon>
                     </template>
                 </div>
                 <button type="submit">Add Media</button>

@@ -61,9 +61,11 @@ const previousCards = () => {
 .media-card {
     margin-right: 10px;
 }
+
 .media-card:last-child {
     margin-right: 0px;
 }
+
 .container-cards {
     position: relative;
 }
@@ -75,6 +77,7 @@ const previousCards = () => {
     flex-direction: row;
     overflow: hidden;
 }
+
 .carousel::-webkit-scrollbar {
     height: 0;
     width: 0;
@@ -91,33 +94,37 @@ const previousCards = () => {
     justify-content: center;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.8);
-    
+
 }
+
 .button:hover {
     cursor: pointer;
 }
 
 .left {
-    border-radius: 14px 0px 0px 14px;
+    border-radius: var(--border-radius-1) 0px 0px var(--border-radius-1);
 }
 
 .right {
-    border-radius: 0px 14px 14px 0px;
+    border-radius: 0px var(--border-radius-1) var(--border-radius-1) 0px;
 }
 
-@media screen  and (max-width: 992px){
+@media screen and (max-width: 992px) {
     .carousel {
         overflow-x: scroll;
     }
+
     .carousel::-webkit-scrollbar {
         padding-top: 5px;
         height: 5px;
         width: 5px;
     }
+
     .media-card {
         margin-right: 10px;
         margin-bottom: 10px;
     }
+
     .left {
         display: none;
     }

@@ -8,7 +8,7 @@ definePageMeta({
 
 const mainStore = useMainStore()
 
-const { allMedia, searchbox, genres } = storeToRefs(mainStore)
+const { allMedia, searchbox, allGenres } = storeToRefs(mainStore)
 
 const allSeries = ref([])
 const filteredMedia = ref([])
@@ -34,7 +34,7 @@ const doFilter = (genre) => {
 onBeforeMount(() => {
     mainStore.setAllMedia()
     mainStore.setWatched()
-    mainStore.setGenres()
+    mainStore.setAllGenres()
 })
 
 watch(allMedia, (o, n) => {
@@ -49,7 +49,7 @@ watch(searchbox, (o, n) => {
 <template>
     <div class="container">
         <div class="container-filter">
-            <span v-for="(genre) in genres" class="filter"
+            <span v-for="(genre) in allGenres" class="filter"
                 :style="filters.includes(genre.name) ? 'color: var(--primary-color-100)' : 'color: white'"
                 @click="doFilter(genre.name)">{{
                     genre.name }}</span>
