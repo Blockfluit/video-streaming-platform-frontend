@@ -49,7 +49,9 @@ watch(inputValue, (o, n) => {
                 </NuxtLink>
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
-                <input v-if="showSearch && showSearchField" v-model="inputValue" type="text">
+                <transition name="fade">
+                    <input key="1" class="search-bar" v-if="showSearch && showSearchField" v-model="inputValue" type="text">
+                </transition>
                 <Icon v-if="showSearch" @click="showSearchField = !showSearchField" name="fa-solid:search" size="20" />
             </div>
             <div class="menu-right">
@@ -91,7 +93,11 @@ nav {
     width: 100%;
     justify-content: space-between;
 }
-
+.search-bar {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding-left: 20px;
+}
 nav a {
     text-decoration: none;
     padding: 0 30px;
@@ -175,6 +181,16 @@ span:hover {
 .menu-right {
     display: flex;
     align-items: center;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 @media screen and (max-width: 992px) {
