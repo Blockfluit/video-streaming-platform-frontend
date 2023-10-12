@@ -54,8 +54,19 @@ const addActor = () => {
 </template>
 
 <style scoped>
+.container {
+    display: flex;
+    align-items: center;
+}
 .container:hover {
     cursor: pointer;
+}
+.icon {
+    height: 15px;
+    margin-right: 6px;
+}
+.icon:hover {
+    color: var(--primary-color-100);
 }
 .turn {
     rotate: 45deg;
@@ -66,5 +77,18 @@ input {
     padding-left: 15px;
     width: 100%;
 }
-
+button {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    font-family: var(--font-family-1);
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+button:hover {
+    cursor: pointer;
+    color: var(--primary-color-100);
+    border: 1px solid var(--primary-color-100);
+}
 </style>

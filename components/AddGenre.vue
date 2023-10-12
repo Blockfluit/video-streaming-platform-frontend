@@ -39,8 +39,8 @@ const addGenre = () => {
 </script>
 
 <template>
-    <div>
-        <Icon @click="showAddGenre = !showAddGenre" name="fa-solid:plus" size="25" />
+    <div class="container">
+        <Icon @click="showAddGenre = !showAddGenre" name="fa-solid:plus" size="1rem" class="icon" />
         <form v-if="showAddGenre" @submit.prevent="addGenre">
             <input v-model="genre" type="text" placeholder="genre" required>
             <button type="submit">Add Genre</button>
@@ -48,4 +48,42 @@ const addGenre = () => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.container {
+    display: flex;
+    align-items: center;
+}
+.container:hover {
+    cursor: pointer;
+}
+.icon {
+    height: 15px;
+    margin-right: 6px;
+}
+.icon:hover {
+    color: var(--primary-color-100);
+}
+.turn {
+    rotate: 45deg;
+}
+input {
+    border: 1px solid white;
+    border-radius: 25px;
+    padding-left: 15px;
+    width: 100%;
+}
+button {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    font-family: var(--font-family-1);
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+button:hover {
+    cursor: pointer;
+    color: var(--primary-color-100);
+    border: 1px solid var(--primary-color-100);
+}
+</style>
