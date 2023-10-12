@@ -22,7 +22,6 @@ const searchGenres = ref("")
 const searchActors = ref("")
 
 const thumbnail = ref()
-
 const previewImageUrl = ref()
 
 onBeforeMount(() => {
@@ -32,6 +31,7 @@ onBeforeMount(() => {
     }
     console.log(type.value)
 })
+
 const thumbnailHandler = (e) => {
     if (!acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
         alert("Invalid File extension")
@@ -187,6 +187,9 @@ const addMedia = () => {
     user-select: none; /* Standard syntax */
 }
 .actor-checkbox:hover {
+    cursor: pointer;
+}
+.genre-checkbox:hover {
     cursor: pointer;
 }
 .title {
