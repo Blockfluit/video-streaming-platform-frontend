@@ -69,10 +69,10 @@ const parseTrailer = (trailer) => {
     <div class="container">
         <div class="container-trailer">
             <div class="container-information">
-                <h2>Now available:</h2>
+                <h2 class="now-available">Now available:</h2>
                 <div @click="navigateToMedia()" class="container-information-title">
-                    <h1 style="text-transform: uppercase;">{{ trailerMedia.name }}</h1>
-                    <h1 style="font-weight: 200; font-size: var(--font-size-2)">| WATCH NOW</h1>
+                    <h1 class="trailer-name">{{ trailerMedia.name }}</h1>
+                    <h1 class="watch-now">| WATCH NOW</h1>
                 </div>
                 <div class="trailer-bullets">
                     <template v-for="(media, index) in recentMedia.length">
@@ -105,7 +105,25 @@ h2 {
     margin: 0;
     font-weight: 600;
 }
-
+.trailer-name {
+    text-transform: uppercase; 
+    max-width: 70%; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
+.watch-now {
+    font-weight: 200; 
+    font-size: var(--font-size-2); 
+    max-width: 70%; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
+.now-available {
+    margin-bottom: -15px;
+    
+}
 .carousel-title {
     margin: 40px 0 10px 6px
 }
@@ -184,6 +202,12 @@ iframe {
         width: 200%;
         left: -50%;
         top: -100%;
+    }
+    .trailer-name, .watch-now {
+        font-size: var(--font-size-3);
+    }
+    .now-available {
+        font-size: var(--font-size-4);
     }
 }
 </style>
