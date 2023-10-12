@@ -74,18 +74,24 @@ const calcTimePercentage = (video) => {
 
 <template>
     <div style="overflow-x: hidden;">
+
+        <!-- Show trailer of movie or serie -->
         <div class="container-trailer">
             <div class="container-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                 <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
                 <p style="font-size: 16px">{{ media.plot }}</p>
-                <span>Cast: {{ media.actors.map(actor => `${actor.firstname} ${actor.lastname}`).join(', ') }}</span>
+                <div style="display: flex;">
+                    <span>Cast:&nbsp;</span>
+                    <span v-for="(actor, index) in media.actors">{{actor.firstname}}<span v-if="actor.lastname">&nbsp;{{ actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+                </div>
             </div>
             <div class="overlay"></div>
             <iframe ref="iframe" :src="parseTrailer(media.trailer)" name="Trailer"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
 
+        <!-- Show season button if it is season -->
         <div v-if="!seasons.includes(-1)" class="season-btn">
             <span @click="showDropdown = !showDropdown" style="padding-left: 6px">Season {{ selectedSeason }}
                 <Icon name="mdi:chevron-down" style="min-width: 20px;" />
@@ -96,15 +102,22 @@ const calcTimePercentage = (video) => {
             </ul>
         </div>
 
+        <!-- Show season episodes based on choosen season -->
         <div class="container-episodes">
-            <div v-if="seasons.includes(-1)" class="wrapper">
-                <div class="episode-card" v-for="video in media.videos.sort((a, b) => a.index - b.index)">
+            <!-- Movie episode cards -->
+            <ul v-if="seasons.includes(-1)" @wheel="scrollHorizontal" ref="episodeList" class="movie-content">
+                <li @click="playVideo(video)" class="episode-card"
+                    v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)"
+                    :id="video.id">
                     <div class="darken"></div>
-                    <span @click="playVideo(video)">{{ video.name }}</span>
+                    <span>{{ video.name }}</span>
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
-                </div>
-            </div>
-            <ul @wheel="scrollHorizontal" ref="episodeList" class="season-content">
+                    <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
+                </li>
+            </ul>
+
+            <!-- Serie episode cards -->
+            <ul v-else @wheel="scrollHorizontal" ref="episodeList" class="season-content">
                 <li @click="playVideo(video)" class="episode-card"
                     v-for="(video) in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
                     :id="video.id">
@@ -149,6 +162,7 @@ img {
     list-style: none;
     z-index: 99;
     background-color: var(--background-color-200);
+    border-radius: 0px 0px 3px 3px;
 }
 
 .season-dropdown::-webkit-scrollbar {
@@ -177,6 +191,7 @@ img {
     box-shadow: 0px 0px 0px 1px white;
     border-radius: 3px;
     margin: 20px 30px;
+    padding: 4px 0px;
     position: relative;
 }
 
@@ -187,13 +202,21 @@ img {
     margin: 0;
     width: 100%;
 }
+.movie-content {
+    display: flex;
+    overflow-x: scroll;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    padding-top: 30px;
+}
 
 .darken {
     z-index: 1;
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 .episode-card {
@@ -209,6 +232,10 @@ img {
 
 .episode-card:hover {
     cursor: pointer;
+}
+
+.darken:hover {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 100%);
 }
 
 .episode-card img {

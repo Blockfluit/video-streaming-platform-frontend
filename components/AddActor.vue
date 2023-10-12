@@ -43,8 +43,8 @@ const addActor = () => {
 </script>
 
 <template>
-    <div>
-        <Icon @click="showAddActor = !showAddActor" name="fa-solid:plus" size="25" />
+    <div class="container">
+        <Icon @click="showAddActor = !showAddActor" name="fa-solid:plus" size="25" class="icon" />
         <form v-if="showAddActor" @submit.prevent="addActor">
             <input v-model="firstname" type="text" placeholder="firstname" required>
             <input v-model="lastname" type="text" placeholder="lastname">
@@ -53,4 +53,18 @@ const addActor = () => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.container:hover {
+    cursor: pointer;
+}
+.turn {
+    rotate: 45deg;
+}
+input {
+    border: 1px solid white;
+    border-radius: 25px;
+    padding-left: 15px;
+    width: 100%;
+}
+
+</style>

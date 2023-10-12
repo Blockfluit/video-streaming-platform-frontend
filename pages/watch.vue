@@ -66,7 +66,7 @@ const playNextVideo = () => {
             <div class="container-vertical">
                 <span class="title">{{ video.name
                 }}</span>
-                <span v-if="video.season !== -1" style="font-size: var(--font-size-4);">Season
+                <span v-if="video.season !== -1" style="font-size: var(--font-size-5);">Season
                     {{ video.season }}</span>
             </div>
         </div>
