@@ -30,6 +30,7 @@ onBeforeMount(() => {
         mainStore.setAllActors()
         mainStore.setAllGenres()
     }
+    console.log(type.value)
 })
 const thumbnailHandler = (e) => {
     if (!acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
@@ -88,7 +89,7 @@ const addMedia = () => {
                 <label>Thumbnail:</label>
                 <input @change="e => thumbnailHandler(e)" type="file" accept="image/jpeg, image/png" required>
                 <label>Name:</label>
-                <input class="input-field" v-model="name" placeholder="name" type="text" required>
+                <input class="input-field" v-model="name" placeholder="Name" type="text" required>
                 <label>Type:</label>
                 <div>
                     <input type="radio" v-model="type" required selected name="type" value="MOVIE"><label>Movie</label>
@@ -99,15 +100,15 @@ const addMedia = () => {
                     <option value="SERIES">Series</option>
                 </select> -->
                 <label>Plot:</label>
-                <input class="input-field" v-model="plot" placeholder="plot" type="text" required>
+                <input class="input-field" v-model="plot" placeholder="Plot" type="text" required>
                 <label>Trailer URL:</label>
-                <input class="input-field" v-model="trailer" placeholder="trailer" type="url" required>
+                <input class="input-field" v-model="trailer" placeholder="Trailer" type="url" required>
                 <label>Year of release:</label>
-                <input class="input-field" v-model="year" placeholder="year" type="number" required>
+                <input class="input-field" v-model="year" placeholder="Year" type="number" required>
                 <label>Search actor:</label>
-                <input class="input-field" v-model="searchActors" placeholder="search actor" type="search">
+                <input class="input-field" v-model="searchActors" placeholder="Search actor" type="search">
                 <div class="title">
-                    <div style="display: flex;">
+                    <div style="display: flex; align-items: center;">
                         <label style="margin-right: 10px;">Actors:</label>
                         <AddActor />
                     </div>
@@ -118,29 +119,29 @@ const addMedia = () => {
                         .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))">
                         <div class="actor">
                             <div>
-                                <input v-model="actors" type="checkbox" :id="actor.id" :value="actor.id">
-                                <label :for="actor.id">{{ `${actor.firstname} ${actor.lastname}` }}</label>
+                                <input class="actor-checkbox" v-model="actors" type="checkbox" :id="actor.id" :value="actor.id">
+                                <label class="actor-checkbox" style="margin-left: 10px;" :for="actor.id">{{ `${actor.firstname} ${actor.lastname}` }}</label>
                             </div>
                             <Icon class="icon" @click="uploadStore.deleteActor(actor.id)" name="material-symbols:delete"></Icon>
                         </div>
                     </template>
                 </div>
                 <div class="title">
-                    <div style="display: flex;">
+                    <div style="display: flex; align-items: center;">
                         <span style="margin-right: 10px;">Genres:</span>
                         <AddGenre />
                     </div>
                     <span>Selected: {{ genres.length }}</span>
                 </div>
-                <input v-model="searchGenres" class="input-field" placeholder="search genre" type="search">
+                <input v-model="searchGenres" class="input-field" placeholder="Search genre" type="search">
                 
                 <div class="genre-list">
                     <template v-for="genre in allGenres.filter(genre => genre.name.toLowerCase().includes(searchGenres.toLowerCase()))
                         .sort((a, b) => a.name.localeCompare(b.name))">
                         <div class="genre">
                             <div>
-                                <input v-model="genres" type="checkbox" :id="genre.name" :value="genre.name">
-                                <label style="margin-left: 10px;" :for="genre.name">{{ genre.name.charAt(0).toUpperCase() + genre.name.slice(1) }}</label>
+                                <input class="genre-checkbox" v-model="genres" type="checkbox" :id="genre.name" :value="genre.name">
+                                <label class="genre-checkbox" style="margin-left: 10px;" :for="genre.name">{{ genre.name.charAt(0).toUpperCase() + genre.name.slice(1) }}</label>
                             </div>
                             <Icon class="icon" @click="uploadStore.deleteGenre(genre.name)" name="material-symbols:delete"></Icon>
                         </div>
@@ -149,7 +150,7 @@ const addMedia = () => {
                 <button class="submit-btn" type="submit">Add Media</button>
             </form>
         </div>
-        <img :src="previewImageUrl" class="preview-image">
+        <img style="margin-top: 50px; border-radius: 15px;" :src="previewImageUrl" class="preview-image">
     </div>
 </template>
 
@@ -166,11 +167,27 @@ const addMedia = () => {
     justify-content: flex-start;
     margin-bottom: 15px;
 }
+.icon:hover {
+    color: var(--primary-color-100);
+}
 .actor {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 5px;
+}
+.actor-checkbox {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+.genre-checkbox {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+.actor-checkbox:hover {
+    cursor: pointer;
 }
 .title {
     display: flex;
