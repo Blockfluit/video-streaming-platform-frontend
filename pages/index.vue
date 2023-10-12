@@ -7,6 +7,7 @@ const mainStore = useMainStore()
 const mediaStore = useMediaStore()
 
 const { allMedia, watched } = storeToRefs(mainStore)
+const { media } = storeToRefs(mediaStore)
 
 let timeoutId
 
@@ -53,7 +54,8 @@ const nextTrailer = (index) => {
 }
 
 const navigateToMedia = () => {
-    navigateTo(`/media?id=${trailerMedia.value.id}`)
+    media.value.id = trailerMedia.value.id
+    navigateTo(`/media`)
 }
 
 const parseTrailer = (trailer) => {
@@ -105,25 +107,29 @@ h2 {
     margin: 0;
     font-weight: 600;
 }
+
 .trailer-name {
-    text-transform: uppercase; 
-    max-width: 70%; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
+    text-transform: uppercase;
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .watch-now {
-    font-weight: 200; 
-    font-size: var(--font-size-2); 
-    max-width: 70%; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
+    font-weight: 200;
+    font-size: var(--font-size-2);
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .now-available {
     margin-bottom: -15px;
-    
+
 }
+
 .carousel-title {
     margin: 40px 0 10px 6px
 }
@@ -203,9 +209,12 @@ iframe {
         left: -50%;
         top: -100%;
     }
-    .trailer-name, .watch-now {
+
+    .trailer-name,
+    .watch-now {
         font-size: var(--font-size-3);
     }
+
     .now-available {
         font-size: var(--font-size-4);
     }

@@ -2,6 +2,7 @@
 import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
+import { useWatchStore } from "~/stores/watchStore";
 
 definePageMeta({
     layout: "main",
@@ -11,9 +12,11 @@ const config = useRuntimeConfig()
 
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
+const watchStore = useWatchStore()
 
-const { media } = storeToRefs(mediaStore)
 const { watched } = storeToRefs(mainStore)
+const { media } = storeToRefs(mediaStore)
+const { startTime, video } = storeToRefs(watchStore)
 
 const seasons = ref([])
 const iframe = ref(null)
@@ -21,7 +24,6 @@ const latestVideo = ref()
 const selectedSeason = ref(1)
 const showDropdown = ref(false)
 const episodeList = ref()
-let urlParams
 
 function scrollHorizontal(e) {
     e.preventDefault();
@@ -30,7 +32,6 @@ function scrollHorizontal(e) {
 
 watch(media, (o, n) => {
     seasons.value = [...new Set(media.value.videos.map(video => video.season))]
-
 })
 
 watch(watched, (o, n) => {
@@ -40,22 +41,16 @@ watch(watched, (o, n) => {
     }
 })
 
-onMounted(() => {
-    if (process.client) {
-        const queryString = window.location.search
-        urlParams = new URLSearchParams(queryString)
-        const id = urlParams.get("id") !== null ? parseInt(urlParams.get("id")) : 0
-        if (id === 0) navigateTo("/")
-        mediaStore.setMedia(id)
-        mainStore.setWatched()
-    }
+onBeforeMount(() => {
+    mediaStore.setMedia(media.value.id)
+    mainStore.setWatched()
 })
 
-const playVideo = (video) => {
-    mediaStore.video = video
-    mediaStore.setMedia(media.value.id)
-    const currentWatched = watched.value.find(entry => entry.videoId === video.id)
-    navigateTo(`/watch${currentWatched !== undefined ? "?time=" + currentWatched.timestamp : ""}`)
+const playVideo = (selectedVideo) => {
+    video.value = selectedVideo
+    const currentWatched = watched.value.find(entry => entry.videoId === selectedVideo.id)
+    startTime.value = currentWatched !== undefined ? currentWatched.timestamp : 0
+    navigateTo(`/watch`)
 }
 
 const parseTrailer = (trailer) => {

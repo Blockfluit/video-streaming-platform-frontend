@@ -1,24 +1,23 @@
 <script setup>
 import { useMediaStore } from "~/stores/mediaStore";
+import { useWatchStore } from "~/stores/watchStore";
 import { storeToRefs } from "pinia";
 
 const mediaStore = useMediaStore()
+const watchStore = useWatchStore()
 const config = useRuntimeConfig()
 
-const { media, video } = storeToRefs(mediaStore)
+const { media } = storeToRefs(mediaStore)
+const { volume, video } = storeToRefs(watchStore)
 
 const videoElement = ref({})
 const showReturnElement = ref(true)
 const countdownTimer = ref(0)
-let timeoutId
 
 onMounted(() => {
     if (process.client) {
-        const queryString = window.location.search
-        const urlParams = new URLSearchParams(queryString)
-        const time = urlParams.get("time") ?? 0
-        videoElement.value.currentTime = parseInt(time)
-        videoElement.value.volume = localStorage.getItem("volume") ?? 0.5
+        videoElement.value.currentTime = watchStore.startTime
+        videoElement.value.volume = volume.value
 
         // window.onmousemove = () => {
         //     clearTimeout(timeoutId)
@@ -30,35 +29,39 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     if (process.client) {
-        mediaStore.updateWatched(video.value.id, videoElement.value.currentTime)
-        localStorage.setItem("volume", videoElement.value.volume)
+        watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
+        volume.value = videoElement.value.volume
         window.onmousemove = null
     }
 })
 
 const playNextVideo = () => {
-    const nextVideo = mediaStore.media.videos.find(entry => entry.index === video.value.index + 1)
+    const countdownInSec = 5
+
+    watchStore.updateWatched(video.value.id, 0)
+
+    const nextVideo = media.value.videos.find(entry => entry.index === video.value.index + 1)
     if (nextVideo === undefined) return
 
-    let coutdownInSec = 5
+    let intervalId
+    countdownTimer.value = countdownInSec
 
-    const intervalId = setInterval(() => {
-        coutdownInSec--
-        countdownTimer.value = coutdownInSec + 1
-        if (coutdownInSec < 0) {
+    intervalId = setInterval(() => {
+        countdownTimer.value--
+        if (countdownTimer.value < 0) {
             clearInterval(intervalId)
-            mediaStore.video = nextVideo
+            video.value = nextVideo
+            watchStore.updateWatched(video.value.id, 0)
             videoElement.value.load()
             videoElement.value.play()
         }
     }, 1000)
-
 }
 </script>
 
 <template>
     <div class="container">
-        <div v-if="showReturnElement" @click="navigateTo(`/media?id=${media.id}`)" class="container-return">
+        <div v-if="showReturnElement" @click="navigateTo(`/media`)" class="container-return">
             <Icon name="bi:chevron-left" class="back-icon" size="1.5rem" />
             <div class="container-vertical">
                 <span class="title">{{ video.name
@@ -96,10 +99,12 @@ const playNextVideo = () => {
     margin: 40px 30px;
     padding: 5px 15px;
 }
+
 .title {
-    font-size: var(--font-size-2); 
+    font-size: var(--font-size-2);
     text-transform: capitalize;
 }
+
 .container-return:hover {
     cursor: pointer;
 }
@@ -133,7 +138,7 @@ const playNextVideo = () => {
 
 @media screen and (max-width: 992px) {
     .container-vertical span {
-        font-size: var(--font-size-4); 
+        font-size: var(--font-size-4);
         text-transform: capitalize;
     }
 }

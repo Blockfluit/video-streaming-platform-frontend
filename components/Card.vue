@@ -1,14 +1,21 @@
 <script setup>
+import { storeToRefs } from 'pinia';
 import { useMainStore } from '~/stores/mainStore';
 import { useMediaStore } from '~/stores/mediaStore';
+import { useWatchStore } from '~/stores/watchStore';
 
 const props = defineProps({
-    media: {},
+    shownMedia: {},
     showLastVideo: false,
 })
 
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
+const watchStore = useWatchStore()
+
+const { watched } = storeToRefs(mainStore)
+const { media } = storeToRefs(mediaStore)
+const { startTime, video } = storeToRefs(watchStore)
 
 const config = useRuntimeConfig()
 const showTrailer = ref(false)
@@ -24,55 +31,57 @@ onMounted(() => {
 })
 
 const setLastVideo = () => {
-    lastWatched = mainStore.watched.filter(entry => entry.mediaId === props.media.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
+    lastWatched = watched.value.filter(entry => entry.mediaId === props.shownMedia.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
     lastVideoName.value = lastWatched !== undefined ? lastWatched.name : ""
     timeElement.value.style.width = lastWatched.timestamp / lastWatched.duration * 100 + "%"
 }
 
-const navigateToMedia = (e, media) => {
+const navigateToMedia = (e, selectedMedia) => {
     if (e.target.id === "showTrailer") {
         return
     }
+
+    media.value.id = selectedMedia.id
+
     if (props.showLastVideo) {
-        mediaStore.video = lastWatched
-        mediaStore.video.id = lastWatched.videoId
-        mediaStore.setMedia(media.id)
-        navigateTo(`watch?time=${lastWatched.timestamp}`)
+        lastWatched.id = lastWatched.videoId
+        video.value = lastWatched
+        startTime.value = lastWatched.timestamp
+        navigateTo(`watch`)
         return
     }
-    mediaStore.setMedia(media.id)
-    navigateTo(`/media?id=${media.id}`)
+    navigateTo(`/media`)
 }
 </script>
 
 <template>
     <div @mouseover="showExtraInformation = true" class="card">
-        <img :src="config.public.baseURL + '/stream/thumbnail/' + media.id">
+        <img :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id">
         <div class="information">
             <div v-show="showLastVideo" class="time" ref="timeElement"></div>
             <span v-show="showLastVideo" class="last-video-name">{{
                 lastVideoName }}</span>
             <div class="title">
-                <span class="name">{{ media.name }}</span>
-                <span v-if="media.videos > 1" class="total-videos">{{ media.videos }}</span>
+                <span class="name">{{ shownMedia.name }}</span>
+                <span v-if="shownMedia.videos > 1" class="total-videos">{{ shownMedia.videos }}</span>
             </div>
         </div>
-        <div @click="(e) => navigateToMedia(e, media)" @mouseleave="showExtraInformation = false"
+        <div @click="(e) => navigateToMedia(e, shownMedia)" @mouseleave="showExtraInformation = false"
             v-if="showExtraInformation" class="extra-information">
-            <button v-if="media.trailer !== undefined" class="trailer-btn" @click="showTrailer = true;">
+            <button v-if="shownMedia.trailer !== undefined" class="trailer-btn" @click="showTrailer = true;">
                 <Icon name="fluent:movies-and-tv-16-regular" size="40px" class="overlay-icon" />
             </button>
             <div class="plot">
-                <p class="plot-text">{{ media.plot }}</p>
+                <p class="plot-text">{{ shownMedia.plot }}</p>
             </div>
-            <span>Release year: {{ media.year }}</span>
-            <span>total videos: {{ media.videos }}</span>
-            <span>unique views: {{ media.views }}</span>
-            <span>rating: {{ media.rating === -1 ? "No ratings" : media.rating }}</span>
+            <span>Release year: {{ shownMedia.year }}</span>
+            <span>total videos: {{ shownMedia.videos }}</span>
+            <span>unique views: {{ shownMedia.views }}</span>
+            <span>rating: {{ shownMedia.rating === -1 ? "No ratings" : shownMedia.rating }}</span>
         </div>
     </div>
     <div @click="showTrailer = false; showExtraInformation = false" v-if="showTrailer" class="hide-trailer"></div>
-    <iframe v-if="showTrailer" :src="media.trailer.replace('watch?v=', 'embed/')" name="Trailer"
+    <iframe v-if="showTrailer" :src="shownMedia.trailer.replace('watch?v=', 'embed/')" name="Trailer"
         allow="autoplay; encrypted-media;"></iframe>
 </template>
 

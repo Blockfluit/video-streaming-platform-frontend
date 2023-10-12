@@ -48,7 +48,7 @@ const previousCards = () => {
         </div>
         <div ref="cardsElement" class="carousel">
             <div class="media-card" v-for="(media) of allMedia">
-                <Card :media="media" :showLastVideo="showLastVideo ?? false" />
+                <Card :shownMedia="media" :showLastVideo="showLastVideo ?? false" />
             </div>
         </div>
         <div v-if="showButtons" @click="nextCards(1)" class="button right" style="right: 0;">

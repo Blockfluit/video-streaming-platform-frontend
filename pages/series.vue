@@ -72,7 +72,7 @@ watch(searchbox, (o, n) => {
         <div v-if="filters.length > 0" class="container-cards">
             <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>
             <div class="container-filtered-cards">
-                <Card v-for="(media) of filteredMedia" :media="media" />
+                <Card v-for="(media) of filteredMedia" :shownMedia="media" />
             </div>
         </div>
     </div>
