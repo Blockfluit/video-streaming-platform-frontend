@@ -4,9 +4,10 @@ const props = defineProps({
     showLastVideo: false
 })
 
-const config = useRuntimeConfig()
-const cardsElement = ref(null)
+const cardsElement = ref({})
 const showButtons = ref(false)
+const showLeftButton = ref(false)
+const showRightButton = ref(false)
 
 const nextCards = () => {
     const cards = cardsElement.value.children
@@ -26,24 +27,30 @@ const previousCards = () => {
     const carouselLeft = cardsElement.value.getBoundingClientRect().left
     const carouselWidth = cardsElement.value.getBoundingClientRect().width
     const cardWidth = cardsElement.value.children[0].getBoundingClientRect().width
-    const widthInCard = Math.floor(carouselWidth / cardWidth)
+    const widthInCards = Math.floor(carouselWidth / cardWidth)
 
     for (let i = 0; i < cards.length; i++) {
         if (Math.abs((cards[i].getBoundingClientRect().left) + (cardWidth / 2)) < (cardWidth / 2)) {
-            if (i - widthInCard < 0) {
+            if (i - widthInCards < 0) {
                 cardsElement.value.scrollLeft = 0
                 return
             }
-            cardsElement.value.scrollLeft += cards[i - widthInCard + 1].getBoundingClientRect().left - carouselLeft
+            cardsElement.value.scrollLeft += cards[i - widthInCards + 1].getBoundingClientRect().left - carouselLeft
             return
         }
     }
 }
+
+const hoverButtonHandler = (showButton) => {
+    showButtons.value = showButton
+    showLeftButton.value = cardsElement.value.scrollLeft > 0
+    showRightButton.value = cardsElement.value.getBoundingClientRect().right < cardsElement.value.children[cardsElement.value.children.length - 1].getBoundingClientRect().right - 10
+}
 </script>
 
 <template>
-    <div @mouseover="showButtons = true" @mouseleave="showButtons = false" class="container-cards">
-        <div v-if="showButtons" @click="previousCards()" class="button left" style="left: 0;">
+    <div @mouseover="hoverButtonHandler(true)" @mouseleave="hoverButtonHandler(false)" class="container-cards">
+        <div v-if="showButtons && showLeftButton" @click="previousCards()" class="button left" style="left: 0;">
             <Icon name="fa-solid:chevron-left" />
         </div>
         <div ref="cardsElement" class="carousel">
@@ -51,7 +58,7 @@ const previousCards = () => {
                 <Card :shownMedia="media" :showLastVideo="showLastVideo ?? false" />
             </div>
         </div>
-        <div v-if="showButtons" @click="nextCards(1)" class="button right" style="right: 0;">
+        <div v-if="showButtons && showRightButton" @click="nextCards(1)" class="button right" style="right: 0;">
             <Icon name="fa-solid:chevron-right" />
         </div>
     </div>

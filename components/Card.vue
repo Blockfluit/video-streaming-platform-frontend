@@ -21,19 +21,21 @@ const config = useRuntimeConfig()
 const showTrailer = ref(false)
 const showExtraInformation = ref(false)
 const timeElement = ref()
-const lastVideoName = ref("")
-let lastWatched
+const lastWatched = ref({})
+
+onBeforeMount(() => {
+    lastWatched.value = getLastVideo(props.shownMedia.id)
+})
 
 onMounted(() => {
     if (process.client) {
-        setLastVideo()
+        timeElement.value.style.width = lastWatched.value.timestamp / lastWatched.value.duration * 100 + "%"
     }
 })
 
-const setLastVideo = () => {
-    lastWatched = watched.value.filter(entry => entry.mediaId === props.shownMedia.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
-    lastVideoName.value = lastWatched !== undefined ? lastWatched.name : ""
-    timeElement.value.style.width = lastWatched.timestamp / lastWatched.duration * 100 + "%"
+const getLastVideo = (mediaId) => {
+    return lastWatched.value = watched.value.filter(entry => entry.mediaId === mediaId)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
 }
 
 const navigateToMedia = (e, selectedMedia) => {
@@ -44,9 +46,9 @@ const navigateToMedia = (e, selectedMedia) => {
     media.value.id = selectedMedia.id
 
     if (props.showLastVideo) {
-        lastWatched.id = lastWatched.videoId
-        video.value = lastWatched
-        startTime.value = lastWatched.timestamp
+        lastWatched.value.id = lastWatched.value.videoId
+        video.value = lastWatched.value
+        startTime.value = lastWatched.value.timestamp
         navigateTo(`watch`)
         return
     }
@@ -60,7 +62,7 @@ const navigateToMedia = (e, selectedMedia) => {
         <div class="information">
             <div v-show="showLastVideo" class="time" ref="timeElement"></div>
             <span v-show="showLastVideo" class="last-video-name">{{
-                lastVideoName }}</span>
+                getLastVideo(shownMedia.id).name }}</span>
             <div class="title">
                 <span class="name">{{ shownMedia.name }}</span>
                 <span v-if="shownMedia.videos > 1" class="total-videos">{{ shownMedia.videos }}</span>

@@ -17,7 +17,7 @@ export const useJwtStore = defineStore("jwtStore", {
         getIssuedAt: (state) => extractClaim(state.jwt, "iat"),
         getExpiration: (state) => extractClaim(state.jwt, "exp"),
         isAdmin: (state) => extractClaim(state.jwt, "role") === "ADMIN",
-        isValid: (state) => (state.jwt !== "" && (extractClaim(state.jwt, "exp") - extractClaim(state.jwt, "iat") > 0))
+        isValid: (state) => (state.jwt !== "" && ((extractClaim(state.jwt, "exp") * 1000) > Date.now()))
     },
     actions: {
         destroyToken() {

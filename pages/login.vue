@@ -1,7 +1,10 @@
 <script setup>
+import { storeToRefs } from "pinia";
 import { useJwtStore } from "~/stores/jwtStore"
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
+
+const { jwt } = storeToRefs(jwtStore)
 
 const username = ref()
 const password = ref()
@@ -24,7 +27,7 @@ const login = () => {
         throw new Error("Username or password is wrong")
     }).then((data) => {
         if (data !== undefined) {
-            jwtStore.jwt = data["token"]
+            jwt.value = data["token"]
             navigateTo("/")
         }
     }).catch(e => {
