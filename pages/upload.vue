@@ -87,37 +87,66 @@ const addMedia = () => {
             <form @submit.prevent="addMedia" class="container-vertical">
                 <label>Thumbnail:</label>
                 <input @change="e => thumbnailHandler(e)" type="file" accept="image/jpeg, image/png" required>
-                <input v-model="name" placeholder="name" type="text" required>
-                <select v-model="type" required>
+                <label>Name:</label>
+                <input class="input-field" v-model="name" placeholder="name" type="text" required>
+                <label>Type:</label>
+                <div>
+                    <input type="radio" v-model="type" required selected name="type" value="MOVIE"><label>Movie</label>
+                    <input type="radio" v-model="type" required name="type" value="SERIES"><label>Series</label>
+                </div>
+                <!-- <select v-model="type" required>
                     <option value="MOVIE" selected>Movie</option>
                     <option value="SERIES">Series</option>
-                </select>
-                <input v-model="plot" placeholder="plot" type="text" required>
-                <input v-model="trailer" placeholder="trailer" type="url" required>
-                <input v-model="year" placeholder="year" type="number" required>
-                <label>Actors:</label>
-                <input v-model="searchActors" placeholder="search actor" type="search">
-                <AddActor />
-                <div>
+                </select> -->
+                <label>Plot:</label>
+                <input class="input-field" v-model="plot" placeholder="plot" type="text" required>
+                <label>Trailer URL:</label>
+                <input class="input-field" v-model="trailer" placeholder="trailer" type="url" required>
+                <label>Year of release:</label>
+                <input class="input-field" v-model="year" placeholder="year" type="number" required>
+                <label>Search actor:</label>
+                <input class="input-field" v-model="searchActors" placeholder="search actor" type="search">
+                <div class="title">
+                    <div style="display: flex;">
+                        <label style="margin-right: 10px;">Actors:</label>
+                        <AddActor />
+                    </div>
+                    <span>Selected: {{ actors.length }}</span>
+                </div>
+                <div class="actor-list">
                     <template v-for="actor in allActors.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(searchActors.toLowerCase()))
                         .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))">
-                        <input v-model="actors" type="checkbox" :id="actor.id" :value="actor.id">
-                        <label :for="actor.id">{{ `${actor.firstname} ${actor.lastname}` }}</label>
-                        <Icon @click="uploadStore.deleteActor(actor.id)" name="fa-solid:poo"></Icon>
+                        <div class="actor">
+                            <div>
+                                <input v-model="actors" type="checkbox" :id="actor.id" :value="actor.id">
+                                <label :for="actor.id">{{ `${actor.firstname} ${actor.lastname}` }}</label>
+                            </div>
+                            <Icon class="icon" @click="uploadStore.deleteActor(actor.id)" name="material-symbols:delete"></Icon>
+                        </div>
                     </template>
                 </div>
-                <span>Genres:</span>
-                <input v-model="searchGenres" placeholder="search genre" type="search">
-                <AddGenre />
-                <div>
+                <div class="title">
+                    <div style="display: flex;">
+                        <span style="margin-right: 10px;">Genres:</span>
+                        <AddGenre />
+                    </div>
+                    <span>Selected: {{ genres.length }}</span>
+                </div>
+                <input v-model="searchGenres" class="input-field" placeholder="search genre" type="search">
+                
+                <div class="genre-list">
                     <template v-for="genre in allGenres.filter(genre => genre.name.toLowerCase().includes(searchGenres.toLowerCase()))
                         .sort((a, b) => a.name.localeCompare(b.name))">
-                        <input v-model="genres" type="checkbox" :id="genre.name" :value="genre.name">
-                        <label :for="genre.name">{{ genre.name }}</label>
-                        <Icon @click="uploadStore.deleteGenre(genre.name)" name="fa-solid:poo"></Icon>
+                        <div class="genre">
+                            <div>
+                                <input v-model="genres" type="checkbox" :id="genre.name" :value="genre.name">
+                                <label style="margin-left: 10px;" :for="genre.name">{{ genre.name.charAt(0).toUpperCase() + genre.name.slice(1) }}</label>
+                            </div>
+                            <Icon class="icon" @click="uploadStore.deleteGenre(genre.name)" name="material-symbols:delete"></Icon>
+                        </div>
                     </template>
                 </div>
-                <button type="submit">Add Media</button>
+                <button class="submit-btn" type="submit">Add Media</button>
             </form>
         </div>
         <img :src="previewImageUrl" class="preview-image">
@@ -129,12 +158,65 @@ const addMedia = () => {
     display: flex;
     flex-direction: row;
 }
-
+.input-field {
+    border: 1px solid white;
+    border-radius: 25px;
+    padding-left: 15px;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 15px;
+}
+.actor {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+}
+.title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.submit-btn {
+    margin: 10px;
+    background-color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-family: var(--font-family-1);
+    font-weight: 600;
+    color: var(--background-color-100)
+}
+.submit-btn:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
+}
+.genre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+}
 .container-add-media {
     max-width: 50vw;
     margin: 40px;
 }
-
+.actor-list {
+    height: 200px;
+    overflow-y: scroll;
+    border: 1px solid white;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+.genre-list {
+    height: 200px;
+    overflow-y: scroll;
+    border: 1px solid white;
+    border-radius: 4px;
+}
+.icon:hover {
+    cursor: pointer;
+}
 .container-horizontal {
     display: flex;
     flex-direction: row;
