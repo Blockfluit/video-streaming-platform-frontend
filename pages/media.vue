@@ -35,7 +35,8 @@ watch(media, (o, n) => {
 })
 
 watch(watched, (o, n) => {
-    latestVideo.value = watched.value.filter(entry => entry.mediaId === media.value.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+    latestVideo.value = watched.value.filter(entry => entry.mediaId === media.value.id)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
     if (latestVideo.value !== undefined) {
         selectedSeason.value = latestVideo.value.season
     }
@@ -83,8 +84,10 @@ const calcTimePercentage = (video) => {
                 <p style="font-size: 16px">{{ media.plot }}</p>
                 <div style="display: flex;">
                     <span>Cast:&nbsp;</span>
-                    <span v-for="(actor, index) in media.actors">{{actor.firstname}}<span v-if="actor.lastname">&nbsp;{{ actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+                    <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
+                        actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
                 </div>
+                <Rating :media="media" />
             </div>
             <div class="overlay"></div>
             <iframe ref="iframe" :src="parseTrailer(media.trailer)" name="Trailer"
@@ -107,8 +110,7 @@ const calcTimePercentage = (video) => {
             <!-- Movie episode cards -->
             <ul v-if="seasons.includes(-1)" @wheel="scrollHorizontal" ref="episodeList" class="movie-content">
                 <li @click="playVideo(video)" class="episode-card"
-                    v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)"
-                    :id="video.id">
+                    v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)" :id="video.id">
                     <div class="darken"></div>
                     <span>{{ video.name }}</span>
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
@@ -128,6 +130,7 @@ const calcTimePercentage = (video) => {
                 </li>
             </ul>
         </div>
+        <Reviews :media="media" />
     </div>
 </template>
 
@@ -202,6 +205,7 @@ img {
     margin: 0;
     width: 100%;
 }
+
 .movie-content {
     display: flex;
     overflow-x: scroll;

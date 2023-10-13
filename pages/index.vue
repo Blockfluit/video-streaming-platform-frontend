@@ -97,8 +97,8 @@ const parseTrailer = (trailer) => {
         </CardRow> -->
         <h2 class="carousel-title">10 Most Popular</h2>
         <CardRow :allMedia="allMedia.sort((a, b) => b.views - a.views).slice(0, 10)"></CardRow>
-        <h2 class="carousel-title">Popular</h2>
-        <CardRow :allMedia="allMedia"></CardRow>
+        <h2 class="carousel-title">10 Best Rated</h2>
+        <CardRow :allMedia="allMedia.sort((a, b) => b.rating - a.rating).slice(0, 10)"></CardRow>
     </div>
 </template>
 
