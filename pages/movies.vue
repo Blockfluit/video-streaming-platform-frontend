@@ -57,17 +57,18 @@ watch(searchbox, (o, n) => {
         <div v-if="filters.length === 0 && searchbox === ''" class="container-cards">
             <h1>{{ searchbox }}</h1>
             <h2 style="margin: 30px 6px 10px 0px">Continue Watching</h2>
-            <CardRow :allMedia="allMovies.filter(media => mainStore.watched.map(entry => entry.mediaId).includes(media.id))"
+            <CardRow
+                :allMedia="mainStore.getAllMovies.filter(media => mainStore.watched.map(entry => entry.mediaId).includes(media.id))"
                 :showLastVideo=true>
             </CardRow>
             <h2 style="margin: 30px 6px 10px 0px">Recently uploaded</h2>
-            <CardRow :allMedia="allMovies.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
+            <CardRow :allMedia="mainStore.getAllMovies.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
                 .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))">
             </CardRow>
             <h2 style="margin: 30px 6px 10px 0px">Most Popular</h2>
-            <CardRow :allMedia="allMovies"></CardRow>
+            <CardRow :allMedia="[...mainStore.getAllMovies]"></CardRow>
             <h2 style="margin: 30px 6px 10px 0px">Popular</h2>
-            <CardRow :allMedia="allMovies"></CardRow>
+            <CardRow :allMedia="[...mainStore.getAllMovies]"></CardRow>
         </div>
         <div v-if="filters.length > 0" class="container-cards">
             <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>

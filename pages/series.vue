@@ -65,9 +65,9 @@ watch(searchbox, (o, n) => {
                 .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))">
             </CardRow>
             <h2>Most Popular</h2>
-            <CardRow :allMedia="mainStore.getAllSeries"></CardRow>
+            <CardRow :allMedia="[...mainStore.getAllSeries]"></CardRow>
             <h2>Popular</h2>
-            <CardRow :allMedia="mainStore.getAllSeries"></CardRow>
+            <CardRow :allMedia="[...mainStore.getAllSeries]"></CardRow>
         </div>
         <div v-if="filters.length > 0" class="container-cards">
             <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>

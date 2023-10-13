@@ -1,4 +1,5 @@
 <script setup>
+import { storeToRefs } from 'pinia';
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMainStore } from '~/stores/mainStore';
 
@@ -6,12 +7,14 @@ const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 const mainStore = useMainStore()
 
+const { allGenres } = storeToRefs(mainStore)
+
 const showAddGenre = ref(false)
 
 const genre = ref()
 
 const addGenre = () => {
-    if (mainStore.genres.find(genre => genre.name === genre.value) !== undefined) {
+    if (allGenres.value.find(genre => genre.name === genre.value) !== undefined) {
         alert("Genre already exists")
         return
     }
@@ -28,7 +31,7 @@ const addGenre = () => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mainStore.setActors()
+            mainStore.setAllActors()
             genre.value = null
         }
     }).catch(e => {
@@ -53,25 +56,31 @@ const addGenre = () => {
     display: flex;
     align-items: center;
 }
+
 .container:hover {
     cursor: pointer;
 }
+
 .icon {
     height: 15px;
     margin-right: 6px;
 }
+
 .icon:hover {
     color: var(--primary-color-100);
 }
+
 .turn {
     rotate: 45deg;
 }
+
 input {
     border: 1px solid white;
     border-radius: 25px;
     padding-left: 15px;
     width: 100%;
 }
+
 button {
     width: 100%;
     background-color: transparent;
@@ -81,6 +90,7 @@ button {
     border-radius: 15px;
     margin-bottom: 15px;
 }
+
 button:hover {
     cursor: pointer;
     color: var(--primary-color-100);

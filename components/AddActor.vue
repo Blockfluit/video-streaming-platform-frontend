@@ -1,4 +1,5 @@
 <script setup>
+import { storeToRefs } from 'pinia';
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMainStore } from '~/stores/mainStore';
 
@@ -6,13 +7,15 @@ const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 const mainStore = useMainStore()
 
+const { allActors } = storeToRefs(mainStore)
+
 const showAddActor = ref(false)
 
 const firstname = ref()
 const lastname = ref()
 
 const addActor = () => {
-    if (mainStore.actors.find(actor => actor.firstname.toLowerCase() === firstname.value.toLowerCase() &&
+    if (allActors.value.find(actor => actor.firstname.toLowerCase() === firstname.value.toLowerCase() &&
         actor.lastname.toLowerCase() === lastname.value.toLowerCase()) !== undefined) {
         alert("Actor already exists")
         return
@@ -31,7 +34,7 @@ const addActor = () => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mainStore.setActors()
+            mainStore.setAllActors()
             firstname.value = null
             lastname.value = null
         }
@@ -58,25 +61,31 @@ const addActor = () => {
     display: flex;
     align-items: center;
 }
+
 .container:hover {
     cursor: pointer;
 }
+
 .icon {
     height: 15px;
     margin-right: 6px;
 }
+
 .icon:hover {
     color: var(--primary-color-100);
 }
+
 .turn {
     rotate: 45deg;
 }
+
 input {
     border: 1px solid white;
     border-radius: 25px;
     padding-left: 15px;
     width: 100%;
 }
+
 button {
     width: 100%;
     background-color: transparent;
@@ -86,6 +95,7 @@ button {
     border-radius: 15px;
     margin-bottom: 15px;
 }
+
 button:hover {
     cursor: pointer;
     color: var(--primary-color-100);

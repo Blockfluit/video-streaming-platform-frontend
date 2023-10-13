@@ -29,7 +29,6 @@ onBeforeMount(() => {
         mainStore.setAllActors()
         mainStore.setAllGenres()
     }
-    console.log(type.value)
 })
 
 const thumbnailHandler = (e) => {
@@ -119,10 +118,13 @@ const addMedia = () => {
                         .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))">
                         <div class="actor">
                             <div>
-                                <input class="actor-checkbox" v-model="actors" type="checkbox" :id="actor.id" :value="actor.id">
-                                <label class="actor-checkbox" style="margin-left: 10px;" :for="actor.id">{{ `${actor.firstname} ${actor.lastname}` }}</label>
+                                <input class="actor-checkbox" v-model="actors" type="checkbox" :id="actor.id"
+                                    :value="actor.id">
+                                <label class="actor-checkbox" style="margin-left: 10px;" :for="actor.id">{{
+                                    `${actor.firstname} ${actor.lastname}` }}</label>
                             </div>
-                            <Icon class="icon" @click="uploadStore.deleteActor(actor.id)" name="material-symbols:delete"></Icon>
+                            <Icon class="icon" @click="uploadStore.deleteActor(actor.id)" name="material-symbols:delete">
+                            </Icon>
                         </div>
                     </template>
                 </div>
@@ -134,16 +136,19 @@ const addMedia = () => {
                     <span>Selected: {{ genres.length }}</span>
                 </div>
                 <input v-model="searchGenres" class="input-field" placeholder="Search genre" type="search">
-                
+
                 <div class="genre-list">
                     <template v-for="genre in allGenres.filter(genre => genre.name.toLowerCase().includes(searchGenres.toLowerCase()))
                         .sort((a, b) => a.name.localeCompare(b.name))">
                         <div class="genre">
                             <div>
-                                <input class="genre-checkbox" v-model="genres" type="checkbox" :id="genre.name" :value="genre.name">
-                                <label class="genre-checkbox" style="margin-left: 10px;" :for="genre.name">{{ genre.name.charAt(0).toUpperCase() + genre.name.slice(1) }}</label>
+                                <input class="genre-checkbox" v-model="genres" type="checkbox" :id="genre.name"
+                                    :value="genre.name">
+                                <label class="genre-checkbox" style="margin-left: 10px;" :for="genre.name">{{
+                                    genre.name.charAt(0).toUpperCase() + genre.name.slice(1) }}</label>
                             </div>
-                            <Icon class="icon" @click="uploadStore.deleteGenre(genre.name)" name="material-symbols:delete"></Icon>
+                            <Icon class="icon" @click="uploadStore.deleteGenre(genre.name)" name="material-symbols:delete">
+                            </Icon>
                         </div>
                     </template>
                 </div>
@@ -159,6 +164,7 @@ const addMedia = () => {
     display: flex;
     flex-direction: row;
 }
+
 .input-field {
     border: 1px solid white;
     border-radius: 25px;
@@ -167,36 +173,50 @@ const addMedia = () => {
     justify-content: flex-start;
     margin-bottom: 15px;
 }
+
 .icon:hover {
     color: var(--primary-color-100);
 }
+
 .actor {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 5px;
 }
+
 .actor-checkbox {
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
+    -webkit-user-select: none;
+    /* Safari */
+    -ms-user-select: none;
+    /* IE 10 and IE 11 */
+    user-select: none;
+    /* Standard syntax */
 }
+
 .genre-checkbox {
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
+    -webkit-user-select: none;
+    /* Safari */
+    -ms-user-select: none;
+    /* IE 10 and IE 11 */
+    user-select: none;
+    /* Standard syntax */
 }
+
 .actor-checkbox:hover {
     cursor: pointer;
 }
+
 .genre-checkbox:hover {
     cursor: pointer;
 }
+
 .title {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
 .submit-btn {
     margin: 10px;
     background-color: white;
@@ -207,20 +227,24 @@ const addMedia = () => {
     font-weight: 600;
     color: var(--background-color-100)
 }
+
 .submit-btn:hover {
     cursor: pointer;
     background-color: var(--primary-color-100);
 }
+
 .genre {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 5px;
 }
+
 .container-add-media {
     max-width: 50vw;
     margin: 40px;
 }
+
 .actor-list {
     height: 200px;
     overflow-y: scroll;
@@ -228,15 +252,18 @@ const addMedia = () => {
     border-radius: 4px;
     margin-bottom: 15px;
 }
+
 .genre-list {
     height: 200px;
     overflow-y: scroll;
     border: 1px solid white;
     border-radius: 4px;
 }
+
 .icon:hover {
     cursor: pointer;
 }
+
 .container-horizontal {
     display: flex;
     flex-direction: row;
@@ -251,5 +278,4 @@ const addMedia = () => {
     object-fit: cover;
     width: 300px;
     height: 450px;
-}
-</style>
+}</style>

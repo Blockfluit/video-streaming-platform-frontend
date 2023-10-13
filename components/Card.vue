@@ -20,21 +20,25 @@ const { startTime, video } = storeToRefs(watchStore)
 const config = useRuntimeConfig()
 const showTrailer = ref(false)
 const showExtraInformation = ref(false)
-const timeElement = ref()
+const timePercentage = ref(0)
 const lastWatched = ref({})
 
 onBeforeMount(() => {
     lastWatched.value = getLastVideo(props.shownMedia.id)
-})
-
-onMounted(() => {
-    if (process.client) {
-        timeElement.value.style.width = lastWatched.value.timestamp / lastWatched.value.duration * 100 + "%"
+    if (timePercentage.value !== undefined) {
+        timePercentage.value = lastWatched.value.timestamp / lastWatched.value.duration * 100
     }
 })
 
-const getLastVideo = (mediaId) => {
-    return lastWatched.value = watched.value.filter(entry => entry.mediaId === mediaId)
+watch(watched, (o, n) => {
+    lastWatched.value = getLastVideo(props.shownMedia.id)
+    if (lastWatched.value !== undefined) {
+        timePercentage.value = lastWatched.value.timestamp / lastWatched.value.duration * 100
+    }
+})
+
+function getLastVideo(mediaId) {
+    return watched.value.filter(entry => entry.mediaId === mediaId)
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
 }
 
@@ -60,9 +64,8 @@ const navigateToMedia = (e, selectedMedia) => {
     <div @mouseover="showExtraInformation = true" class="card">
         <img :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id">
         <div class="information">
-            <div v-show="showLastVideo" class="time" ref="timeElement"></div>
-            <span v-show="showLastVideo" class="last-video-name">{{
-                getLastVideo(shownMedia.id).name }}</span>
+            <div v-if="showLastVideo" class="time" :style="`width: ${timePercentage}%`"></div>
+            <span v-if="showLastVideo" class="last-video-name">{{ lastWatched.name }}</span>
             <div class="title">
                 <span class="name">{{ shownMedia.name }}</span>
                 <span v-if="shownMedia.videos > 1" class="total-videos">{{ shownMedia.videos }}</span>
