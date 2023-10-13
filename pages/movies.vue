@@ -92,8 +92,10 @@ h2 {
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    overflow-y: hidden;
+    overflow-X: scroll;
 }
+
 
 .container-filter span {
     margin: 10px;
@@ -117,5 +119,13 @@ h2 {
 .filter:hover {
     cursor: pointer;
     color: var(--primary-color-100);
+}
+
+
+
+@media screen and (max-width: 700px) {
+    .container-filter::-webkit-scrollbar {
+        display: none;
+    }
 }
 </style>

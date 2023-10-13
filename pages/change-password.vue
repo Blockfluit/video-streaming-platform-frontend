@@ -66,7 +66,7 @@ const reset = () => {
         <form v-if="!isReset" @submit.prevent="sendMail">
             <div class="container-mail">
                 <header>RESET PASSWORD</header>
-                <section>A mail will be send to the email you provide with a reset token</section>
+                <section>A mail will be send to the email you provide with a reset token.</section>
                 <input v-model="email" type="email" placeholder="email">
                 <button type="submit">Send Mail</button>
             </div>
@@ -74,7 +74,7 @@ const reset = () => {
         <form v-if="isReset" @submit.prevent="reset">
             <div class="container-mail">
                 <header>RESET PASSWORD</header>
-                <section>Please provide a new password</section>
+                <section>Please provide a new password.</section>
                 <input v-model="password" type="password" placeholder="new password" required>
                 <input v-model="passwordConfirm" type="password" placeholder="confirm password" required>
                 <input v-if="hideToken" v-model="token" type="text" placeholder="token" required>
@@ -104,6 +104,9 @@ input {
     margin: 4px;
     width: 80%;
 }
+input::placeholder {
+    text-align: center;
+}
 
 button {
     font-family: var(--font-family-1);
@@ -116,6 +119,10 @@ button {
     width: 160px;
     height: 40px;
     margin: 20px;
+}
+button:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
 }
 
 .container {
@@ -136,8 +143,6 @@ button {
     width: 500px;
     height: 400px;
     border-radius: 30px;
-    -webkit-box-shadow: var(--box-shadow-1);
-    -moz-box-shadow: var(--box-shadow-1);
-    box-shadow: var(--box-shadow-1);
+    background-color: var(--background-color-100);
 }
 </style>
