@@ -68,7 +68,7 @@ const resetRating = (e) => {
 <template>
     <div @mouseover="hoverHandler" @mouseleave="resetRating" ref="ratingElement" class="container-rating">
         <template v-for="(id) in stars">
-            <Icon @click="addRating((id + 1) * 2)" :id="id" name="mdi:star" />
+            <Icon class="star" @click="addRating((id + 1) * 2)" :id="id" name="mdi:star" />
         </template>
     </div>
 </template>
@@ -78,7 +78,9 @@ svg {
     min-width: 25px;
     min-height: 25px;
 }
-
+.star:hover {
+    cursor: pointer;
+}
 .container-rating {
     z-index: 99999;
     display: flex;

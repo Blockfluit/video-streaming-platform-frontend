@@ -20,6 +20,10 @@ watch(media, (o, n) => {
     reviews.value = media.value.reviews
 })
 
+const showReviewButtons = (username) => {
+    return username === jwtStore.getSubject || jwtStore.getRole == "ADMIN"
+}
+
 const addReview = (review) => {
     fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
         method: "POST",
@@ -89,22 +93,68 @@ const deleteReview = (id) => {
 
 <template>
     <div>
-        <form @submit.prevent="addReview(review)">
+        <span>Reviews</span>
+        <form v-if="jwtStore.getRole !== 'USER'" @submit.prevent="addReview(review)">
             <input v-model="review" placeholder="Write a review" type="text">
-            <button type="submit">Add Review</button>
+            <button type="submit">Post your review</button>
         </form>
         <div v-for="review in reviews" class="container-review">
-            <h2>{{ review.user.username }} {{ new Date(review.updatedAt).toLocaleDateString() }}</h2>
+            <div style="display: flex; align-items: center;">
+                <p style="font-weight: 700;">{{ review.user.username }} {{ new Date(review.updatedAt).toLocaleDateString() }}</p>
+                <Icon v-if="showReviewButtons(review.user.username)" class="icon" name="mdi:pencil" />
+                <Icon v-if="showReviewButtons(review.user.username)" class="icon" @click="deleteReview(review.id)" name="material-symbols:delete"></Icon>
+            </div>
             <p>{{ review.comment }}</p>
-            <Icon name="mdi:pencil" />
-            <Icon @click="deleteReview(review.id)" name="material-symbols:delete"></Icon>
         </div>
     </div>
 </template>
 
 <style scoped>
+span {
+    font-size: 2rem;
+    font-weight: 600;
+}
+.icon {
+    min-height: 25px;
+    min-width: 25px;
+    margin-left: 15px;
+}
+.icon:hover {
+    cursor: pointer;
+    color: var(--primary-color-100);
+}
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .container-review {
-    margin: 30px;
     border: 1px solid white;
+    border-radius: 15px;
+    padding: 5px 20px;
+    margin-bottom: 20px;
+}
+input {
+    border: 1px solid white;
+    border-radius: 15px;
+    padding-left: 20px;
+    width: 100%;
+    height: 40px;
+    white-space: wrap;
+    
+}
+button {
+    margin: 10px;
+    background-color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-family: var(--font-family-1);
+    font-weight: 600;
+    color: var(--background-color-100)
+}
+button:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
 }
 </style>

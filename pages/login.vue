@@ -42,12 +42,13 @@ const login = () => {
     <div class="container">
         <form @submit.prevent="login">
             <div class="container-login">
-                <header>LOGIN</header>
-                <section>Please enter your username and password</section>
+                <header>Login</header>
+                <span style="text-align: center;">Please enter your username and password</span>
                 <input v-model="username" type="text" placeholder="username" required>
                 <input v-model="password" type="password" placeholder="password" required>
-                <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
-                </span>
+                <div style="display: flex; justify-content: center;">
+                    <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink></span>
+                </div>
                 <button type="submit">Login</button>
                 <span class="got-token">Got a token? <NuxtLink to="/register">Signup</NuxtLink>
                 </span>
@@ -76,6 +77,23 @@ input {
     width: 80%;
 }
 
+/* Firefox */
+input::placeholder {
+    font-family: var(--font-family-1);
+    font-size: var(--font-size-4);
+    color: var(--text-color-2);
+    opacity: 1;
+    text-align: center;
+}
+
+/* Edge 12 -18 */
+input::-ms-input-placeholder {
+    font-family: var(--font-family-1);
+    font-size: var(--font-size-4);
+    color: var(--text-color-2);
+    text-align: center;
+}
+
 button {
     font-family: var(--font-family-1);
     font-size: var(--font-size-4);
@@ -87,6 +105,10 @@ button {
     width: 160px;
     height: 40px;
     margin: 20px;
+}
+button:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
 }
 
 span {
@@ -110,10 +132,9 @@ span {
     align-items: center;
     width: 500px;
     height: 500px;
-    border-radius: 30px;
-    -webkit-box-shadow: var(--box-shadow-1);
-    -moz-box-shadow: var(--box-shadow-1);
-    box-shadow: var(--box-shadow-1);
+    padding: 10px 20px;
+    border-radius: 15px;
+    background-color: var(--background-color-100);
 }
 
 .forgot-password {
@@ -128,5 +149,25 @@ span {
 
 .got-token {
     font-size: var(--font-size-4);
+}
+a {
+    color: var(--primary-color-100)
+}
+a:hover {
+    color: var(--primary-color-300)
+}
+
+@media screen and (max-width: 700px) {
+    .container-login {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        width: 300px;
+        height: 500px;
+        padding: 10px 20px;
+        border-radius: 15px;
+        background-color: var(--background-color-100);
+    }
 }
 </style>

@@ -81,13 +81,13 @@ const calcTimePercentage = (video) => {
             <div class="container-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                 <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
-                <p style="font-size: 16px">{{ media.plot }}</p>
+                <p class="plot-text">{{ media.plot }}</p>
                 <div style="display: flex;">
                     <span>Cast:&nbsp;</span>
                     <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
                         actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
                 </div>
-                <Rating :media="media" />
+                <Rating style="margin-top: 12px;" :media="media" />
             </div>
             <div class="overlay"></div>
             <iframe ref="iframe" :src="parseTrailer(media.trailer)" name="Trailer"
@@ -130,7 +130,9 @@ const calcTimePercentage = (video) => {
                 </li>
             </ul>
         </div>
-        <Reviews :media="media" />
+        <div class="review-container">
+            <Reviews :media="media" />
+        </div>
     </div>
 </template>
 
@@ -151,7 +153,22 @@ const calcTimePercentage = (video) => {
 img {
     width: 200px;
 }
-
+.plot-text {
+    display: block; 
+    text-overflow: ellipsis;
+    font-size: 16px; 
+    max-height: 200px;
+    max-width: 50vw;
+    overflow-x: hidden; 
+    overflow-y: scroll; 
+    pointer-events: all;
+}
+.plot-text::-webkit-scrollbar {
+    display: none;
+}
+.review-container {
+    margin: 30px 30px 80px 30px;
+}
 .season-dropdown {
     position: absolute;
     display: flex;
@@ -262,7 +279,6 @@ img {
 }
 
 .container-episodes {
-    height: 35vh;
     margin: 0px 30px;
     overflow: hidden;
 }
@@ -326,7 +342,10 @@ iframe {
     .container-trailer {
         height: 40vh;
     }
-
+    .plot-text {
+        max-width: 100%;
+        max-height: 50px;
+    }
     iframe {
         height: 300%;
         width: 180%;
