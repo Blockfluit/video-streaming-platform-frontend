@@ -70,9 +70,11 @@ watch(searchbox, (o, n) => {
             <CardRow :allMedia="[...mainStore.getAllSeries]"></CardRow>
         </div>
         <div v-if="filters.length > 0" class="container-cards">
-            <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>
+            <h2 style="margin: 30px 6px 10px 0px">Filtered series</h2>
             <div class="container-filtered-cards">
-                <Card v-for="(media) of filteredMedia" :shownMedia="media" />
+                <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
+                    <Card :shownMedia="media" />
+                </div>
             </div>
         </div>
     </div>
@@ -100,7 +102,7 @@ h2 {
 
 .container-filtered-cards {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .filter-card {

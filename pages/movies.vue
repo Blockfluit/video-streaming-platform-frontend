@@ -70,10 +70,12 @@ watch(searchbox, (o, n) => {
             <h2 style="margin: 30px 6px 10px 0px">Popular</h2>
             <CardRow :allMedia="[...mainStore.getAllMovies]"></CardRow>
         </div>
-        <div v-if="filters.length > 0" class="container-cards">
-            <h2 style="margin: 30px 6px 10px 0px">Filtered</h2>
+        <div v-if="filters.length > 0" class="filter-wrapper">
+            <h2 style="margin: 30px 6px 10px 0px">Filtered movies</h2>
             <div class="container-filtered-cards">
-                <Card v-for="(media) of filteredMedia" :shownMedia="media" />
+                <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
+                    <Card :shownMedia="media" />
+                </div>
             </div>
         </div>
     </div>
@@ -88,6 +90,10 @@ h2 {
     padding: 2vh 2vw;
 }
 
+.filter-wrapper {
+    display: flex;
+    flex-direction: column;
+}
 .container-filter {
     width: 100%;
     display: flex;
@@ -96,14 +102,16 @@ h2 {
     overflow-X: scroll;
 }
 
-
 .container-filter span {
     margin: 10px;
 }
 
 .container-filtered-cards {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
+}
+.card {
+    margin-right: 10px !important;
 }
 
 .filter-card {

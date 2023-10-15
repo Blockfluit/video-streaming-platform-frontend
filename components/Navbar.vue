@@ -37,15 +37,21 @@ watch(inputValue, (o, n) => {
             <span @click="logout(); showDropdown = false">LOGOUT</span>
         </div>
         <div class="mobile-menu">
-            <NuxtLink to="/">
-                <Icon name="fa-solid:pizza-slice" class="home-icon" />
-            </NuxtLink>
+            <div style="display:flex; align-items: center;">
+                <NuxtLink to="/">
+                    <Icon name="fa-solid:pizza-slice" class="home-icon" />
+                </NuxtLink>
+                <transition name="fade">
+                    <input key="1" class="search-bar" v-if="showSearch && showSearchField" v-model="inputValue" type="text">
+                </transition>
+                <Icon v-if="showSearch" @click="showSearchField = !showSearchField" name="fa-solid:search" size="20" />
+            </div>
             <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="charm:menu-hamburger" size="2.5rem" />
         </div>
         <div class="desktop-nav">
             <div class="menu-left">
                 <NuxtLink to="/">
-                    <Icon name="fa-solid:pizza-slice" class="icon" />
+                    <Icon name="fa-solid:pizza-slice" class="home-icon" />
                 </NuxtLink>
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
@@ -97,13 +103,14 @@ nav {
     border: 1px solid white;
     border-radius: 5px;
     padding-left: 20px;
+    width: 100%;
 }
 nav a {
     text-decoration: none;
     padding: 0 30px;
     white-space: nowrap;
     font-size: var(--font-size-3);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .hamburger-menu {
@@ -120,7 +127,7 @@ span {
     padding: 0 30px;
     white-space: nowrap;
     font-size: var(--font-size-3);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 span:hover {
