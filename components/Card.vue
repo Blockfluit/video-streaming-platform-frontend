@@ -22,7 +22,6 @@ const showTrailer = ref(false)
 const showExtraInformation = ref(false)
 const timePercentage = ref(0)
 const lastWatched = ref({})
-const stars = ref([0, 1, 2, 3, 4])
 
 onBeforeMount(() => {
     lastWatched.value = getLastVideo(props.shownMedia.id)
@@ -43,11 +42,7 @@ function getLastVideo(mediaId) {
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
 }
 
-const navigateToMedia = (e, selectedMedia) => {
-    if (e.target.id === "showTrailer") {
-        return
-    }
-
+const navigateToMedia = (selectedMedia) => {
     media.value.id = selectedMedia.id
 
     if (props.showLastVideo) {
@@ -72,19 +67,17 @@ const navigateToMedia = (e, selectedMedia) => {
                 <span v-if="shownMedia.videos > 1" class="total-videos">{{ shownMedia.videos }}</span>
             </div>
         </div>
-        <div @click="(e) => navigateToMedia(e, shownMedia)" @mouseleave="showExtraInformation = false"
-            v-if="showExtraInformation" class="extra-information">
+        <div @click="navigateToMedia(shownMedia)" @mouseleave="showExtraInformation = false" v-if="showExtraInformation"
+            class="extra-information">
             <div v-if="shownMedia.rating >= 1">
                 <template v-for="star in 5">
-                    <Icon class="star" :style="{color: shownMedia.rating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)'}" name="mdi:star"  />
+                    <Icon class="star"
+                        :style="{ color: shownMedia.rating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
+                        name="mdi:star" />
                 </template>
             </div>
             <div v-else>
-                <Icon class="star-white" name="mdi:star"  />
-                <Icon class="star-white" name="mdi:star"  />
-                <Icon class="star-white" name="mdi:star"  />
-                <Icon class="star-white" name="mdi:star"  />
-                <Icon class="star-white" name="mdi:star"  />
+                <h3>No Rating</h3>
             </div>
         </div>
     </div>
@@ -114,18 +107,21 @@ iframe {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .star {
     min-width: 40px;
     min-height: 40px;
     margin: 0px -8px;
     color: var(--primary-color-100);
 }
+
 .star-white {
     min-width: 40px;
     min-height: 40px;
     margin: 0px -8px;
     color: var(--text-color-2);
 }
+
 .time {
     height: 4px;
     background-color: var(--primary-color-100);
@@ -226,7 +222,7 @@ iframe {
     align-items: center;
     top: 0;
     left: 0;
-    background: linear-gradient(0deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 10%, rgba(0,0,0,0.6) 20%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0.6) 80%, rgba(0,0,0,0.5) 90%, rgba(0,0,0,0.2) 100%);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 10%, rgba(0, 0, 0, 0.6) 20%, rgba(0, 0, 0, 0.7) 30%, rgba(0, 0, 0, 0.8) 40%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.8) 60%, rgba(0, 0, 0, 0.7) 70%, rgba(0, 0, 0, 0.6) 80%, rgba(0, 0, 0, 0.5) 90%, rgba(0, 0, 0, 0.2) 100%);
     height: 100%;
     width: 100%;
     border-radius: var(--border-radius-1);

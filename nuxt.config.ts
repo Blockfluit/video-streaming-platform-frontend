@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     ],
     runtimeConfig: {
         public: {
-            baseURL: process.env.BASE_URL || 'http://localhost:8080/api/v1',
+            baseURL: process.env.BASE_URL || 'https://beta.dellekes.nl/api/v1',
         },
     },
     css: [

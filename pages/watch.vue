@@ -13,17 +13,20 @@ const { volume, video } = storeToRefs(watchStore)
 const videoElement = ref({})
 const showReturnElement = ref(true)
 const countdownTimer = ref(0)
+const isPlaying = ref(false)
+
+let timeoutId
 
 onMounted(() => {
     if (process.client) {
         videoElement.value.currentTime = watchStore.startTime
         videoElement.value.volume = volume.value
 
-        // window.onmousemove = () => {
-        //     clearTimeout(timeoutId)
-        //     showReturnElement.value = true
-        //     timeoutId = setTimeout(() => { showReturnElement.value = false }, 3000)
-        // }
+        window.onmousemove = () => {
+            clearTimeout(timeoutId)
+            showReturnElement.value = true
+            timeoutId = setTimeout(() => { showReturnElement.value = false }, 3000)
+        }
     }
 })
 
@@ -61,7 +64,7 @@ const playNextVideo = () => {
 
 <template>
     <div class="container">
-        <div v-if="showReturnElement" @click="navigateTo(`/media`)" class="container-return">
+        <div v-if="showReturnElement || !isPlaying" @click="navigateTo(`/media`)" class="container-return">
             <Icon name="bi:chevron-left" class="back-icon" size="1.5rem" />
             <div class="container-vertical">
                 <span class="title">{{ video.name
@@ -70,7 +73,8 @@ const playNextVideo = () => {
                     {{ video.season }}</span>
             </div>
         </div>
-        <video @ended="playNextVideo" ref="videoElement" crossorigin="anonymous" controls autoplay>
+        <video @play="isPlaying = true" @pause="isPlaying = false" @ended="playNextVideo" ref="videoElement"
+            crossorigin="anonymous" controls autoplay>
             <source :src="`${config.public.baseURL}/stream/video/${video.id}`" type="video/mp4" />
             <track v-for="subtitle in video.subtitles" :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
                 :label="subtitle.label" kind="subtitles" :srclang="subtitle.srcLang" :default="subtitle.defaultSub" />
