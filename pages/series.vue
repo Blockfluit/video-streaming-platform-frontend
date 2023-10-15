@@ -85,9 +85,11 @@ watch(searchbox, (o, n) => {
             </div> -->
         </div>
         <div class="container-cards">
-            <h2 class="carousel-title">{{ (filters.length === 0 && searchbox === '') ? "All Series" : "Filtered" }}</h2>
+            <h2 class="carousel-title">{{ (filters.length === 0 && searchbox === '') ? "All Series" : "Filtered Series" }}</h2>
             <div class="container-filtered-cards">
-                <Card v-for="(media) of filteredMedia" :shownMedia="media" />
+                <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
+                    <Card :shownMedia="media" />
+                </div>
             </div>
         </div>
     </div>
@@ -120,7 +122,7 @@ h2 {
 
 .container-filtered-cards {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .filter-card {
