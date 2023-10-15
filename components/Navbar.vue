@@ -8,7 +8,6 @@ const mainStore = useMainStore()
 const { currentRoute } = useRouter();
 
 const { searchbox } = storeToRefs(mainStore)
-const showSearch = ref(["/", "/movies", "/series"].includes(currentRoute.value.path))
 const showSearchField = ref(false)
 
 const inputValue = ref()
@@ -56,9 +55,12 @@ watch(inputValue, (o, n) => {
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
                 <transition name="fade">
-                    <input key="1" class="search-bar" v-if="showSearch && showSearchField" v-model="inputValue" type="text">
+                    <input key="1" class="search-bar"
+                        v-if="['/movies', '/series'].includes(currentRoute.path) && showSearchField" v-model="inputValue"
+                        type="text">
                 </transition>
-                <Icon v-if="showSearch" @click="showSearchField = !showSearchField" name="fa-solid:search" size="20" />
+                <Icon v-if="['/movies', '/series'].includes(currentRoute.path)" @click="showSearchField = !showSearchField"
+                    name="fa-solid:search" size="20" />
             </div>
             <div class="menu-right">
                 <NuxtLink to="/request">REQUEST</NuxtLink>
@@ -99,12 +101,14 @@ nav {
     width: 100%;
     justify-content: space-between;
 }
+
 .search-bar {
     border: 1px solid white;
     border-radius: 5px;
     padding-left: 20px;
     width: 100%;
 }
+
 nav a {
     text-decoration: none;
     padding: 0 30px;
@@ -138,6 +142,7 @@ span:hover {
 .icon {
     min-width: 50px;
 }
+
 .home-icon {
     min-width: 50px;
     color: var(--primary-color-300)
@@ -192,12 +197,12 @@ span:hover {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 
 @media screen and (max-width: 992px) {
@@ -212,4 +217,5 @@ span:hover {
     .desktop-nav {
         display: none;
     }
-}</style>
+}
+</style>

@@ -12,6 +12,7 @@ export const useMainStore = defineStore("mainStore", {
         allGenres: [],
     }),
     getters: {
+        getAll: (state) => state.allMedia,
         getAllMovies: (state) => state.allMedia.filter(media => media["type"] === "MOVIE"),
         getAllSeries: (state) => state.allMedia.filter(media => media["type"] === "SERIES"),
     },

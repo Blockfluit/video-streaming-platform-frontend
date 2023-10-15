@@ -33,6 +33,10 @@ onMounted(() => {
     setTrailerTimeout(0)
 })
 
+onBeforeUnmount(() => {
+    clearTimeout(timeoutId)
+})
+
 const setTrailerTimeout = (index) => {
     clearTimeout(timeoutId)
     nextTrailer(index)
@@ -87,18 +91,18 @@ const parseTrailer = (trailer) => {
             <iframe ref="iframe" :src="parseTrailer(trailerMedia.trailer)" name="Trailer"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
-        <h2 class="carousel-title">Continue Watching</h2>
-        <CardRow :allMedia="allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))"
-            :showLastVideo=true>
-        </CardRow>
-        <!-- <h2 class="carousel-title">Recently uploaded</h2> -->
-        <!-- <CardRow
-            :allMedia="[...allMedia].filter(media => new Date(media.updatedAt) < new Date(Date.now() + 1000 * 60 * 60 * 24 * 7)).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))">
-        </CardRow> -->
-        <h2 class="carousel-title">10 Most Popular</h2>
-        <CardRow :allMedia="[...allMedia].sort((a, b) => b.views - a.views).slice(0, 10)"></CardRow>
-        <h2 class="carousel-title">10 Best Rated</h2>
-        <CardRow :allMedia="[...allMedia].sort((a, b) => b.rating - a.rating).slice(0, 10)"></CardRow>
+        <div :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))">
+            <h2 v-if="media1.length > 0" class="carousel-title">Continue Watching</h2>
+            <CardRow :allMedia="media1" :showLastVideo=true />
+        </div>
+        <div>
+            <h2 class="carousel-title">25 Most Popular</h2>
+            <CardRow :allMedia="[...allMedia].sort((a, b) => b.views - a.views).slice(0, 25)" />
+        </div>
+        <div>
+            <h2 class="carousel-title">25 Best Rated</h2>
+            <CardRow :allMedia="[...allMedia].sort((a, b) => b.rating - a.rating).slice(0, 25)" />
+        </div>
     </div>
 </template>
 
