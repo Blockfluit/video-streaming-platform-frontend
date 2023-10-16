@@ -24,11 +24,7 @@ const latestVideo = ref()
 const selectedSeason = ref(1)
 const showDropdown = ref(false)
 const episodeList = ref()
-
-function scrollHorizontal(e) {
-    e.preventDefault();
-    episodeList.value.scrollLeft += e.deltaY;
-}
+const showTrailer = ref(false)
 
 watch(media, (o, n) => {
     seasons.value = [...new Set(media.value.videos.map(video => video.season))]
@@ -47,6 +43,11 @@ onBeforeMount(() => {
     mainStore.setWatched()
 })
 
+function scrollHorizontal(e) {
+    e.preventDefault();
+    episodeList.value.scrollLeft += e.deltaY;
+}
+
 const playVideo = (selectedVideo) => {
     video.value = selectedVideo
     const currentWatched = watched.value.find(entry => entry.videoId === selectedVideo.id)
@@ -64,12 +65,12 @@ const playLastVideo = () => {
     playVideo(video)
 }
 
-const parseTrailer = (trailer) => {
+const parseTrailer = (trailer, controls, mute) => {
     let trailerId = trailer.split('watch?v=')[1]
     if (trailer === undefined) {
         return ""
     }
-    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&mute=1&disablekb&fs=0&loop=1&rel=0`
+    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0${controls ? "&controls=1" : "&controls=0"}${mute ? "&mute=0" : "&mute=1"}&disablekb&fs=0&loop=1&rel=0`
 }
 
 const calcTimePercentage = (video) => {
@@ -87,7 +88,7 @@ const calcTimePercentage = (video) => {
     <div style="overflow-x: hidden;">
 
         <!-- Show trailer of movie or serie -->
-        <div class="container-trailer">
+        <div class="container-preview-trailer">
             <div class="container-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                 <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
@@ -103,10 +104,16 @@ const calcTimePercentage = (video) => {
                         <Icon name="mdi:play" width="30px" height="30px" />
                         <span>Play</span>
                     </div>
+                    <div>
+                        <Icon name="mdi:information-slab-circle-outline" width="40px" height="40px" />
+                    </div>
+                    <div>
+                        <Icon @click="showTrailer = !showTrailer" name="mdi:movie-open-play" width="40px" height="40px" />
+                    </div>
                 </div>
             </div>
             <div class="overlay"></div>
-            <iframe ref="iframe" :src="parseTrailer(media.trailer)" name="Trailer"
+            <iframe ref="iframe" class="preview-trailer" :src="parseTrailer(media.trailer, false, false)"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
 
@@ -150,6 +157,10 @@ const calcTimePercentage = (video) => {
             <Reviews :media="media" />
         </div>
     </div>
+    <div @click="showTrailer = false" v-if="showTrailer" class="container-popup-trailer">
+        <iframe class="popup-trailer" :src="parseTrailer(media.trailer, true, true)"
+            allow="autoplay; encrypted-media;"></iframe>
+    </div>
 </template>
 
 <style scoped>
@@ -162,12 +173,33 @@ img {
     width: 200px;
 }
 
-iframe {
+.preview-trailer {
     position: absolute;
     height: 300%;
     width: 100%;
     top: -100%;
     border: 0;
+}
+
+.popup-trailer {
+    position: relative;
+    width: 60vw;
+    height: 70vh;
+    border: 0;
+}
+
+.container-popup-trailer {
+    z-index: 10;
+    position: fixed;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .button {
@@ -335,7 +367,7 @@ iframe {
     overflow: hidden;
 }
 
-.container-trailer {
+.container-preview-trailer {
     position: relative;
     overflow: hidden;
     height: 65vh;
@@ -367,11 +399,15 @@ iframe {
         height: 50vh;
     }
 
-    iframe {
+    .preview-trailer {
         height: 300%;
         width: 140%;
         left: -20%;
         top: -100%;
+    }
+
+    .popup-trailer {
+        width: 90vw;
     }
 }
 
@@ -410,11 +446,16 @@ iframe {
         max-height: 50px;
     }
 
-    iframe {
+    .preview-trailer {
         height: 300%;
         width: 180%;
         left: -40%;
         top: -100%;
+    }
+
+    .popup-trailer {
+        width: 95vw;
+        height: 40vh;
     }
 }
 </style>

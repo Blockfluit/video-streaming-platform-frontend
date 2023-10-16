@@ -53,10 +53,10 @@ const register = () => {
                 <section>Please enter an username and password</section>
                 <input v-model="username" type="text" placeholder="username" required>
                 <input v-model="password" type="password" placeholder="password" required>
-                <input v-model="email" type="email" placeholder="email *">
+                <input v-model="email" type="email" placeholder="email ¹">
                 <input v-if="hideToken" v-model="token" type="text" placeholder="token" required>
                 <button type="submit">Register</button>
-                <span>* Email is optional. But can be used to reset password when forgotten.</span>
+                <span>1. Email is optional. But can be used to reset password when forgotten.</span>
             </div>
         </form>
     </div>
