@@ -15,6 +15,8 @@ const mediaStore = useMediaStore()
 const { media } = storeToRefs(mediaStore)
 const reviews = ref(props.media.reviews)
 const review = ref()
+const toggleEdit = ref(false)
+const comment = ref()
 
 watch(media, (o, n) => {
     reviews.value = media.value.reviews
@@ -65,6 +67,7 @@ const updateReview = (id, review) => {
     }).catch(e => {
         console.log(e)
     })
+    toggleEdit.value = false;
 }
 
 const deleteReview = (id) => {
@@ -101,10 +104,11 @@ const deleteReview = (id) => {
         <div v-for="review in reviews" class="container-review">
             <div style="display: flex; align-items: center;">
                 <p style="font-weight: 700;">{{ review.user.username }} {{ new Date(review.updatedAt).toLocaleDateString() }}</p>
-                <Icon v-if="showReviewButtons(review.user.username)" class="icon" name="mdi:pencil" />
+                <Icon v-if="showReviewButtons(review.user.username) && toggleEdit == false" @click="toggleEdit = true; comment[0].classList.add('focus')" class="icon" name="mdi:pencil" />
+                <Icon v-if="showReviewButtons(review.user.username) && toggleEdit == true" @click="updateReview(review.id, comment[0].innerText); comment[0].classList.remove('focus')" class="icon" name="ic:outline-check" />
                 <Icon v-if="showReviewButtons(review.user.username)" class="icon" @click="deleteReview(review.id)" name="material-symbols:delete"></Icon>
             </div>
-            <p>{{ review.comment }}</p>
+            <div ref="comment" :contenteditable="toggleEdit">{{ review.comment }}</div>
         </div>
     </div>
 </template>
@@ -127,6 +131,15 @@ form {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.focus {
+    border: 1px dashed var(--primary-color-100);
+    padding-left: 5px;
+    border-radius: 3px;
+}
+
+.focus:focus {
+    outline: none !important;
 }
 .container-review {
     border: 1px solid white;

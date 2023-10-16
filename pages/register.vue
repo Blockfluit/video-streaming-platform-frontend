@@ -49,14 +49,14 @@ const register = () => {
     <div class="container">
         <form @submit.prevent="register">
             <div class="container-register">
-                <header>REGISTER</header>
+                <header>Register</header>
                 <section>Please enter an username and password</section>
-                <input v-model="username" type="text" placeholder="username" required>
-                <input v-model="password" type="password" placeholder="password" required>
-                <input v-model="email" type="email" placeholder="email ¹">
-                <input v-if="hideToken" v-model="token" type="text" placeholder="token" required>
+                <input v-model="username" type="text" placeholder="Username*" required>
+                <input v-model="password" type="password" placeholder="Password*" required>
+                <input v-model="email" type="email" placeholder="Email">
+                <input v-if="hideToken" v-model="token" type="text" placeholder="Token*" required>
                 <button type="submit">Register</button>
-                <span>1. Email is optional. But can be used to reset password when forgotten.</span>
+                <span>Field with * are required.</span>
             </div>
         </form>
     </div>
@@ -72,12 +72,12 @@ section {
 }
 
 input {
-    text-align: center;
+    text-align: left;
     border-color: rgb(255, 255, 255);
     border-radius: 100px;
     border-width: 1px;
     border-style: solid;
-    padding: 10px;
+    padding: 10px 10px 10px 20px;
     margin: 4px;
     width: 80%;
 }
@@ -93,6 +93,10 @@ button {
     width: 160px;
     height: 40px;
     margin: 20px;
+}
+button:hover {
+    background-color: var(--primary-color-100);
+    cursor: pointer;
 }
 
 span {
@@ -118,8 +122,6 @@ span {
     width: 500px;
     height: 600px;
     border-radius: 30px;
-    -webkit-box-shadow: var(--box-shadow-1);
-    -moz-box-shadow: var(--box-shadow-1);
-    box-shadow: var(--box-shadow-1);
+    background-color: var(--background-color-100);
 }
 </style>

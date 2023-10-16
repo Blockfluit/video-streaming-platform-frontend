@@ -87,7 +87,7 @@ const deleteRequest = (id) => {
     <div class="container">
         <form @submit.prevent="addRequest">
             <div class="container-add-request">
-                <h1>Request movie/series</h1>
+                <span style="font-size: 2rem; font-weight: 600;">Request movie/series</span>
                 <input v-model="name" placeholder="Name" type="text" required>
                 <input v-model="year" placeholder="Release year" type="number" required>
                 <input v-model="comment" placeholder="Comment" type="text">
@@ -103,10 +103,11 @@ const deleteRequest = (id) => {
                     <td>Requested on</td>
                     <td>Requester</td>
                     <td>Status</td>
+                    <td v-if="jwtStore.isAdmin"></td>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="request  in  allRequests">
+                <tr style="height:30px;" v-for="request  in  allRequests">
                     <td>{{ request.name }}</td>
                     <td>{{ request.year }}</td>
                     <td>{{ request.comment }}</td>
@@ -114,7 +115,7 @@ const deleteRequest = (id) => {
                     <td>{{ request.createdBy }}</td>
                     <td>{{ request.status }}</td>
                     <td v-if="jwtStore.isAdmin" @click="deleteRequest(request.id)">
-                        <Icon name="fa-solid:poo"></Icon>
+                        <Icon class="icon" name="material-symbols:delete"></Icon>
                     </td>
                 </tr>
             </tbody>
@@ -128,9 +129,63 @@ const deleteRequest = (id) => {
     display: flex;
     flex-direction: row;
 }
-
+.icon {
+    display: flex;
+    align-items: center;
+}
+.icon:hover {
+    color: var(--primary-color-100);
+    cursor: pointer;
+}
 .container-add-request {
     display: flex;
     flex-direction: column;
+}
+button {
+    padding: 10px 15px;
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-family-1);
+}
+button:hover {
+    background-color: var(--primary-color-100);
+    cursor: pointer;
+}
+input {
+    border: 1px solid white;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding-left: 6px;
+}
+form {
+    min-width: 250px;
+    margin-right: 50px;
+}
+table {
+  width: 100%;
+  height: fit-content;
+  border-radius: 5px;
+  background-color: #282828;
+  border-collapse: collapse;
+  border-width: 0px;
+  border-color: #FFFFFF;
+  border-style: solid;
+  color: #FFFFFF;
+  overflow-y: scroll;
+}
+
+table td, table th {
+  border-width: 0px;
+  border-color: #FFFFFF;
+  border-style: solid;
+  padding-left: 15px;
+}
+tbody tr:nth-child(even ){
+  background: var(--background-color-100);
+}
+
+table thead {
+  background-color: #121212;
 }
 </style>
