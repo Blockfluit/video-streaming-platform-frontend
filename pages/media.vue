@@ -96,7 +96,9 @@ const calcTimePercentage = (video) => {
         <div class="container-preview-trailer">
             <div class="container-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
-                <span class="info">{{ media.year }} <span v-if="media.videos.length === 1" >• {{ formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{ media.genre.join(", ") }}</span>
+                <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
+                    formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
+        media.genre.join(", ") }}</span>
                 <p class="plot-text hide-on-phone">{{ media.plot }}</p>
                 <div class="container-cast hide-on-phone" style="display: flex;">
                     <span class="hide-on-phone">Cast:&nbsp;</span>
@@ -201,13 +203,16 @@ img {
     background-color: var(--background-color-100);
     border-radius: var(--border-radius-1);
 }
+
 .trailer-button {
     padding: 5px;
 }
+
 .trailer-button:hover {
     cursor: pointer;
     color: var(--primary-color-100);
 }
+
 .preview-trailer {
     position: absolute;
     height: 300%;
@@ -255,6 +260,7 @@ img {
     padding: 0 6px 0 2px;
     cursor: pointer;
 }
+
 .button:hover {
     cursor: pointer;
     background-color: var(--primary-color-100);
@@ -510,5 +516,4 @@ img {
         width: 95vw;
         height: 40vh;
     }
-}
-</style>
+}</style>

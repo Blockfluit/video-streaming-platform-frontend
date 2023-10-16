@@ -103,15 +103,22 @@ const deleteReview = (id) => {
         </form>
         <div v-for="review in reviews" class="container-review">
             <div style="display: flex; align-items: center;">
-                <p style="font-weight: 700;">{{ review.user.username }} {{ new Date(review.updatedAt).toLocaleDateString() }}</p>
-                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == false" @click="toggleEdit = true; comment[0].classList.add('focus')">
+                <p style="font-weight: 700;">{{ review.user.username }} {{ new Date(review.updatedAt).toLocaleDateString()
+                }}</p>
+                <div style="margin-left: 15px;">
+                    <Icon class="review-star" name="mdi:star"
+                        v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
+                </div>
+                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == false"
+                    @click="toggleEdit = true; comment[0].classList.add('focus')">
                     <Icon class="icon" name="mdi:pencil" />
                 </button>
-                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == true" @click="updateReview(review.id, comment[0].innerText); comment[0].classList.remove('focus')">
+                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == true"
+                    @click="updateReview(review.id, comment[0].innerText); comment[0].classList.remove('focus')">
                     <Icon class="icon" name="ic:outline-check" />
                 </button>
                 <button class="review-btn" v-if="showReviewButtons(review.user.username)" @click="deleteReview(review.id)">
-                    <Icon class="icon"  name="material-symbols:delete"></Icon>
+                    <Icon class="icon" name="material-symbols:delete"></Icon>
                 </button>
             </div>
             <div ref="comment" :contenteditable="toggleEdit">{{ review.comment }}</div>
@@ -124,6 +131,15 @@ span {
     font-size: 2rem;
     font-weight: 600;
 }
+
+.review-star {
+    color: var(--primary-color-100);
+}
+
+.review-star:hover {
+    cursor: default !important;
+}
+
 .review-btn {
     display: flex;
     justify-content: center;
@@ -133,22 +149,27 @@ span {
     padding: 0;
     color: white;
 }
+
 .review-btn:hover {
     background-color: transparent;
 }
+
 .icon {
     min-height: 25px;
     min-width: 25px;
 }
+
 .icon:hover {
     cursor: pointer;
     color: var(--primary-color-100);
 }
+
 form {
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 .focus {
     border: 1px dashed var(--primary-color-100);
     padding-left: 5px;
@@ -158,12 +179,14 @@ form {
 .focus:focus {
     outline: none !important;
 }
+
 .container-review {
     border: 1px solid white;
     border-radius: 15px;
     padding: 5px 20px;
     margin-bottom: 20px;
 }
+
 input {
     border: 1px solid white;
     border-radius: 15px;
@@ -171,8 +194,9 @@ input {
     width: 100%;
     height: 40px;
     white-space: wrap;
-    
+
 }
+
 button {
     margin: 10px;
     background-color: white;
@@ -183,6 +207,7 @@ button {
     font-weight: 600;
     color: var(--background-color-100)
 }
+
 button:hover {
     cursor: pointer;
     background-color: var(--primary-color-100);

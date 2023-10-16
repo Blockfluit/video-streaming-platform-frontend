@@ -56,7 +56,7 @@ const hoverHandler = (e) => {
 }
 
 const resetRating = (e) => {
-    const rating = props.media.rating / 2
+    const rating = props.media.ratings.reduce((acc, rating) => acc + rating.score, 0) / props.media.ratings.length / 2
 
     for (const element of ratingElement.value.children) {
         if (element.id < rating) element.style.color = "var(--primary-color-100)"
@@ -66,10 +66,13 @@ const resetRating = (e) => {
 </script>
 
 <template>
-    <div @mouseover="hoverHandler" @mouseleave="resetRating" ref="ratingElement" class="container-rating">
-        <template v-for="(id) in stars">
-            <Icon class="star" @click="addRating((id + 1) * 2)" :id="id" name="mdi:star" />
-        </template>
+    <div class="container-rating">
+        <div @mouseover="hoverHandler" @mouseleave="resetRating" ref="ratingElement" class="container-stars">
+            <template v-for="(id) in stars">
+                <Icon class="star" @click="addRating((id + 1) * 2)" :id="id" name="mdi:star" />
+            </template>
+        </div>
+        <span>• {{ media.ratings.length }}</span>
     </div>
 </template>
 
@@ -78,11 +81,19 @@ svg {
     min-width: 25px;
     min-height: 25px;
 }
+
+.container-rating {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .star:hover {
     cursor: pointer;
 }
-.container-rating {
-    z-index: 99999;
+
+.container-stars {
+    z-index: 20;
     display: flex;
     flex-direction: row;
     pointer-events: all;
