@@ -104,9 +104,15 @@ const deleteReview = (id) => {
         <div v-for="review in reviews" class="container-review">
             <div style="display: flex; align-items: center;">
                 <p style="font-weight: 700;">{{ review.user.username }} {{ new Date(review.updatedAt).toLocaleDateString() }}</p>
-                <Icon v-if="showReviewButtons(review.user.username) && toggleEdit == false" @click="toggleEdit = true; comment[0].classList.add('focus')" class="icon" name="mdi:pencil" />
-                <Icon v-if="showReviewButtons(review.user.username) && toggleEdit == true" @click="updateReview(review.id, comment[0].innerText); comment[0].classList.remove('focus')" class="icon" name="ic:outline-check" />
-                <Icon v-if="showReviewButtons(review.user.username)" class="icon" @click="deleteReview(review.id)" name="material-symbols:delete"></Icon>
+                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == false" @click="toggleEdit = true; comment[0].classList.add('focus')">
+                    <Icon class="icon" name="mdi:pencil" />
+                </button>
+                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == true" @click="updateReview(review.id, comment[0].innerText); comment[0].classList.remove('focus')">
+                    <Icon class="icon" name="ic:outline-check" />
+                </button>
+                <button class="review-btn" v-if="showReviewButtons(review.user.username)" @click="deleteReview(review.id)">
+                    <Icon class="icon"  name="material-symbols:delete"></Icon>
+                </button>
             </div>
             <div ref="comment" :contenteditable="toggleEdit">{{ review.comment }}</div>
         </div>
@@ -118,10 +124,21 @@ span {
     font-size: 2rem;
     font-weight: 600;
 }
+.review-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0px 0px 0px 15px !important;
+    background-color: transparent;
+    padding: 0;
+    color: white;
+}
+.review-btn:hover {
+    background-color: transparent;
+}
 .icon {
     min-height: 25px;
     min-width: 25px;
-    margin-left: 15px;
 }
 .icon:hover {
     cursor: pointer;

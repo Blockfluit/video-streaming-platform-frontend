@@ -56,6 +56,10 @@ const playVideo = (selectedVideo) => {
     navigateTo(`/watch`)
 }
 
+const formatTime = (seconds) => {
+    return Math.floor(seconds / 60) + "min"
+}
+
 const playLastVideo = () => {
     const lastVideo = watched.value.filter(video => video.mediaId === media.value.id)
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
@@ -92,7 +96,7 @@ const calcTimePercentage = (video) => {
         <div class="container-preview-trailer">
             <div class="container-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
-                <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
+                <span class="info">{{ media.year }} <span v-if="media.videos.length === 1" >• {{ formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{ media.genre.join(", ") }}</span>
                 <p class="plot-text hide-on-phone">{{ media.plot }}</p>
                 <div class="container-cast hide-on-phone" style="display: flex;">
                     <span class="hide-on-phone">Cast:&nbsp;</span>
@@ -107,12 +111,11 @@ const calcTimePercentage = (video) => {
                         <span>Play</span>
                     </div>
                     <div style="flex-grow: 1;"></div>
-                    <div>
-                        <Icon @click="showTrailer = !showTrailer" name="mdi:movie-open-play" width="40px" height="40px" />
+                    <div class="trailer-button" @click="showTrailer = !showTrailer">
+                        <Icon name="mdi:movie-open-play" width="25px" height="25px" />
                     </div>
-                    <div class="hide-on-desktop">
-                        <Icon @click="showExtraInformation = !showExtraInformation"
-                            name="mdi:information-slab-circle-outline" width="40px" height="40px" />
+                    <div class="trailer-button hide-on-desktop" @click="showExtraInformation = !showExtraInformation">
+                        <Icon name="mdi:information-slab-circle-outline" width="25px" height="25px" />
                     </div>
                 </div>
             </div>
@@ -140,6 +143,7 @@ const calcTimePercentage = (video) => {
                     v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)" :id="video.id">
                     <div class="darken"></div>
                     <span>{{ video.name }}</span>
+                    <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
                     <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
                 </li>
@@ -152,6 +156,7 @@ const calcTimePercentage = (video) => {
                     :id="video.id">
                     <div class="darken"></div>
                     <span>{{ video.name }}</span>
+                    <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
                     <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
                 </li>
@@ -192,10 +197,17 @@ img {
 .container-popup-information {
     margin: 20px;
     padding: 20px;
+    width: 90vw;
     background-color: var(--background-color-100);
     border-radius: var(--border-radius-1);
 }
-
+.trailer-button {
+    padding: 5px;
+}
+.trailer-button:hover {
+    cursor: pointer;
+    color: var(--primary-color-100);
+}
 .preview-trailer {
     position: absolute;
     height: 300%;
@@ -214,6 +226,8 @@ img {
 .container-cast {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    font-weight: 100;
 }
 
 .container-popup {
@@ -240,6 +254,10 @@ img {
     border-radius: var(--border-radius-1);
     padding: 0 6px 0 2px;
     cursor: pointer;
+}
+.button:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
 }
 
 .button * {
@@ -349,7 +367,7 @@ img {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 100%);
 }
 
 .episode-card {
