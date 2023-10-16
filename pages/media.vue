@@ -25,6 +25,7 @@ const selectedSeason = ref(1)
 const showDropdown = ref(false)
 const episodeList = ref()
 const showTrailer = ref(false)
+const showExtraInformation = ref(false)
 
 watch(media, (o, n) => {
     seasons.value = [...new Set(media.value.videos.map(video => video.season))]
@@ -92,11 +93,12 @@ const calcTimePercentage = (video) => {
             <div class="container-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                 <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
-                <p class="plot-text">{{ media.plot }}</p>
-                <div class="container-cast" style="display: flex;">
-                    <span>Cast:&nbsp;</span>
-                    <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
-                        actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+                <p class="plot-text hide-on-phone">{{ media.plot }}</p>
+                <div class="container-cast hide-on-phone" style="display: flex;">
+                    <span class="hide-on-phone">Cast:&nbsp;</span>
+                    <span class="hide-on-phone" v-for="(actor, index) in media.actors">{{ actor.firstname }}<span
+                            v-if="actor.lastname">&nbsp;{{
+                                actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
                 </div>
                 <Rating style="margin-top: 12px;" :media="media" />
                 <div class="button-container">
@@ -104,11 +106,13 @@ const calcTimePercentage = (video) => {
                         <Icon name="mdi:play" width="30px" height="30px" />
                         <span>Play</span>
                     </div>
-                    <div>
-                        <Icon name="mdi:information-slab-circle-outline" width="40px" height="40px" />
-                    </div>
+                    <div style="flex-grow: 1;"></div>
                     <div>
                         <Icon @click="showTrailer = !showTrailer" name="mdi:movie-open-play" width="40px" height="40px" />
+                    </div>
+                    <div class="hide-on-desktop">
+                        <Icon @click="showExtraInformation = !showExtraInformation"
+                            name="mdi:information-slab-circle-outline" width="40px" height="40px" />
                     </div>
                 </div>
             </div>
@@ -157,9 +161,21 @@ const calcTimePercentage = (video) => {
             <Reviews :media="media" />
         </div>
     </div>
-    <div @click="showTrailer = false" v-if="showTrailer" class="container-popup-trailer">
+    <div @click="showTrailer = false" v-if="showTrailer" class="container-popup">
         <iframe class="popup-trailer" :src="parseTrailer(media.trailer, true, true)"
             allow="autoplay; encrypted-media;"></iframe>
+    </div>
+    <div @click="showExtraInformation = false" v-if="showExtraInformation" class="container-popup">
+        <div class="container-popup-information">
+            <h1 style="text-transform: uppercase; margin-bottom: -10px; margin-top: 0;">{{ media.name }}</h1>
+            <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
+            <p class="plot-text">{{ media.plot }}</p>
+            <div class="container-cast">
+                <span>Cast:&nbsp;</span>
+                <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
+                    actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -171,6 +187,13 @@ const calcTimePercentage = (video) => {
 
 img {
     width: 200px;
+}
+
+.container-popup-information {
+    margin: 20px;
+    padding: 20px;
+    background-color: var(--background-color-100);
+    border-radius: var(--border-radius-1);
 }
 
 .preview-trailer {
@@ -188,7 +211,12 @@ img {
     border: 0;
 }
 
-.container-popup-trailer {
+.container-cast {
+    display: flex;
+    flex-direction: row;
+}
+
+.container-popup {
     z-index: 10;
     position: fixed;
     display: flex;
@@ -376,6 +404,7 @@ img {
 }
 
 .container-information {
+    width: 100%;
     padding: 30px;
     bottom: 0;
     overflow-wrap: break-all;
@@ -392,6 +421,10 @@ img {
     width: 100%;
     height: 100%;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.hide-on-desktop {
+    display: none;
 }
 
 @media screen and (max-width: 1100px) {
@@ -429,10 +462,12 @@ img {
         height: 180px;
     }
 
-    .container-cast,
-    .container-cast *,
-    .plot-text {
+    .hide-on-phone {
         display: none;
+    }
+
+    .hide-on-desktop {
+        display: block;
     }
 }
 
