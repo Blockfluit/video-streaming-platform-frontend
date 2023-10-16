@@ -214,6 +214,10 @@ iframe {
         top: -100%;
     }
 
+    .container-trailer {
+        height: 40vh;
+    }
+
     .trailer-name,
     .watch-now {
         font-size: var(--font-size-3);

@@ -54,12 +54,22 @@ const playVideo = (selectedVideo) => {
     navigateTo(`/watch`)
 }
 
+const playLastVideo = () => {
+    const lastVideo = watched.value.filter(video => video.mediaId === media.value.id)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+    const lastVideoId = lastVideo !== undefined ? lastVideo.videoId : -1
+
+    const video = media.value.videos.find(video => video.id === lastVideoId) ??
+        media.value.videos.find(video => video.index === 0)
+    playVideo(video)
+}
+
 const parseTrailer = (trailer) => {
     let trailerId = trailer.split('watch?v=')[1]
     if (trailer === undefined) {
         return ""
     }
-    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0`
+    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&mute=1&disablekb&fs=0&loop=1&rel=0`
 }
 
 const calcTimePercentage = (video) => {
@@ -82,12 +92,18 @@ const calcTimePercentage = (video) => {
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                 <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
                 <p class="plot-text">{{ media.plot }}</p>
-                <div style="display: flex;">
+                <div class="container-cast" style="display: flex;">
                     <span>Cast:&nbsp;</span>
                     <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
                         actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
                 </div>
                 <Rating style="margin-top: 12px;" :media="media" />
+                <div class="button-container">
+                    <div @click="playLastVideo" class="button">
+                        <Icon name="mdi:play" width="30px" height="30px" />
+                        <span>Play</span>
+                    </div>
+                </div>
             </div>
             <div class="overlay"></div>
             <iframe ref="iframe" :src="parseTrailer(media.trailer)" name="Trailer"
@@ -106,7 +122,7 @@ const calcTimePercentage = (video) => {
         </div>
 
         <!-- Show season episodes based on choosen season -->
-        <div class="container-episodes">
+        <div v-if="media.videos.length > 1" class="container-episodes">
             <!-- Movie episode cards -->
             <ul v-if="seasons.includes(-1)" @wheel="scrollHorizontal" ref="episodeList" class="movie-content">
                 <li @click="playVideo(video)" class="episode-card"
@@ -142,6 +158,42 @@ const calcTimePercentage = (video) => {
     width: 5px !important;
 }
 
+img {
+    width: 200px;
+}
+
+iframe {
+    position: absolute;
+    height: 300%;
+    width: 100%;
+    top: -100%;
+    border: 0;
+}
+
+.button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: var(--font-size-4);
+    color: var(--background-color-100);
+    background-color: var(--text-color-1);
+    border-radius: var(--border-radius-1);
+    padding: 0 6px 0 2px;
+    cursor: pointer;
+}
+
+.button * {
+    padding: 0 4px;
+}
+
+.button-container {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    pointer-events: all;
+}
+
 .time {
     height: 4px;
     background-color: var(--primary-color-100);
@@ -150,25 +202,25 @@ const calcTimePercentage = (video) => {
     bottom: 0;
 }
 
-img {
-    width: 200px;
-}
 .plot-text {
-    display: block; 
+    display: block;
     text-overflow: ellipsis;
-    font-size: 16px; 
+    font-size: 16px;
     max-height: 200px;
     max-width: 50vw;
-    overflow-x: hidden; 
-    overflow-y: scroll; 
+    overflow-x: hidden;
+    overflow-y: scroll;
     pointer-events: all;
 }
+
 .plot-text::-webkit-scrollbar {
     display: none;
 }
+
 .review-container {
     margin: 30px 30px 80px 30px;
 }
+
 .season-dropdown {
     position: absolute;
     display: flex;
@@ -283,11 +335,6 @@ img {
     overflow: hidden;
 }
 
-.wrapper {
-    display: flex;
-    width: 100%;
-}
-
 .container-trailer {
     position: relative;
     overflow: hidden;
@@ -305,14 +352,6 @@ img {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-}
-
-iframe {
-    position: absolute;
-    height: 300%;
-    width: 100%;
-    top: -100%;
-    border: 0;
 }
 
 .overlay {
@@ -336,16 +375,41 @@ iframe {
     }
 }
 
-@media screen and (max-width: 992px) {}
+@media screen and (max-width: 992px) {
+    .container-information {
+        padding: 20px;
+    }
+
+    .button-container {
+        margin-top: 8px;
+    }
+
+    .info {
+        margin-bottom: 0;
+    }
+
+    .episode-card {
+        min-width: 170px;
+        height: 180px;
+    }
+
+    .container-cast,
+    .container-cast *,
+    .plot-text {
+        display: none;
+    }
+}
 
 @media screen and (max-width: 700px) {
     .container-trailer {
         height: 40vh;
     }
+
     .plot-text {
         max-width: 100%;
         max-height: 50px;
     }
+
     iframe {
         height: 300%;
         width: 180%;

@@ -41,9 +41,9 @@ watch(inputValue, (o, n) => {
                     <Icon name="fa-solid:pizza-slice" class="home-icon" />
                 </NuxtLink>
                 <transition name="fade">
-                    <input key="1" class="search-bar" v-if="showSearch && showSearchField" v-model="inputValue" type="text">
+                    <input key="1" class="search-bar" v-if="showSearchField" v-model="inputValue" type="text">
                 </transition>
-                <Icon v-if="showSearch" @click="showSearchField = !showSearchField" name="fa-solid:search" size="20" />
+                <Icon @click="showSearchField = !showSearchField" name="fa-solid:search" size="20" />
             </div>
             <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="charm:menu-hamburger" size="2.5rem" />
         </div>

@@ -11,34 +11,9 @@ const mainStore = useMainStore()
 const { allMedia, searchbox, allGenres } = storeToRefs(mainStore)
 
 const allSeries = ref([])
-const filteredMedia = ref([])
+const filteredMedia = ref(new Set())
 const filters = ref([])
 const filterElement = ref()
-
-function scrollHorizontal(e) {
-    e.preventDefault();
-    filterElement.value.scrollLeft += e.deltaY;
-}
-
-const doFilter = (genre) => {
-    filteredMedia.value = allSeries.value
-
-    if (genre !== undefined) {
-        const index = filters.value.findIndex(entry => entry === genre)
-
-        index === -1 ?
-            filters.value.push(genre) :
-            filters.value.splice(index, 1)
-    }
-
-    for (const entry of filters.value) {
-        filteredMedia.value = filteredMedia.value.filter(media => media.genre.includes(entry))
-    }
-
-    if (searchbox.value !== "") {
-        filteredMedia.value = filteredMedia.value.filter(media => media.name.toLowerCase().includes(searchbox.value.toLowerCase()))
-    }
-}
 
 onBeforeMount(() => {
     mainStore.setAllMedia()
@@ -51,18 +26,51 @@ watch(allMedia, (o, n) => {
     doFilter()
 })
 
+watch(filters, (o, n) => {
+    doFilter()
+})
+
 watch(searchbox, (o, n) => {
     doFilter()
 })
+
+function scrollHorizontal(e) {
+    e.preventDefault();
+    filterElement.value.scrollLeft += e.deltaY;
+}
+
+
+const doFilter = () => {
+    filteredMedia.value.clear()
+
+    for (const entry of filters.value) {
+        allSeries.value.filter(media => media.genre.includes(entry))
+            .forEach(media => filteredMedia.value.add(media))
+    }
+
+    if (searchbox.value !== "") {
+        if (filteredMedia.value.size === 0) {
+            allSeries.value.filter(media => media.name.toLowerCase().includes(searchbox.value.toLowerCase()))
+                .forEach(media => filteredMedia.value.add(media))
+        } else {
+            const tempFiltered = [...filteredMedia.value].filter(media => media.name.toLowerCase().includes(searchbox.value.toLowerCase()))
+            filteredMedia.value.clear()
+            tempFiltered.forEach(media => filteredMedia.value.add(media))
+        }
+    }
+}
 </script>
 
 <template>
     <div class="container">
         <div @wheel="scrollHorizontal" class="container-filter" ref="filterElement">
-            <span v-for="(genre) in allGenres" class="filter"
-                :style="filters.includes(genre.name) ? 'color: var(--primary-color-100)' : 'color: white'"
-                @click="doFilter(genre.name)">{{
-                    genre.name }}</span>
+            <template v-for="(genre, index) in allGenres">
+                <input type="checkbox" :id="index" :value="genre.name" v-model="filters" style="display: none;">
+                <label :for="index"
+                    :style="filters.includes(genre.name) ? 'color: var(--primary-color-200)' : 'color: white'"
+                    class="filter">{{ genre.name
+                    }}</label>
+            </template>
         </div>
         <div v-if="filters.length === 0 && searchbox === ''" class="container-cards">
             <div
@@ -85,7 +93,8 @@ watch(searchbox, (o, n) => {
             </div> -->
         </div>
         <div class="container-cards">
-            <h2 class="carousel-title">{{ (filters.length === 0 && searchbox === '') ? "All Series" : "Filtered Series" }}</h2>
+            <h2 class="carousel-title">{{ (filters.length === 0 && searchbox === '') ? "All Series" : "Filtered Series" }}
+            </h2>
             <div class="container-filtered-cards">
                 <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
                     <Card :shownMedia="media" />
@@ -134,6 +143,7 @@ h2 {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    margin: 0 6px 4px 6px;
 }
 
 .filter:hover {
