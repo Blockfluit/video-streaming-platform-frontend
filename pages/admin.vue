@@ -152,11 +152,11 @@ const deleteToken = (token) => {
         <div class="container-horizontal">
             <form @submit.prevent="addUser">
                 <div class="container-add-user">
-                    <h1>Add User</h1>
-                    <input v-model="username" placeholder="username" type="text" required>
-                    <input v-model="email" placeholder="email" type="email">
-                    <input v-model="password" placeholder="password" type="text" required>
-                    <select v-model="role">
+                    <span style="font-size: 2rem; font-weight: 600;">Add User</span>
+                    <input v-model="username" placeholder="Username*" type="text" required>
+                    <input v-model="email" placeholder="Email" type="email">
+                    <input v-model="password" placeholder="Password*" type="text" required>
+                    <select style="margin-bottom: 10px;" v-model="role">
                         <option value="USER">User</option>
                         <option value="CRITIC">Critic</option>
                         <option value="ADMIN">Admin</option>
@@ -168,30 +168,31 @@ const deleteToken = (token) => {
                 <thead>
                     <tr>
                         <td>Username</td>
-                        <td>Email</td>
+                        <td class="email">Email</td>
                         <td>Role</td>
                         <td>Last Active</td>
+                        <td></td>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for=" user  in  users ">
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.role }}</td>
-                        <td>{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
-                        <td @click="deleteUser(user.username)">
-                            <Icon name="fa-solid:poo"></Icon>
+                    <tr class="row" v-for="user in users">
+                        <td class="username">{{ user.username }}</td>
+                        <td class="email">{{ user.email }}</td>
+                        <td class="role">{{ user.role }}</td>
+                        <td class="last-active">{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
+                        <td class="delete" @click="deleteUser(user.username)">
+                            <Icon class="icon" name="material-symbols:delete"></Icon>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class="container-horizontal">
+        <div style="margin-top: 50px;" class="container-horizontal">
             <form @submit.prevent="addToken">
                 <div class="container-add-token">
-                    <h1>Add Token</h1>
+                    <span style="font-size: 2rem; font-weight: 600;">Add Token</span>
                     <input v-model="expiration" type="date" required>
-                    <select v-model="tokenRole" required>
+                    <select style="margin-bottom: 10px;" v-model="tokenRole" required>
                         <option value="USER">User</option>
                         <option value="CRITIC">Critic</option>
                         <option value="ADMIN">Admin</option>
@@ -215,7 +216,7 @@ const deleteToken = (token) => {
                         <td>{{ new Date(token.expiration).toLocaleString() }}</td>
                         <td>{{ token.createdBy }}</td>
                         <td @click="deleteToken(token.token)">
-                            <Icon name="fa-solid:poo"></Icon>
+                            <Icon class="icon" name="material-symbols:delete"></Icon>
                         </td>
                     </tr>
                 </tbody>
@@ -228,12 +229,67 @@ const deleteToken = (token) => {
 .container {
     margin: 50px;
 }
-
+input {
+    border: 1px solid white;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding-left: 6px;
+}
+form {
+    min-width: 250px;
+    margin-right: 50px;
+}
 .container-horizontal {
     display: flex;
     flex-direction: row;
 }
 
+.delete {
+    margin-left: -50px;
+}
+table {
+  width: 100%;
+  height: fit-content;
+  background-color: #282828;
+  border-collapse: collapse;
+  border-width: 0px;
+  border-color: #FFFFFF;
+  border-style: solid;
+  color: #FFFFFF;
+}
+
+table td, table th {
+  border-width: 0px;
+  border-color: #FFFFFF;
+  border-style: solid;
+  overflow: hidden;
+  padding-left: 15px;
+  height: 40px;
+}
+
+table thead {
+  background-color: #121212;
+}
+tbody tr:nth-child(even ){
+  background: var(--background-color-100);
+}
+
+
+.email {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+.icon {
+    display: flex;
+    align-items: center;
+}
+.icon:hover {
+    color: var(--primary-color-100);
+    cursor: pointer;
+}
 .container-add-user {
     display: flex;
     flex-direction: column;
@@ -244,7 +300,40 @@ const deleteToken = (token) => {
     flex-direction: column;
 }
 
-.container-users {
-    border: 1px solid white;
+.container-users thead {
+    height: 40px;
+}
+.container-users tr {
+    height: 30px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-family-1);
+}
+button:hover {
+    background-color: var(--primary-color-100);
+    cursor: pointer;
+}
+
+@media screen and (max-width: 993px) {
+    .container-horizontal {
+        flex-direction: column;
+    }
+    form {
+        margin: 0px 0px 50px 0px;
+    }
+    table .last-active, table .username {
+        max-width: 4vw;
+    }
+    .email {
+        display: none;
+    }
+    .role {
+        max-width: 60px;
+    }
 }
 </style>
