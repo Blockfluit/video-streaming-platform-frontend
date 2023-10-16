@@ -5,7 +5,10 @@ export const useMainStore = defineStore("mainStore", {
     state: () => ({
         config: useRuntimeConfig(),
         jwtStore: useJwtStore(),
-        allMedia: useLocalStorage("all-media", []),
+        allMedia: useLocalStorage("all-media", [{
+            name: "",
+            trailer: ""
+        }]),
         watched: [],
         searchbox: "",
         allActors: [],

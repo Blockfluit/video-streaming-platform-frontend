@@ -20,19 +20,18 @@ const { startTime, video } = storeToRefs(watchStore)
 const config = useRuntimeConfig()
 const showExtraInformation = ref(false)
 const timePercentage = ref(0)
-const lastWatched = ref({})
 
 onBeforeMount(() => {
-    lastWatched.value = getLastVideo(props.shownMedia.id)
+    const lastWatched = getLastVideo(props.shownMedia.id)
     if (timePercentage.value !== undefined) {
-        timePercentage.value = lastWatched.value.timestamp / lastWatched.value.duration * 100
+        timePercentage.value = lastWatched.timestamp / lastWatched.duration * 100
     }
 })
 
 watch(watched, (o, n) => {
-    lastWatched.value = getLastVideo(props.shownMedia.id)
-    if (lastWatched.value !== undefined) {
-        timePercentage.value = lastWatched.value.timestamp / lastWatched.value.duration * 100
+    const lastWatched = getLastVideo(props.shownMedia.id)
+    if (timePercentage.value !== undefined) {
+        timePercentage.value = lastWatched.timestamp / lastWatched.duration * 100
     }
 },
     { deep: true })
@@ -47,13 +46,14 @@ const navigateToMedia = () => {
     navigateTo(`/media`)
 }
 
-const navigateToLastVideo = () => {
+const navigateToLastVideo = (mediaId) => {
     media.value.id = props.shownMedia.id
 
     if (props.showLastVideo) {
-        lastWatched.value.id = lastWatched.value.videoId
-        video.value = lastWatched.value
-        startTime.value = lastWatched.value.timestamp
+        const lastWatched = getLastVideo(mediaId)
+        lastWatched.id = lastWatched.videoId
+        video.value = lastWatched
+        startTime.value = lastWatched.timestamp
         navigateTo(`watch`)
         return
     }
@@ -69,10 +69,10 @@ const navigateToLastVideo = () => {
             </div>
             <div v-if="showLastVideo" class="information">
                 <div class="time" :style="`width: ${timePercentage}%`"></div>
-                <span class="last-video-name">{{ lastWatched.name }}</span>
+                <span class="last-video-name">{{ getLastVideo(shownMedia.id).name }}</span>
             </div>
-            <div @click="navigateToLastVideo()" @mouseleave="showExtraInformation = false" v-if="showExtraInformation"
-                class="show-rating">
+            <div @click="navigateToLastVideo(shownMedia.id)" @mouseleave="showExtraInformation = false"
+                v-if="showExtraInformation" class="show-rating">
                 <div v-if="shownMedia.rating >= 1">
                     <template v-for="star in 5">
                         <Icon class="star"

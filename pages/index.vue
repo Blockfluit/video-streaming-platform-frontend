@@ -9,11 +9,8 @@ const mediaStore = useMediaStore()
 const { allMedia, watched } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
 
+const recentMedia = ref([{ name: "" }])
 let timeoutId
-
-// Sets 5 most recent media + all media from past 7 days
-const recentMedia = ref(allMedia.value.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
-recentMedia.value.push(...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date()).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)))
 
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
@@ -35,6 +32,16 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     clearTimeout(timeoutId)
+})
+
+watch(allMedia, () => {
+    // Sets 5 most recent media + all media from past 7 days
+    recentMedia.value = []
+    recentMedia.value.push(...allMedia.value.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
+    recentMedia.value.push(...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date()).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)))
+
+    trailerMedia.value = ref(recentMedia.value[trailerMediaId.value])
+    nextTrailer(trailerMediaId.value)
 })
 
 const setTrailerTimeout = (index) => {
@@ -63,10 +70,11 @@ const navigateToMedia = () => {
 }
 
 const parseTrailer = (trailer) => {
-    let trailerId = trailer.split('watch?v=')[1]
     if (trailer === undefined) {
-        return ""
+        return "https://s.w-x.co/in-cat_in_glasses.jpg"
     }
+
+    let trailerId = trailer.split('watch?v=')[1]
     return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0`
 }
 </script>
