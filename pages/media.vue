@@ -163,8 +163,11 @@ const calcTimePercentage = (video) => {
                     <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
                 </li>
             </ul>
+            <div class="review-container">
+                <Reviews :media="media" />
+            </div>
         </div>
-        <div class="review-container">
+        <div v-if="seasons.includes(-1)" class="review-container-movie">
             <Reviews :media="media" />
         </div>
     </div>
@@ -203,7 +206,9 @@ img {
     background-color: var(--background-color-100);
     border-radius: var(--border-radius-1);
 }
-
+.review-container-movie {
+    padding: 30px;
+}
 .trailer-button {
     padding: 5px;
 }
@@ -302,7 +307,7 @@ img {
 }
 
 .review-container {
-    margin: 30px 30px 80px 30px;
+    margin: 30px 0px 80px 0px;
 }
 
 .season-dropdown {
@@ -354,6 +359,7 @@ img {
 .season-content {
     display: flex;
     overflow-x: scroll;
+    overflow-y: hidden;
     padding: 0;
     margin: 0;
     width: 100%;
@@ -362,6 +368,7 @@ img {
 .movie-content {
     display: flex;
     overflow-x: scroll;
+    overflow-y: hidden;
     padding: 0;
     margin: 0;
     width: 100%;
@@ -378,8 +385,9 @@ img {
 
 .episode-card {
     position: relative;
-    min-width: 250px;
-    height: 200px;
+    aspect-ratio: 4/3;
+    min-width: 20vw;
+    height: 95%;
     margin-right: 10px;
     margin-bottom: 10px;
     list-style: none;
@@ -416,7 +424,7 @@ img {
 
 .container-episodes {
     margin: 0px 30px;
-    overflow: hidden;
+    padding-bottom: 50px;
 }
 
 .container-preview-trailer {
@@ -449,6 +457,22 @@ img {
 
 .hide-on-desktop {
     display: none;
+}
+
+@media screen and (min-width: 1200px) {
+    .movie-content, .season-content {
+        max-width: 49%;
+    }
+    .container-episodes {
+        display: flex;
+        margin: 0px 30px;
+        overflow: hidden;
+        justify-content: space-between;
+    }
+    .review-container {
+        margin: 0;
+        width: 49%;
+    }
 }
 
 @media screen and (max-width: 1100px) {
