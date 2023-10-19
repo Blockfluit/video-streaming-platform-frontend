@@ -38,7 +38,7 @@ watch(inputValue, (o, n) => {
         <div class="mobile-menu">
             <div style="display:flex; align-items: center;">
                 <NuxtLink to="/">
-                    <Icon name="fa-solid:pizza-slice" class="home-icon" />
+                    <img src="/icons/dellekes_logo.png" class="home-icon" />
                 </NuxtLink>
                 <transition name="fade">
                     <input key="1" class="search-bar" v-if="showSearchField" v-model="inputValue" type="text">
@@ -50,7 +50,7 @@ watch(inputValue, (o, n) => {
         <div class="desktop-nav">
             <div class="menu-left">
                 <NuxtLink to="/">
-                    <Icon name="fa-solid:pizza-slice" class="home-icon" />
+                    <img src="/icons/dellekes_logo.png" class="home-icon" />
                 </NuxtLink>
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
@@ -150,12 +150,15 @@ span:hover {
 
 .icon:hover {
     cursor: pointer;
-    color: var(--primary-color-100)
+    color: var(--primary-color-100);
 }
-
+.home-icon {
+    height: 35px;
+    aspect-ratio: auto;
+    margin-top: 10px;
+}
 .home-icon:hover {
     cursor: pointer;
-    color: var(--primary-color-100)
 }
 
 .placeholder {

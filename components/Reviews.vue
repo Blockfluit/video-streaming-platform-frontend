@@ -15,7 +15,7 @@ const mediaStore = useMediaStore()
 const { media } = storeToRefs(mediaStore)
 const reviews = ref(props.media.reviews)
 const review = ref()
-const toggleEdit = ref(false)
+const toggleEdit = ref([])
 const comment = ref()
 
 watch(media, (o, n) => {
@@ -25,6 +25,12 @@ watch(media, (o, n) => {
 const showReviewButtons = (username) => {
     return username === jwtStore.getSubject || jwtStore.getRole == "ADMIN"
 }
+
+onMounted(()=> {
+    for(let i=0; reviews.value.length > i; i++){
+        toggleEdit.value.push(false)
+    }
+})
 
 const addReview = (review) => {
     fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
@@ -67,7 +73,6 @@ const updateReview = (id, review) => {
     }).catch(e => {
         console.log(e)
     })
-    toggleEdit.value = false;
 }
 
 const deleteReview = (id) => {
@@ -98,31 +103,39 @@ const deleteReview = (id) => {
     <div>
         <span>Reviews</span>
         <form v-if="jwtStore.getRole !== 'USER'" @submit.prevent="addReview(review)">
-            <input v-model="review" placeholder="Write a review" type="text">
-            <button type="submit">Post your review</button>
+            <input v-model="review" placeholder="Write a review..." type="text">
+            <button style="min-width: 150px;" type="submit">Post your review</button>
         </form>
-        <div v-for="review in reviews" class="container-review">
-            <div style="display: flex; align-items: center;">
-                <p style="font-weight: 700;">{{ review.user.username }} {{ new Date(review.updatedAt).toLocaleDateString()
-                }}</p>
-                <div style="margin-left: 15px;">
-                    <Icon class="review-star" name="mdi:star"
-                        v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
+        <ul class="scroll-container">
+            <div v-for="(review, index) in reviews" class="container-review">
+                <div class="review-header">
+
+                    <p style="font-weight: 700; display: flex; align-items: center;">{{ review.user.username }} <p class="review-date">{{ new Date(review.updatedAt).toLocaleDateString()
+                    }}</p></p>
+
+                    <div style="margin-left: 15px; display: flex;align-items: center;">
+                        <Icon class="review-star" name="mdi:star"
+                            v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; position: absolute; top: 0; right: 0;">
+                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit[index] == false"
+                            @click="toggleEdit[index] = true; comment[index].classList.add('focus');">
+                            <Icon class="icon" name="mdi:pencil" />
+                        </button>
+                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit[index] == true"
+                            @click="updateReview(review.id, comment[index].innerText); toggleEdit[index] = false; comment[index].classList.remove('focus')">
+                            <Icon class="icon" name="ic:outline-check" />
+                        </button>
+                        <button class="review-btn" v-if="showReviewButtons(review.user.username)" @click="deleteReview(review.id)">
+                            <Icon class="icon" name="material-symbols:delete"></Icon>
+                        </button>
+                    </div>
+
                 </div>
-                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == false"
-                    @click="toggleEdit = true; comment[0].classList.add('focus')">
-                    <Icon class="icon" name="mdi:pencil" />
-                </button>
-                <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit == true"
-                    @click="updateReview(review.id, comment[0].innerText); comment[0].classList.remove('focus')">
-                    <Icon class="icon" name="ic:outline-check" />
-                </button>
-                <button class="review-btn" v-if="showReviewButtons(review.user.username)" @click="deleteReview(review.id)">
-                    <Icon class="icon" name="material-symbols:delete"></Icon>
-                </button>
+                <div ref="comment" :contenteditable="toggleEdit[index]">{{ review.comment }}</div>
             </div>
-            <div ref="comment" :contenteditable="toggleEdit">{{ review.comment }}</div>
-        </div>
+        </ul>
     </div>
 </template>
 
@@ -131,11 +144,29 @@ span {
     font-size: 2rem;
     font-weight: 600;
 }
-
+.review-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+}
 .review-star {
     color: var(--primary-color-100);
 }
-
+.review-date {
+    margin-left: 10px; 
+    font-weight: 400; 
+    font-size: 1.3rem;
+    display: flex; 
+    align-items: center;
+}
+.scroll-container {
+    padding: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 200px;
+    height: 200px;
+}
 .review-star:hover {
     cursor: default !important;
 }
@@ -168,6 +199,8 @@ form {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 50px;
+    margin-bottom: 15px
 }
 
 .focus {
@@ -185,24 +218,26 @@ form {
     border-radius: 15px;
     padding: 5px 20px;
     margin-bottom: 20px;
+    margin-right: 10px;
 }
 
 input {
-    border: 1px solid white;
-    border-radius: 15px;
-    padding-left: 20px;
+    border: none;
+    border-bottom: 1px solid white;
+    padding-left: 1px;
     width: 100%;
-    height: 40px;
+    height: 100%;
     white-space: wrap;
 
 }
 
 button {
-    margin: 10px;
+    height: 100%;
+    margin-left: 10px;
     background-color: white;
     border: none;
     border-radius: 15px;
-    padding: 10px 20px;
+    padding: 10px 10px;
     font-family: var(--font-family-1);
     font-weight: 600;
     color: var(--background-color-100)
@@ -211,5 +246,21 @@ button {
 button:hover {
     cursor: pointer;
     background-color: var(--primary-color-100);
+}
+
+@media screen and (max-width: 550px){
+    .review-header p{
+        font-size: 1.1rem !important;
+    }
+    .review-date {
+        display: none;
+    }
+    .scroll-container {
+        padding: 0;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        max-height: 400px;
+        height: 400px;
+    }
 }
 </style>
