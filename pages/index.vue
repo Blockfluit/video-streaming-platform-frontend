@@ -104,10 +104,10 @@ const parseTrailer = (trailer) => {
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
         <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
-        <div
-            :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
-                .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
-                    new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))">
+        <div :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
+            .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
+                new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))
+            .slice(0, 12)">
             <h2 v-if="media1.length > 0" class="carousel-title">Continue Watching</h2>
             <CardRow :allMedia="media1" :showLastVideo=true />
         </div>

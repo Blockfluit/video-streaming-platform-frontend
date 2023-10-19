@@ -19,15 +19,15 @@ const toggleEdit = ref([])
 const comment = ref()
 
 watch(media, (o, n) => {
-    reviews.value = media.value.reviews
+    reviews.value = [...media.value.reviews].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
 })
 
 const showReviewButtons = (username) => {
     return username === jwtStore.getSubject || jwtStore.getRole == "ADMIN"
 }
 
-onMounted(()=> {
-    for(let i=0; reviews.value.length > i; i++){
+onMounted(() => {
+    for (let i = 0; reviews.value.length > i; i++) {
         toggleEdit.value.push(false)
     }
 })
@@ -110,24 +110,30 @@ const deleteReview = (id) => {
             <div v-for="(review, index) in reviews" class="container-review">
                 <div class="review-header">
 
-                    <p style="font-weight: 700; display: flex; align-items: center;">{{ review.user.username }} <p class="review-date">{{ new Date(review.updatedAt).toLocaleDateString()
-                    }}</p></p>
+                    <p style="font-weight: 700; display: flex; align-items: center;">{{ review.user.username }}
+                    <p class="review-date">{{ new Date(review.updatedAt).toLocaleDateString()
+                    }}</p>
+                    </p>
 
                     <div style="margin-left: 15px; display: flex;align-items: center;">
                         <Icon class="review-star" name="mdi:star"
                             v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; position: absolute; top: 0; right: 0;">
-                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit[index] == false"
+                    <div
+                        style="display: flex; align-items: center; justify-content: center; height: 100%; position: absolute; top: 0; right: 0;">
+                        <button class="review-btn"
+                            v-if="showReviewButtons(review.user.username) && toggleEdit[index] == false"
                             @click="toggleEdit[index] = true; comment[index].classList.add('focus');">
                             <Icon class="icon" name="mdi:pencil" />
                         </button>
-                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit[index] == true"
+                        <button class="review-btn"
+                            v-if="showReviewButtons(review.user.username) && toggleEdit[index] == true"
                             @click="updateReview(review.id, comment[index].innerText); toggleEdit[index] = false; comment[index].classList.remove('focus')">
                             <Icon class="icon" name="ic:outline-check" />
                         </button>
-                        <button class="review-btn" v-if="showReviewButtons(review.user.username)" @click="deleteReview(review.id)">
+                        <button class="review-btn" v-if="showReviewButtons(review.user.username)"
+                            @click="deleteReview(review.id)">
                             <Icon class="icon" name="material-symbols:delete"></Icon>
                         </button>
                     </div>
@@ -144,22 +150,26 @@ span {
     font-size: 2rem;
     font-weight: 600;
 }
+
 .review-header {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     position: relative;
 }
+
 .review-star {
     color: var(--primary-color-100);
 }
+
 .review-date {
-    margin-left: 10px; 
-    font-weight: 400; 
+    margin-left: 10px;
+    font-weight: 400;
     font-size: 1.3rem;
-    display: flex; 
+    display: flex;
     align-items: center;
 }
+
 .scroll-container {
     padding: 0;
     overflow-y: scroll;
@@ -167,6 +177,7 @@ span {
     max-height: 200px;
     height: 200px;
 }
+
 .review-star:hover {
     cursor: default !important;
 }
@@ -248,13 +259,15 @@ button:hover {
     background-color: var(--primary-color-100);
 }
 
-@media screen and (max-width: 550px){
-    .review-header p{
+@media screen and (max-width: 550px) {
+    .review-header p {
         font-size: 1.1rem !important;
     }
+
     .review-date {
         display: none;
     }
+
     .scroll-container {
         padding: 0;
         overflow-y: scroll;

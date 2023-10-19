@@ -206,9 +206,11 @@ img {
     background-color: var(--background-color-100);
     border-radius: var(--border-radius-1);
 }
+
 .review-container-movie {
     padding: 30px;
 }
+
 .trailer-button {
     padding: 5px;
 }
@@ -460,15 +462,19 @@ img {
 }
 
 @media screen and (min-width: 1200px) {
-    .movie-content, .season-content {
+
+    .movie-content,
+    .season-content {
         max-width: 49%;
     }
+
     .container-episodes {
         display: flex;
         margin: 0px 30px;
         overflow: hidden;
         justify-content: space-between;
     }
+
     .review-container {
         margin: 0;
         width: 49%;
@@ -540,4 +546,5 @@ img {
         width: 95vw;
         height: 40vh;
     }
-}</style>
+}
+</style>
