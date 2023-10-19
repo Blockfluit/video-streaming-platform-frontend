@@ -167,7 +167,7 @@ const calcTimePercentage = (video) => {
                 <Reviews :media="media" />
             </div>
         </div>
-        <div v-if="seasons.includes(-1)" class="review-container-movie">
+        <div v-if="seasons.includes(-1) && media.videos.length === 1" class="review-container-movie">
             <Reviews :media="media" />
         </div>
     </div>
@@ -363,6 +363,7 @@ img {
     padding: 0;
     margin: 0;
     width: 100%;
+    margin-top: 15px;
 }
 
 .movie-content {
@@ -372,7 +373,7 @@ img {
     padding: 0;
     margin: 0;
     width: 100%;
-    padding-top: 30px;
+    margin-top: 15px;
 }
 
 .darken {
@@ -470,7 +471,7 @@ img {
         justify-content: space-between;
     }
     .review-container {
-        margin: 0;
+        margin-top: 10px;
         width: 49%;
     }
 }
