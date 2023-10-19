@@ -14,7 +14,9 @@ const videoElement = ref({})
 const showReturnElement = ref(true)
 const countdownTimer = ref(0)
 const isPlaying = ref(false)
+const nextVideo = ref()
 
+let intervalId
 let timeoutId
 
 onMounted(() => {
@@ -41,22 +43,29 @@ onBeforeUnmount(() => {
 const playNextVideo = () => {
     const countdownInSec = 5
 
+    videoElement.value.currentTime = 0
     watchStore.updateWatched(video.value.id, 0)
 
-    const nextVideo = media.value.videos.find(entry => entry.index === video.value.index + 1)
-    if (nextVideo === undefined) return
-
-    let intervalId
+    nextVideo.value = media.value.videos.find(entry => entry.index === video.value.index + 1)
     countdownTimer.value = countdownInSec
 
     intervalId = setInterval(() => {
         countdownTimer.value--
-        if (countdownTimer.value < 0) {
+        if (countdownTimer.value > 0) {
+            return
+        }
+
+        if (nextVideo.value === undefined) {
+            clearInterval(intervalId)
+            navigateTo("/media")
+            return
+        }
+        if (nextVideo.value !== undefined) {
             clearInterval(intervalId)
             video.value = nextVideo
-            watchStore.updateWatched(video.value.id, 0)
             videoElement.value.load()
             videoElement.value.play()
+            return
         }
     }, 1000)
 }
@@ -79,19 +88,45 @@ const playNextVideo = () => {
             <track v-for="subtitle in video.subtitles" :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
                 :label="subtitle.label" kind="subtitles" :srclang="subtitle.srcLang" :default="subtitle.defaultSub" />
         </video>
-        <div v-if="countdownTimer > 0" class="container-countdown">
-            <h1>{{ countdownTimer }}</h1>
+        <div v-if="countdownTimer > 0" class="container-center">
+            <div v-if="nextVideo !== undefined" class="container-countdown">
+                <h3>Next video:</h3>
+                <h3 style="font-weight: 100;">{{ nextVideo.name }}</h3>
+                <h1>{{ countdownTimer }}</h1>
+            </div>
+            <div v-else class="container-countdown">
+                <h3>Returning to:</h3>
+                <h3 style="font-weight: 100;">{{ media.name }}</h3>
+                <h1>{{ countdownTimer }}</h1>
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+.container-center {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
 .container-countdown {
-    background-color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--background-color-200);
     z-index: 10;
     position: fixed;
-    top: 50%;
-    left: 50%;
+    border-radius: var(--border-radius-1);
+    padding: 10px;
+    border: 4px solid var(--primary-color-100);
+}
+
+.container-countdown * {
+    margin: 0;
 }
 
 .container-return {

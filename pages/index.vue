@@ -38,7 +38,11 @@ watch(allMedia, () => {
     // Sets 5 most recent media + all media from past 7 days
     recentMedia.value = []
     recentMedia.value.push(...allMedia.value.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
-    recentMedia.value.push(...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date()).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)))
+    recentMedia.value.push(
+        ...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+            .slice(0, 10)
+    )
 
     trailerMedia.value = ref(recentMedia.value[trailerMediaId.value])
     nextTrailer(trailerMediaId.value)
@@ -99,7 +103,11 @@ const parseTrailer = (trailer) => {
             <iframe ref="iframe" :src="parseTrailer(trailerMedia.trailer)" name="Trailer"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
-        <div :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))">
+        <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
+        <div
+            :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
+                .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
+                    new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))">
             <h2 v-if="media1.length > 0" class="carousel-title">Continue Watching</h2>
             <CardRow :allMedia="media1" :showLastVideo=true />
         </div>

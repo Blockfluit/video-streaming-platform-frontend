@@ -8,7 +8,7 @@ definePageMeta({
 
 const mainStore = useMainStore()
 
-const { allMedia, searchbox, allGenres } = storeToRefs(mainStore)
+const { allMedia, searchbox, allGenres, watched } = storeToRefs(mainStore)
 
 const allSeries = ref([])
 const filteredMedia = ref(new Set())
@@ -73,8 +73,11 @@ const doFilter = () => {
             </template>
         </div>
         <div v-if="filters.length === 0 && searchbox === ''" class="container-cards">
+            <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
             <div
-                :set="media = mainStore.getAllSeries.filter(media => mainStore.watched.map(entry => entry.mediaId).includes(media.id))">
+                :set="media = mainStore.getAllSeries.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
+                    .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
+                        new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))">
                 <h2 v-if="media.length > 0" class="carousel-title">Continue Watching</h2>
                 <CardRow :allMedia="media" :showLastVideo=true />
             </div>

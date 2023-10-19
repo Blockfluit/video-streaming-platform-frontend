@@ -9,12 +9,12 @@ export default defineNuxtConfig({
     ],
     pwa: {
         manifest: {
-            name: "DellekesHub",
-            short_name: "DellekesHub",
+            name: "Video streaming",
+            short_name: "Video streaming",
             description: "Video streaming service",
             background_color: "#121212",
             icons: [
-                 {
+                {
                     src: "icons/favicon-16x16.png",
                     sizes: "16x16",
                     type: "image/png"
@@ -46,7 +46,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            baseURL: process.env.BASE_URL || 'https://api-beta.dellekes.nl/api/v1',
+            baseURL: process.env.BASE_URL || 'https://api.address/api/v1',
         },
     },
     css: [
