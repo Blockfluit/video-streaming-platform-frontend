@@ -470,7 +470,7 @@ img {
 
     .movie-content,
     .season-content {
-        max-width: 49%;
+        max-width: 64%;
     }
 
     .container-episodes {
@@ -482,7 +482,7 @@ img {
 
     .review-container {
         margin-top: 10px;
-        width: 49%;
+        width: 34%;
     }
 }
 

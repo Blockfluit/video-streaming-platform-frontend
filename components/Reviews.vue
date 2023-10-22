@@ -116,9 +116,9 @@ const deleteReview = (id) => {
                         <Icon class="review-star" name="mdi:star"
                             v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
                     </div>
-
+                    <div style="flex-grow: 1;"></div>
                     <div
-                        style="display: flex; align-items: center; justify-content: center; height: 100%; position: absolute; top: 0; right: 0;">
+                        style="display: flex; align-items: center; justify-content: center; height: 100%;">
                         <button class="review-btn"
                             v-if="showReviewButtons(review.user.username) && toggleEdit !== index"
                             @click="toggleEdit = index; comment[index].classList.add('focus');">
