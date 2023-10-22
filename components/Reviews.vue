@@ -4,7 +4,7 @@ import { useJwtStore } from '~/stores/jwtStore';
 import { useMediaStore } from '~/stores/mediaStore';
 
 const props = defineProps({
-    media: {},
+    media1: {},
 })
 
 const config = useRuntimeConfig()
@@ -13,9 +13,9 @@ const jwtStore = useJwtStore()
 const mediaStore = useMediaStore()
 
 const { media } = storeToRefs(mediaStore)
-const reviews = ref(props.media.reviews)
+const reviews = ref(props.media1.reviews)
 const review = ref()
-const toggleEdit = ref([])
+const toggleEdit = ref()
 const comment = ref()
 
 watch(media, (o, n) => {
@@ -26,14 +26,8 @@ const showReviewButtons = (username) => {
     return username === jwtStore.getSubject || jwtStore.getRole == "ADMIN"
 }
 
-onMounted(() => {
-    for (let i = 0; reviews.value.length > i; i++) {
-        toggleEdit.value.push(false)
-    }
-})
-
 const addReview = (review) => {
-    fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
+    fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
         method: "POST",
         headers: {
             Accept: 'application/json',
@@ -45,7 +39,7 @@ const addReview = (review) => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media.id)
+            mediaStore.setMedia(props.media1.id)
             return
         }
     }).catch(e => {
@@ -54,7 +48,7 @@ const addReview = (review) => {
 }
 
 const updateReview = (id, review) => {
-    fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
+    fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
         method: "PATCH",
         headers: {
             Accept: 'application/json',
@@ -67,7 +61,7 @@ const updateReview = (id, review) => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media.id)
+            mediaStore.setMedia(props.media1.id)
             return
         }
     }).catch(e => {
@@ -78,7 +72,7 @@ const updateReview = (id, review) => {
 const deleteReview = (id) => {
     if (!confirm("Are you sure you want to delete this review?")) return
 
-    fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
+    fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
         method: "DELETE",
         headers: {
             Accept: 'application/json',
@@ -90,7 +84,7 @@ const deleteReview = (id) => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media.id)
+            mediaStore.setMedia(props.media1.id)
             return
         }
     }).catch(e => {
@@ -101,7 +95,10 @@ const deleteReview = (id) => {
 
 <template>
     <div>
-        <span>Reviews</span>
+        <div style="display: flex;">
+            <span style="margin-right: 15px;">Reviews</span>
+            <Rating :media="media1"/>
+        </div>
         <form v-if="jwtStore.getRole !== 'USER'" @submit.prevent="addReview(review)">
             <input v-model="review" placeholder="Write a review..." type="text">
             <button style="min-width: 150px;" type="submit">Post your review</button>
@@ -119,17 +116,17 @@ const deleteReview = (id) => {
                         <Icon class="review-star" name="mdi:star"
                             v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
                     </div>
-
+                    <div style="flex-grow: 1;"></div>
                     <div
-                        style="display: flex; align-items: center; justify-content: center; height: 100%; position: absolute; top: 0; right: 0;">
+                        style="display: flex; align-items: center; justify-content: center; height: 100%;">
                         <button class="review-btn"
-                            v-if="showReviewButtons(review.user.username) && toggleEdit[index] == false"
-                            @click="toggleEdit[index] = true; comment[index].classList.add('focus');">
+                            v-if="showReviewButtons(review.user.username) && toggleEdit !== index"
+                            @click="toggleEdit = index; comment[index].classList.add('focus');">
                             <Icon class="icon" name="mdi:pencil" />
                         </button>
                         <button class="review-btn"
-                            v-if="showReviewButtons(review.user.username) && toggleEdit[index] == true"
-                            @click="updateReview(review.id, comment[index].innerText); toggleEdit[index] = false; comment[index].classList.remove('focus')">
+                            v-if="showReviewButtons(review.user.username) && toggleEdit === index"
+                            @click="updateReview(review.id, comment[index].innerText); toggleEdit = null; comment[index].classList.remove('focus')">
                             <Icon class="icon" name="ic:outline-check" />
                         </button>
                         <button class="review-btn" v-if="showReviewButtons(review.user.username)"
@@ -139,7 +136,7 @@ const deleteReview = (id) => {
                     </div>
 
                 </div>
-                <div ref="comment" :contenteditable="toggleEdit[index]">{{ review.comment }}</div>
+                <div ref="comment" :contenteditable="toggleEdit === index">{{ review.comment }}</div>
             </div>
         </ul>
     </div>
@@ -263,7 +260,6 @@ button:hover {
     .review-header p {
         font-size: 1.1rem !important;
     }
-
     .review-date {
         display: none;
     }
@@ -272,8 +268,8 @@ button:hover {
         padding: 0;
         overflow-y: scroll;
         overflow-x: hidden;
-        max-height: 400px;
-        height: 400px;
+        max-height: 450px;
+        height: 450px;
     }
 }
 </style>

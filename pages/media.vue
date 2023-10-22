@@ -106,7 +106,11 @@ const calcTimePercentage = (video) => {
                             v-if="actor.lastname">&nbsp;{{
                                 actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
                 </div>
-                <Rating style="margin-top: 12px;" :media="media" />
+                <div style="display: flex; align-items: center;">
+                    <Rating :media="media" />
+                    <span>• {{ media.ratings.length }}</span>
+                </div>
+                
                 <div class="button-container">
                     <div @click="playLastVideo" class="button">
                         <Icon name="mdi:play" width="30px" height="30px" />
@@ -164,11 +168,11 @@ const calcTimePercentage = (video) => {
                 </li>
             </ul>
             <div class="review-container">
-                <Reviews :media="media" />
+                <Reviews :media1="media" />
             </div>
         </div>
-        <div v-if="seasons.includes(-1)" class="review-container-movie">
-            <Reviews :media="media" />
+        <div v-if="seasons.includes(-1) && media.videos.length === 1" class="review-container-movie">
+            <Reviews :media1="media" />
         </div>
     </div>
     <div @click="showTrailer = false" v-if="showTrailer" class="container-popup">
@@ -365,6 +369,7 @@ img {
     padding: 0;
     margin: 0;
     width: 100%;
+    margin-top: 15px;
 }
 
 .movie-content {
@@ -374,7 +379,7 @@ img {
     padding: 0;
     margin: 0;
     width: 100%;
-    padding-top: 30px;
+    margin-top: 15px;
 }
 
 .darken {
@@ -465,7 +470,7 @@ img {
 
     .movie-content,
     .season-content {
-        max-width: 49%;
+        max-width: 64%;
     }
 
     .container-episodes {
@@ -476,8 +481,8 @@ img {
     }
 
     .review-container {
-        margin: 0;
-        width: 49%;
+        margin-top: 10px;
+        width: 34%;
     }
 }
 
@@ -529,7 +534,9 @@ img {
     .container-trailer {
         height: 40vh;
     }
-
+    .review-container {
+        margin: 30px 0px 0px 0px;
+    }
     .plot-text {
         max-width: 100%;
         max-height: 50px;
