@@ -72,7 +72,6 @@ const resetRating = (e) => {
                 <Icon class="star" @click="addRating((id + 1) * 2)" :id="id" name="mdi:star" />
             </template>
         </div>
-        <span>• {{ media.ratings.length }}</span>
     </div>
 </template>
 
