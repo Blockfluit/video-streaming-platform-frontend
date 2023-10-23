@@ -17,6 +17,7 @@ const password = ref("")
 const role = ref("USER")
 const expiration = ref()
 const tokenRole = ref("USER")
+const updateRoleElement = ref()
 
 onBeforeMount(() => {
     getAllUsers()
@@ -36,13 +37,14 @@ const getAllUsers = () => {
             return response.json()
         }
     }).then((data) => {
+        console.log(data)
         users.value = data
     }).catch(e => {
         console.log(e)
     })
 }
 
-const addUser = () => {
+const addUser = (username, email, password, role) => {
     fetch(config.public.baseURL + "/auth/register", {
         method: "POST",
         headers: {
@@ -51,10 +53,39 @@ const addUser = () => {
             "Authorization": `Bearer ${jwtStore.getJwt}`
         },
         body: JSON.stringify({
-            username: username.value,
-            email: email.value === "" ? null : email.value,
-            password: password.value,
-            role: role.value,
+            username: username,
+            email: email === "" ? null : email,
+            password: password,
+            role: role,
+        })
+    }).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+            getAllUsers()
+        }
+    }).catch(e => {
+        console.log(e)
+    })
+}
+
+const updateUser = (username, email, role) => {
+    if (jwtStore.getSubject === username &&
+        role !== null &&
+        !confirm("You are about to change your own role. This might not be reverseable. Are you sure?")) {
+        getAllUsers()
+        return
+    }
+
+    fetch(config.public.baseURL + "/users", {
+        method: "PATCH",
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${jwtStore.getJwt}`
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            role: role,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
@@ -150,7 +181,7 @@ const deleteToken = (token) => {
 <template>
     <div class="container">
         <div class="container-horizontal">
-            <form @submit.prevent="addUser">
+            <form @submit.prevent="addUser(username, email, password, role)">
                 <div class="container-add-user">
                     <span style="font-size: 2rem; font-weight: 600;">Add User</span>
                     <input v-model="username" placeholder="Username*" type="text" required>
@@ -175,10 +206,17 @@ const deleteToken = (token) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="row" v-for="user in users">
+                    <tr class="row"
+                        v-for="(user, index) in [...users].sort((a, b) => new Date(b.lastActiveAt) - new Date(a.lastActiveAt))">
                         <td class="username">{{ user.username }}</td>
                         <td class="email">{{ user.email }}</td>
-                        <td class="role">{{ user.role }}</td>
+                        <td ref="updateRoleElement" class="role">
+                            <select @change="updateUser(user.username, null, updateRoleElement[index].children[0].value)">
+                                <option :selected="user.role === 'USER'" value="USER">User</option>
+                                <option :selected="user.role === 'CRITIC'" value="CRITIC">Critic</option>
+                                <option :selected="user.role === 'ADMIN'" value="ADMIN">Admin</option>
+                            </select>
+                        </td>
                         <td class="last-active">{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
                         <td class="delete" @click="deleteUser(user.username)">
                             <Icon class="icon" name="material-symbols:delete"></Icon>
@@ -229,16 +267,19 @@ const deleteToken = (token) => {
 .container {
     margin: 50px;
 }
+
 input {
     border: 1px solid white;
     border-radius: 5px;
     margin-bottom: 10px;
     padding-left: 6px;
 }
+
 form {
     min-width: 250px;
     margin-right: 50px;
 }
+
 .container-horizontal {
     display: flex;
     flex-direction: row;
@@ -247,31 +288,34 @@ form {
 .delete {
     margin-left: -50px;
 }
+
 table {
-  width: 100%;
-  height: fit-content;
-  background-color: #282828;
-  border-collapse: collapse;
-  border-width: 0px;
-  border-color: #FFFFFF;
-  border-style: solid;
-  color: #FFFFFF;
+    width: 100%;
+    height: fit-content;
+    background-color: #282828;
+    border-collapse: collapse;
+    border-width: 0px;
+    border-color: #FFFFFF;
+    border-style: solid;
+    color: #FFFFFF;
 }
 
-table td, table th {
-  border-width: 0px;
-  border-color: #FFFFFF;
-  border-style: solid;
-  overflow: hidden;
-  padding-left: 15px;
-  height: 40px;
+table td,
+table th {
+    border-width: 0px;
+    border-color: #FFFFFF;
+    border-style: solid;
+    overflow: hidden;
+    padding-left: 15px;
+    height: 40px;
 }
 
 table thead {
-  background-color: #121212;
+    background-color: #121212;
 }
-tbody tr:nth-child(even ){
-  background: var(--background-color-100);
+
+tbody tr:nth-child(even) {
+    background: var(--background-color-100);
 }
 
 
@@ -286,10 +330,12 @@ tbody tr:nth-child(even ){
     display: flex;
     align-items: center;
 }
+
 .icon:hover {
     color: var(--primary-color-100);
     cursor: pointer;
 }
+
 .container-add-user {
     display: flex;
     flex-direction: column;
@@ -303,6 +349,7 @@ tbody tr:nth-child(even ){
 .container-users thead {
     height: 40px;
 }
+
 .container-users tr {
     height: 30px;
 }
@@ -314,6 +361,7 @@ button {
     border-radius: 10px;
     font-family: var(--font-family-1);
 }
+
 button:hover {
     background-color: var(--primary-color-100);
     cursor: pointer;
@@ -323,15 +371,20 @@ button:hover {
     .container-horizontal {
         flex-direction: column;
     }
+
     form {
         margin: 0px 0px 50px 0px;
     }
-    table .last-active, table .username {
+
+    table .last-active,
+    table .username {
         max-width: 4vw;
     }
+
     .email {
         display: none;
     }
+
     .role {
         max-width: 60px;
     }

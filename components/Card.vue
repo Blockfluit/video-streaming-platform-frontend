@@ -68,7 +68,9 @@ const navigateToLastVideo = (mediaId) => {
                 <img :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id">
             </div>
             <div v-if="showLastVideo" class="information">
-                <div class="time" :style="`width: ${timePercentage}%`"></div>
+                <div style="background-color: rgba(255, 255, 255, 0.3)">
+                    <div class="time" :style="`width: ${timePercentage}%`"></div>
+                </div>
                 <span class="last-video-name">{{ getLastVideo(shownMedia.id).name }}</span>
             </div>
             <div @click="navigateToLastVideo(shownMedia.id)" @mouseleave="showExtraInformation = false"

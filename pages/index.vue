@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
 
-const { allMedia, watched } = storeToRefs(mainStore)
+const { allMedia, watched, searchbox } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
 
 const recentMedia = ref([{ name: "" }])
@@ -14,6 +14,7 @@ let timeoutId
 
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
+const filteredMedia = ref(new Set())
 
 const iframe = ref()
 
@@ -46,6 +47,11 @@ watch(allMedia, () => {
 
     trailerMedia.value = ref(recentMedia.value[trailerMediaId.value])
     nextTrailer(trailerMediaId.value)
+    doFilter()
+})
+
+watch(searchbox, (o, n) => {
+    doFilter()
 })
 
 const setTrailerTimeout = (index) => {
@@ -75,17 +81,37 @@ const navigateToMedia = () => {
 
 const parseTrailer = (trailer) => {
     if (trailer === undefined) {
-        return "https://s.w-x.co/in-cat_in_glasses.jpg"
+        return ""
     }
 
     let trailerId = trailer.split('watch?v=')[1]
     return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0`
 }
+
+const doFilter = () => {
+    filteredMedia.value.clear()
+
+    if (searchbox.value !== "") {
+        if (filteredMedia.value.size === 0) {
+            allMedia.value.filter(media => media.name.toLowerCase().includes(searchbox.value.toLowerCase()))
+                .forEach(media => filteredMedia.value.add(media))
+        } else {
+            const tempFiltered = [...filteredMedia.value].filter(media => media.name.toLowerCase().includes(searchbox.value.toLowerCase()))
+            filteredMedia.value.clear()
+            tempFiltered.forEach(media => filteredMedia.value.add(media))
+        }
+    }
+
+    if (searchbox.value === "") {
+        [...allMedia.value].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+            .forEach(media => filteredMedia.value.add(media))
+    }
+}
 </script>
 
 <template>
     <div class="container">
-        <div class="container-trailer">
+        <div v-if="searchbox === ''" class="container-trailer">
             <div class="container-information">
                 <h2 class="now-available">Now available:</h2>
                 <div @click="navigateToMedia()" class="container-information-title">
@@ -103,21 +129,32 @@ const parseTrailer = (trailer) => {
             <iframe ref="iframe" :src="parseTrailer(trailerMedia.trailer)" name="Trailer"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
-        <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
-        <div :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
-            .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
-                new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))
-            .slice(0, 12)">
-            <h2 v-if="media1.length > 0" class="carousel-title">Continue Watching</h2>
-            <CardRow :allMedia="media1" :showLastVideo=true />
+        <div v-if="searchbox === ''">
+            <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
+            <div :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
+                .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
+                    new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))
+                .slice(0, 12)">
+                <h2 v-if="media1.length > 0" class="carousel-title">Continue Watching</h2>
+                <CardRow :allMedia="media1" :showLastVideo=true />
+            </div>
+            <div>
+                <h2 class="carousel-title">25 Most Popular</h2>
+                <CardRow :allMedia="[...allMedia].sort((a, b) => b.views - a.views).slice(0, 25)" />
+            </div>
+            <div>
+                <h2 class="carousel-title">25 Best Rated</h2>
+                <CardRow :allMedia="[...allMedia].sort((a, b) => b.rating - a.rating).slice(0, 25)" />
+            </div>
         </div>
         <div>
-            <h2 class="carousel-title">25 Most Popular</h2>
-            <CardRow :allMedia="[...allMedia].sort((a, b) => b.views - a.views).slice(0, 25)" />
-        </div>
-        <div>
-            <h2 class="carousel-title">25 Best Rated</h2>
-            <CardRow :allMedia="[...allMedia].sort((a, b) => b.rating - a.rating).slice(0, 25)" />
+            <h2 class="carousel-title">{{ (searchbox === '') ? "All Media" : "Filtered Media" }}
+            </h2>
+            <div class="container-filtered-cards">
+                <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
+                    <Card :shownMedia="media" />
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -152,6 +189,11 @@ h2 {
 
 .carousel-title {
     margin: 40px 0 10px 6px
+}
+
+.container-filtered-cards {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .container {

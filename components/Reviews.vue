@@ -14,19 +14,21 @@ const mediaStore = useMediaStore()
 
 const { media } = storeToRefs(mediaStore)
 const reviews = ref(props.media1.reviews)
-const review = ref()
-const toggleEdit = ref()
+const title = ref()
 const comment = ref()
+const editTitle = ref()
+const editComment = ref()
+const toggleEdit = ref()
 
 watch(media, (o, n) => {
-    reviews.value = [...media.value.reviews].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+    reviews.value = [...media.value.reviews]
 })
 
 const showReviewButtons = (username) => {
     return username === jwtStore.getSubject || jwtStore.getRole == "ADMIN"
 }
 
-const addReview = (review) => {
+const addReview = (title, comment) => {
     fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
         method: "POST",
         headers: {
@@ -35,7 +37,8 @@ const addReview = (review) => {
             "Authorization": `Bearer ${jwtStore.getJwt}`
         },
         body: JSON.stringify({
-            comment: review,
+            title: title,
+            comment: comment,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
@@ -47,9 +50,9 @@ const addReview = (review) => {
     })
 }
 
-const updateReview = (id, review) => {
+const updateReview = (id, title, comment) => {
     fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
-        method: "PATCH",
+        method: "PUT",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -57,7 +60,8 @@ const updateReview = (id, review) => {
         },
         body: JSON.stringify({
             id: id,
-            comment: review,
+            title: title,
+            comment: comment,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
@@ -97,36 +101,32 @@ const deleteReview = (id) => {
     <div>
         <div style="display: flex;">
             <span style="margin-right: 15px;">Reviews</span>
-            <Rating :media="media1"/>
+            <Rating :media="media1" :average="false" />
         </div>
-        <form v-if="jwtStore.getRole !== 'USER'" @submit.prevent="addReview(review)">
-            <input v-model="review" placeholder="Write a review..." type="text">
+        <form v-if="jwtStore.getRole !== 'USER'" @submit.prevent="addReview(title, comment)">
+            <input v-model="title" placeholder="Write a title..." type="text" required>
+            <input v-model="comment" placeholder="Write a review..." type="text" required>
             <button style="min-width: 150px;" type="submit">Post your review</button>
         </form>
         <ul class="scroll-container">
-            <div v-for="(review, index) in reviews" class="container-review">
+            <div v-for="(review, index) in reviews.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))"
+                class="container-review">
                 <div class="review-header">
-
                     <p style="font-weight: 700; display: flex; align-items: center;">{{ review.user.username }}
-                    <p class="review-date">{{ new Date(review.updatedAt).toLocaleDateString()
-                    }}</p>
+                    <p class="review-date">{{ new Date(review.updatedAt).toLocaleDateString() }}</p>
                     </p>
-
                     <div style="margin-left: 15px; display: flex;align-items: center;">
                         <Icon class="review-star" name="mdi:star"
                             v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
                     </div>
                     <div style="flex-grow: 1;"></div>
-                    <div
-                        style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                        <button class="review-btn"
-                            v-if="showReviewButtons(review.user.username) && toggleEdit !== index"
-                            @click="toggleEdit = index; comment[index].classList.add('focus');">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit !== index"
+                            @click="toggleEdit = index">
                             <Icon class="icon" name="mdi:pencil" />
                         </button>
-                        <button class="review-btn"
-                            v-if="showReviewButtons(review.user.username) && toggleEdit === index"
-                            @click="updateReview(review.id, comment[index].innerText); toggleEdit = null; comment[index].classList.remove('focus')">
+                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit === index"
+                            @click="updateReview(review.id, editTitle[index].innerText, editComment[index].innerText); toggleEdit = null;">
                             <Icon class="icon" name="ic:outline-check" />
                         </button>
                         <button class="review-btn" v-if="showReviewButtons(review.user.username)"
@@ -134,9 +134,12 @@ const deleteReview = (id) => {
                             <Icon class="icon" name="material-symbols:delete"></Icon>
                         </button>
                     </div>
-
                 </div>
-                <div ref="comment" :contenteditable="toggleEdit === index">{{ review.comment }}</div>
+                <div ref="editTitle" :class="toggleEdit === index ? 'focus' : ''" :contenteditable="toggleEdit === index">
+                    <h3 style="margin: 0;">{{ review.title }}</h3>
+                </div>
+                <div ref="editComment" :class="toggleEdit === index ? 'focus' : ''" :contenteditable="toggleEdit === index">
+                    {{ review.comment }}</div>
             </div>
         </ul>
     </div>
@@ -260,6 +263,7 @@ button:hover {
     .review-header p {
         font-size: 1.1rem !important;
     }
+
     .review-date {
         display: none;
     }

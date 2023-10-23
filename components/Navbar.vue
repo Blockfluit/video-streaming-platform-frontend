@@ -12,6 +12,7 @@ const showSearchField = ref(false)
 
 const inputValue = ref()
 const showDropdown = ref(false)
+const filter = ref(['/movies', '/series', '/'])
 
 const logout = () => {
     jwtStore.jwt = null
@@ -43,7 +44,8 @@ watch(inputValue, (o, n) => {
                 <transition name="fade">
                     <input key="1" class="search-bar" v-if="showSearchField" v-model="inputValue" type="text">
                 </transition>
-                <Icon @click="showSearchField = !showSearchField" name="fa-solid:search" size="20" />
+                <Icon v-if="filter.includes(currentRoute.path)" @click="showSearchField = !showSearchField"
+                    name="fa-solid:search" size="20" />
             </div>
             <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="charm:menu-hamburger" size="2.5rem" />
         </div>
@@ -55,11 +57,10 @@ watch(inputValue, (o, n) => {
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
                 <transition name="fade">
-                    <input key="1" class="search-bar"
-                        v-if="['/movies', '/series'].includes(currentRoute.path) && showSearchField" v-model="inputValue"
-                        type="text">
+                    <input key="1" class="search-bar" v-if="filter.includes(currentRoute.path) && showSearchField"
+                        v-model="inputValue" type="text">
                 </transition>
-                <Icon v-if="['/movies', '/series'].includes(currentRoute.path)" @click="showSearchField = !showSearchField"
+                <Icon v-if="filter.includes(currentRoute.path)" @click="showSearchField = !showSearchField"
                     name="fa-solid:search" size="20" />
             </div>
             <div class="menu-right">
@@ -152,11 +153,13 @@ span:hover {
     cursor: pointer;
     color: var(--primary-color-100);
 }
+
 .home-icon {
     height: 35px;
     aspect-ratio: auto;
     margin-top: 10px;
 }
+
 .home-icon:hover {
     cursor: pointer;
 }

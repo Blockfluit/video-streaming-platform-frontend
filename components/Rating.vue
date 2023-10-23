@@ -5,6 +5,7 @@ import { useMediaStore } from '~/stores/mediaStore';
 
 const props = defineProps({
     media: {},
+    average: true
 })
 
 const jwtStore = useJwtStore()
@@ -16,8 +17,8 @@ const stars = ref([0, 1, 2, 3, 4])
 const ratingElement = ref()
 const config = useRuntimeConfig()
 
-onMounted(() => {
-    resetRating()
+onBeforeMount(() => {
+    mediaStore.setMedia(props.media.id)
 })
 
 watch(media, (o, n) => {
@@ -55,8 +56,10 @@ const hoverHandler = (e) => {
     }
 }
 
-const resetRating = (e) => {
-    const rating = props.media.ratings.reduce((acc, rating) => acc + rating.score, 0) / props.media.ratings.length / 2
+const resetRating = () => {
+    const rating = props.average ?
+        media.value.ratings.reduce((acc, rating) => acc + rating.score, 0) / media.value.ratings.length / 2 :
+        media.value.ratings.find(entry => entry.username === jwtStore.getSubject).score / 2
 
     for (const element of ratingElement.value.children) {
         if (element.id < rating) element.style.color = "var(--primary-color-100)"

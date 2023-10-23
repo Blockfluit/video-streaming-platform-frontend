@@ -57,6 +57,12 @@ const doFilter = () => {
             tempFiltered.forEach(media => filteredMedia.value.add(media))
         }
     }
+
+    if (searchbox.value === "" &&
+        filters.value.length === 0) {
+        [...allMovies.value].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+            .forEach(media => filteredMedia.value.add(media))
+    }
 }
 </script>
 
@@ -71,7 +77,7 @@ const doFilter = () => {
                     }}</label>
             </template>
         </div>
-        <div v-if="filters.length === 0 && searchbox === ''" class="container-cards">
+        <div v-if="filters.length === 0 && searchbox === ''">
             <h1>{{ searchbox }}</h1>
             <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
             <div
@@ -95,7 +101,7 @@ const doFilter = () => {
                 <CardRow :allMedia="[...mainStore.getAllMovies]" />
             </div> -->
         </div>
-        <div v-else class="container-cards">
+        <div>
             <h2 class="carousel-title">{{ (filters.length === 0 && searchbox === '') ? "All Movies" : "Filtered Movies" }}
             </h2>
             <div class="container-filtered-cards">

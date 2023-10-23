@@ -107,10 +107,10 @@ const calcTimePercentage = (video) => {
                                 actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <Rating :media="media" />
+                    <Rating :media="media" :average="true" />
                     <span>• {{ media.ratings.length }}</span>
                 </div>
-                
+
                 <div class="button-container">
                     <div @click="playLastVideo" class="button">
                         <Icon name="mdi:play" width="30px" height="30px" />
@@ -151,6 +151,8 @@ const calcTimePercentage = (video) => {
                     <span>{{ video.name }}</span>
                     <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
+                    <div v-if="calcTimePercentage(video) !== 0" class="time"
+                        style="background-color: rgba(255, 255, 255, 0.5);"></div>
                     <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
                 </li>
             </ul>
@@ -164,6 +166,8 @@ const calcTimePercentage = (video) => {
                     <span>{{ video.name }}</span>
                     <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
                     <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
+                    <div v-if="calcTimePercentage(video) !== 0" class="time"
+                        style="background-color: rgba(255, 255, 255, 0.5);"></div>
                     <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
                 </li>
             </ul>
@@ -290,6 +294,7 @@ img {
 }
 
 .time {
+    z-index: 2;
     height: 4px;
     background-color: var(--primary-color-100);
     width: 100%;
@@ -534,9 +539,11 @@ img {
     .container-trailer {
         height: 40vh;
     }
+
     .review-container {
         margin: 30px 0px 0px 0px;
     }
+
     .plot-text {
         max-width: 100%;
         max-height: 50px;
