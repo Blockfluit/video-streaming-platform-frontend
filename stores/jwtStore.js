@@ -21,7 +21,7 @@ export const useJwtStore = defineStore("jwtStore", {
     },
     actions: {
         destroyToken() {
-            this.jwt.value = null
+            this.jwt = null
         }
     }
 })

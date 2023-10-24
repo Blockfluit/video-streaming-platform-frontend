@@ -9,7 +9,7 @@ const { jwt } = storeToRefs(jwtStore)
 const username = ref()
 const password = ref()
 
-const login = () => {
+const login = (username, password) => {
     fetch(config.public.baseURL + "/auth/authenticate", {
         method: "POST",
         headers: {
@@ -17,8 +17,8 @@ const login = () => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            username: username.value,
-            password: password.value,
+            username: username,
+            password: password,
         }),
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
@@ -40,14 +40,15 @@ const login = () => {
 
 <template>
     <div class="container">
-        <form @submit.prevent="login">
+        <form @submit.prevent="login(username, password)">
             <div class="container-login">
                 <header>Login</header>
                 <span style="text-align: center;">Please enter your username and password</span>
                 <input v-model="username" type="text" placeholder="username" required>
                 <input v-model="password" type="password" placeholder="password" required>
                 <div style="display: flex; justify-content: center;">
-                    <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink></span>
+                    <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
+                    </span>
                 </div>
                 <button type="submit">Login</button>
                 <span class="got-token">Got a token? <NuxtLink to="/register">Signup</NuxtLink>
@@ -106,6 +107,7 @@ button {
     height: 40px;
     margin: 20px;
 }
+
 button:hover {
     cursor: pointer;
     background-color: var(--primary-color-100);
@@ -150,9 +152,11 @@ span {
 .got-token {
     font-size: var(--font-size-4);
 }
+
 a {
     color: var(--primary-color-100)
 }
+
 a:hover {
     color: var(--primary-color-300)
 }

@@ -96,18 +96,23 @@ const doFilter = () => {
                 <h2 class="carousel-title">25 Most Popular</h2>
                 <CardRow :allMedia="[...mainStore.getAllMovies].sort((a, b) => b.views - a.views).slice(0, 25)" />
             </div>
-            <!-- <div>
-                <h2 class="carousel-title">Popular</h2>
-                <CardRow :allMedia="[...mainStore.getAllMovies]" />
-            </div> -->
+            <div>
+                <h2 class="carousel-title" style="display: flex; justify-content: center;">All Movies
+                </h2>
+                <div class="container-filtered-cards">
+                    <div style="margin: 5px !important;" v-for="media of filteredMedia">
+                        <Card :shownMedia="media" />
+                    </div>
+                </div>
+            </div>
         </div>
-        
+
         <transition name="slide-down">
-            <div v-if="searchbox !== ''" class="search-results">
+            <div v-if="searchbox !== '' || filters.length > 0" class="search-results">
                 <h2 class="carousel-title" style="display: flex; justify-content: center;">Search results
                 </h2>
                 <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;" v-for="(media) of filteredMedia">
+                    <div style="margin: 5px !important;" v-for="media of filteredMedia">
                         <Card :shownMedia="media" />
                     </div>
                 </div>
@@ -120,10 +125,11 @@ const doFilter = () => {
 h2 {
     font-weight: 600;
 }
-.search-results  {
+
+.search-results {
     height: 85vh;
     width: 100%;
-    position:absolute;
+    position: absolute;
     top: 55px;
     left: 0px;
     overflow-x: hidden;
@@ -133,19 +139,20 @@ h2 {
     z-index: 5;
     transition: top .5 ease;
 }
+
 .search-results::-webkit-scrollbar {
     display: none;
 }
 
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
 }
 
 .slide-down-enter-from,
 .slide-down-leave-to {
-  opacity: 0;
-  top: -100%;
+    opacity: 0;
+    top: -100%;
 }
 
 .container {

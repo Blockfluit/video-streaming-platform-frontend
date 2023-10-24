@@ -146,13 +146,22 @@ const doFilter = () => {
                 <h2 class="carousel-title">25 Best Rated</h2>
                 <CardRow :allMedia="[...allMedia].sort((a, b) => b.rating - a.rating).slice(0, 25)" />
             </div>
+            <div>
+                <h2 class="carousel-title" style="display: flex; justify-content: center;">All
+                </h2>
+                <div class="container-filtered-cards">
+                    <div style="margin: 5px !important;" v-for="media of allMedia">
+                        <Card :shownMedia="media" />
+                    </div>
+                </div>
+            </div>
         </div>
         <transition name="slide-down">
             <div v-if="searchbox !== ''" class="search-results">
                 <h2 class="carousel-title" style="display: flex; justify-content: center;">Search results
                 </h2>
                 <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;" v-for="(media) of filteredMedia">
+                    <div style="margin: 5px !important;" v-for="media of filteredMedia">
                         <Card :shownMedia="media" />
                     </div>
                 </div>
@@ -166,9 +175,10 @@ h2 {
     margin: 0;
     font-weight: 600;
 }
-.search-results  {
+
+.search-results {
     height: 97.5vh;
-    position:absolute;
+    position: absolute;
     top: 0;
     left: 0px;
     overflow-x: hidden;
@@ -177,9 +187,11 @@ h2 {
     z-index: 5;
     transition: top .5 ease;
 }
+
 .search-results::-webkit-scrollbar {
     display: none;
 }
+
 .trailer-name {
     text-transform: uppercase;
     max-width: 70%;
@@ -276,13 +288,13 @@ iframe {
 
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
 }
 
 .slide-down-enter-from,
 .slide-down-leave-to {
-  opacity: 0;
-  top: -100%;
+    opacity: 0;
+    top: -100%;
 }
 
 @media screen and (max-width: 1100px) {
