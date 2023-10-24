@@ -278,6 +278,23 @@ const deleteToken = (token) => {
 .container {
     margin: 50px;
 }
+select {
+    background-color: transparent;
+    color: var(--primary-color-100);
+    border: 1px solid var(--primary-color-100);
+    border-radius: 5px;
+    padding: 3px;
+    font-family: var(--font-family-1);
+}
+select:hover {
+    cursor: pointer;
+}
+
+select option {
+    background-color: var(--background-color-200);
+    color: var(--primary-color-100);
+
+}
 
 input {
     border: 1px solid white;
@@ -285,6 +302,7 @@ input {
     margin-bottom: 10px;
     padding-left: 6px;
 }
+
 
 form {
     min-width: 250px;

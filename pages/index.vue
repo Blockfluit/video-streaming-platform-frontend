@@ -148,11 +148,11 @@ const doFilter = () => {
             </div>
         </div>
         <transition name="slide-down">
-            <div style="margin-left: 30px;" v-if="searchbox !== ''" class="search-results-desktop">
-                <h2 class="carousel-title">Filtered Media
+            <div v-if="searchbox !== ''" class="search-results">
+                <h2 class="carousel-title" style="display: flex; justify-content: center;">Search results
                 </h2>
                 <div class="container-filtered-cards">
-                    <div style="margin: 0px 10px 10px 0px !important;" v-for="(media) of filteredMedia">
+                    <div style="margin: 5px !important;" v-for="(media) of filteredMedia">
                         <Card :shownMedia="media" />
                     </div>
                 </div>
@@ -166,9 +166,8 @@ h2 {
     margin: 0;
     font-weight: 600;
 }
-.search-results-desktop, .search-results-mobile  {
-    height: 100vh;
-    width: 100%;
+.search-results  {
+    height: 97.5vh;
     position:absolute;
     top: 0;
     left: 0px;
@@ -177,6 +176,9 @@ h2 {
     padding-top: var(--navbar-height);
     z-index: 5;
     transition: top .5 ease;
+}
+.search-results::-webkit-scrollbar {
+    display: none;
 }
 .trailer-name {
     text-transform: uppercase;
@@ -208,6 +210,8 @@ h2 {
 
 .container-filtered-cards {
     display: flex;
+    justify-content: center;
+    width: 100%;
     flex-wrap: wrap;
 }
 
@@ -262,6 +266,14 @@ iframe {
     border: 0;
 }
 
+.overlay {
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(255, 255, 255, 0) 100%);
+}
+
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: all 0.5s ease-in-out;
@@ -271,14 +283,6 @@ iframe {
 .slide-down-leave-to {
   opacity: 0;
   top: -100%;
-}
-
-.overlay {
-    z-index: 1;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(255, 255, 255, 0) 100%);
 }
 
 @media screen and (max-width: 1100px) {

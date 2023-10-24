@@ -211,6 +211,13 @@ svg {
     .card {
         width: 160px;
     }
-
+    .name {
+        font-size: var(--font-size-4);
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 4px 0;
+    }
 }
 </style>

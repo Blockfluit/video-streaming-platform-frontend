@@ -90,6 +90,7 @@ const calcTimePercentage = (video) => {
 </script>
 
 <template>
+<div>
     <div style="overflow-x: hidden;">
 
         <!-- Show trailer of movie or serie -->
@@ -98,7 +99,7 @@ const calcTimePercentage = (video) => {
                 <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                 <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
                     formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
-        media.genre.join(", ") }}</span>
+                media.genre.join(", ") }}</span>
                 <p class="plot-text hide-on-phone">{{ media.plot }}</p>
                 <div class="container-cast hide-on-phone" style="display: flex;">
                     <span class="hide-on-phone">Cast:&nbsp;</span>
@@ -195,6 +196,7 @@ const calcTimePercentage = (video) => {
             </div>
         </div>
     </div>
+</div>
 </template>
 
 <style scoped>

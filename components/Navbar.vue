@@ -22,7 +22,6 @@ const logout = () => {
 
 watch(inputValue, (o, n) => {
     searchbox.value = inputValue.value
-    console.log(inputValue)
 })
 </script>
 
