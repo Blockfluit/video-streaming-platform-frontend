@@ -2,18 +2,22 @@
 import { storeToRefs } from 'pinia';
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMainStore } from '~/stores/mainStore';
+import { useUploadStore } from '~/stores/uploadStore';
 
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 const mainStore = useMainStore()
+const uploadStore = useUploadStore()
 
 const { allGenres } = storeToRefs(mainStore)
+const { genres } = storeToRefs(uploadStore)
+
 
 const showAddGenre = ref(false)
 
-const genre = ref()
+const inputGenre = ref()
 
-const addGenre = () => {
+const addGenre = (genre) => {
     if (allGenres.value.find(genre => genre.name === genre.value) !== undefined) {
         alert("Genre already exists")
         return
@@ -27,12 +31,13 @@ const addGenre = () => {
             Authorization: `Bearer ${jwtStore.getJwt}`
         },
         body: JSON.stringify({
-            genre: genre.value,
+            genre: genre,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mainStore.setAllActors()
-            genre.value = null
+            mainStore.setAllGenres()
+            genres.value.push(genre)
+            inputGenre.value = null
         }
     }).catch(e => {
         console.log(e)
@@ -44,8 +49,8 @@ const addGenre = () => {
 <template>
     <div class="container">
         <Icon @click="showAddGenre = !showAddGenre" name="fa-solid:plus" size="1rem" class="icon" />
-        <form v-if="showAddGenre" @submit.prevent="addGenre">
-            <input v-model="genre" type="text" placeholder="genre" required>
+        <form v-if="showAddGenre" @submit.prevent="addGenre(inputGenre)">
+            <input v-model="inputGenre" type="text" placeholder="genre" required>
             <button type="submit">Add Genre</button>
         </form>
     </div>

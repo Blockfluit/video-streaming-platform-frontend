@@ -16,8 +16,8 @@ export const useUploadStore = defineStore("uploadStore", {
         actors: useLocalStorage("upload-actors", []),
     }),
     actions: {
-        deleteActor(id) {
-            fetch(this.config.public.baseURL + "/actors/" + id, {
+        deleteActor(actor) {
+            fetch(this.config.public.baseURL + "/actors/" + actor.id, {
                 method: "DELETE",
                 headers: {
                     Accept: 'application/json',
@@ -26,7 +26,10 @@ export const useUploadStore = defineStore("uploadStore", {
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     this.mainStore.setAllActors()
-                    alert("Upload successfully deleted actor")
+                    const index = this.actors.findIndex(entry => entry.firstname === actor.firstname &&
+                        entry.lastname === actor.lastname)
+                    this.actors.splice(index, 1)
+                    alert("Successfully deleted actor")
                 }
             }).catch(e => {
                 console.log(e)
@@ -43,7 +46,9 @@ export const useUploadStore = defineStore("uploadStore", {
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     this.mainStore.setAllGenres()
-                    alert("Upload successfully deleted actor")
+                    const index = this.genres.findIndex(entry => entry.name === genre)
+                    this.genres.splice(index, 1)
+                    alert("Successfully deleted actor")
                 }
             }).catch(e => {
                 console.log(e)

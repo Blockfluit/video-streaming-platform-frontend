@@ -2,21 +2,24 @@
 import { storeToRefs } from 'pinia';
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMainStore } from '~/stores/mainStore';
+import { useUploadStore } from '~/stores/uploadStore';
 
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 const mainStore = useMainStore()
+const uploadStore = useUploadStore()
 
 const { allActors } = storeToRefs(mainStore)
+const { actors } = storeToRefs(uploadStore)
 
 const showAddActor = ref(false)
 
-const firstname = ref()
-const lastname = ref()
+const inputFirstname = ref()
+const inputLastname = ref()
 
-const addActor = () => {
-    if (allActors.value.find(actor => actor.firstname.toLowerCase() === firstname.value.toLowerCase() &&
-        actor.lastname.toLowerCase() === lastname.value.toLowerCase()) !== undefined) {
+const addActor = (firstname, lastname) => {
+    if (allActors.value.find(actor => actor.firstname.toLowerCase() === firstname.toLowerCase() &&
+        actor.lastname.toLowerCase() === lastname.toLowerCase()) !== undefined) {
         alert("Actor already exists")
         return
     }
@@ -29,14 +32,15 @@ const addActor = () => {
             Authorization: `Bearer ${jwtStore.getJwt}`
         },
         body: JSON.stringify({
-            firstname: firstname.value,
-            lastname: lastname.value,
+            firstname: firstname,
+            lastname: lastname,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
             mainStore.setAllActors()
-            firstname.value = null
-            lastname.value = null
+            actors.value.push({ firstname: firstname, lastname: lastname })
+            inputFirstname.value = null
+            inputLastname.value = null
         }
     }).catch(e => {
         console.log(e)
@@ -48,9 +52,9 @@ const addActor = () => {
 <template>
     <div class="container">
         <Icon @click="showAddActor = !showAddActor" name="fa-solid:plus" size="25" class="icon" />
-        <form v-if="showAddActor" @submit.prevent="addActor">
-            <input v-model="firstname" type="text" placeholder="firstname" required>
-            <input v-model="lastname" type="text" placeholder="lastname">
+        <form v-if="showAddActor" @submit.prevent="addActor(inputFirstname, inputLastname)">
+            <input v-model="inputFirstname" type="text" placeholder="firstname" required>
+            <input v-model="inputLastname" type="text" placeholder="lastname">
             <button type="submit">Add Actor</button>
         </form>
     </div>

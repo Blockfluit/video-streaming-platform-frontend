@@ -16,7 +16,8 @@ const email = ref()
 const password = ref("")
 const role = ref("USER")
 const expiration = ref()
-const tokenRole = ref("USER")
+const roleToken = ref("USER")
+const masterToken = ref(false)
 const updateRoleElement = ref()
 
 onBeforeMount(() => {
@@ -37,7 +38,6 @@ const getAllUsers = () => {
             return response.json()
         }
     }).then((data) => {
-        console.log(data)
         users.value = data
     }).catch(e => {
         console.log(e)
@@ -60,6 +60,9 @@ const addUser = (username, email, password, role) => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
+            username.value = ""
+            email.value = ""
+            password = ""
             getAllUsers()
         }
     }).catch(e => {
@@ -137,7 +140,7 @@ const getAllTokens = () => {
     })
 }
 
-const addToken = () => {
+const addToken = (expiration, role, master) => {
     fetch(config.public.baseURL + "/invite-tokens", {
         method: "POST",
         headers: {
@@ -146,8 +149,9 @@ const addToken = () => {
             "Authorization": `Bearer ${jwtStore.getJwt}`
         },
         body: JSON.stringify({
-            expiration: new Date(expiration.value),
-            role: tokenRole.value,
+            expiration: new Date(expiration),
+            role: role,
+            master: master,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
@@ -226,15 +230,17 @@ const deleteToken = (token) => {
             </table>
         </div>
         <div style="margin-top: 50px;" class="container-horizontal">
-            <form @submit.prevent="addToken">
+            <form @submit.prevent="addToken(expiration, roleToken, masterToken)">
                 <div class="container-add-token">
                     <span style="font-size: 2rem; font-weight: 600;">Add Token</span>
                     <input v-model="expiration" type="date" required>
-                    <select style="margin-bottom: 10px;" v-model="tokenRole" required>
+                    <select style="margin-bottom: 10px;" v-model="roleToken" required>
                         <option value="USER">User</option>
                         <option value="CRITIC">Critic</option>
                         <option value="ADMIN">Admin</option>
                     </select>
+                    <label for="isMasterToken">Master</label>
+                    <input id="isMasterToken" v-model="masterToken" type="checkbox">
                     <button type="submit">Add Token</button>
                 </div>
             </form>
@@ -242,15 +248,20 @@ const deleteToken = (token) => {
                 <thead>
                     <tr>
                         <td>Token</td>
+                        <td>Used</td>
                         <td>Role</td>
+                        <td>Master</td>
                         <td>Expiration</td>
                         <td>Created By</td>
+                        <td></td>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for=" token  in  tokens ">
                         <td>{{ token.token }}</td>
+                        <td>{{ token.used }}</td>
                         <td>{{ token.role }}</td>
+                        <td>{{ token.master }}</td>
                         <td>{{ new Date(token.expiration).toLocaleString() }}</td>
                         <td>{{ token.createdBy }}</td>
                         <td @click="deleteToken(token.token)">

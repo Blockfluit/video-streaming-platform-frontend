@@ -119,11 +119,11 @@ const addMedia = () => {
                         <div class="actor">
                             <div>
                                 <input class="actor-checkbox" v-model="actors" type="checkbox" :id="actor.id"
-                                    :value="actor.id">
+                                    :value="{ firstname: actor.firstname, lastname: actor.lastname }">
                                 <label class="actor-checkbox" style="margin-left: 10px;" :for="actor.id">{{
                                     `${actor.firstname} ${actor.lastname}` }}</label>
                             </div>
-                            <Icon class="icon" @click="uploadStore.deleteActor(actor.id)" name="material-symbols:delete">
+                            <Icon class="icon" @click="uploadStore.deleteActor(actor)" name="material-symbols:delete">
                             </Icon>
                         </div>
                     </template>
@@ -278,4 +278,5 @@ const addMedia = () => {
     object-fit: cover;
     width: 300px;
     height: 450px;
-}</style>
+}
+</style>
