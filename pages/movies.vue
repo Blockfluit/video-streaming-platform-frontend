@@ -162,6 +162,8 @@ h2 {
     -ms-user-select: none;
     user-select: none;
     margin: 0 6px 4px 6px;
+    word-break: keep-all;
+    white-space: nowrap;
 }
 
 .filter:hover {

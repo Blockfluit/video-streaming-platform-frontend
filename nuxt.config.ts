@@ -7,6 +7,9 @@ export default defineNuxtConfig({
         'nuxt-icon',
         '@vite-pwa/nuxt',
     ],
+    app: {
+        pageTransition: { name: 'page', mode: 'out-in' }
+    },
     pwa: {
         manifest: {
             name: "Video streaming",
@@ -46,7 +49,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            baseURL: process.env.BASE_URL || 'https://api-beta.dellekes.nl/api/v1',
+            baseURL: process.env.BASE_URL || 'https://api.yourdomain.nl/api/v1',
         },
     },
     css: [
