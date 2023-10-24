@@ -22,7 +22,7 @@ const searchGenres = ref("")
 const searchActors = ref("")
 
 const thumbnail = ref()
-const previewImageUrl = ref()
+const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
 
 onBeforeMount(() => {
     if (process.client) {
@@ -46,12 +46,18 @@ const addMedia = () => {
         return
     }
 
+    let actorIds = []
+    actors.value.forEach(a => {
+        actorIds.push(allActors.value.find(b => a.firstname === b.firstname &&
+            a.lastname === b.lastname).id)
+    })
+
     const formData = new FormData()
     formData.append("name", name.value)
     formData.append("thumbnail", thumbnail.value)
     formData.append("type", type.value)
     formData.append("genres", genres.value)
-    formData.append("actors", actors.value)
+    formData.append("actors", actorIds)
     formData.append("trailer", trailer.value)
     formData.append("year", year.value)
     formData.append("plot", plot.value)
@@ -72,6 +78,8 @@ const addMedia = () => {
             plot.value = ""
             trailer.value = ""
             year.value = ""
+            thumbnail.value = null
+            previewImageUrl.value = "https://s.w-x.co/in-cat_in_glasses.jpg"
             alert("Upload successful")
         }
     }).catch(e => {
@@ -119,7 +127,7 @@ const addMedia = () => {
                         <div class="actor">
                             <div>
                                 <input class="actor-checkbox" v-model="actors" type="checkbox" :id="actor.id"
-                                    :value="{ firstname: actor.firstname, lastname: actor.lastname }">
+                                    :value="{ firstname: actor.firstname, lastname: actor.lastname ?? null }">
                                 <label class="actor-checkbox" style="margin-left: 10px;" :for="actor.id">{{
                                     `${actor.firstname} ${actor.lastname}` }}</label>
                             </div>

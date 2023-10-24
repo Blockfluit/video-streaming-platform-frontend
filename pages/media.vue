@@ -90,113 +90,113 @@ const calcTimePercentage = (video) => {
 </script>
 
 <template>
-<div>
-    <div style="overflow-x: hidden;">
+    <div>
+        <div style="overflow-x: hidden;">
 
-        <!-- Show trailer of movie or serie -->
-        <div class="container-preview-trailer">
-            <div class="container-information">
-                <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
-                <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
-                    formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
-                media.genre.join(", ") }}</span>
-                <p class="plot-text hide-on-phone">{{ media.plot }}</p>
-                <div class="container-cast hide-on-phone" style="display: flex;">
-                    <span class="hide-on-phone">Cast:&nbsp;</span>
-                    <span class="hide-on-phone" v-for="(actor, index) in media.actors">{{ actor.firstname }}<span
-                            v-if="actor.lastname">&nbsp;{{
-                                actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <Rating :media="media" :average="true" />
-                    <span>• {{ media.ratings.length }}</span>
-                </div>
+            <!-- Show trailer of movie or serie -->
+            <div class="container-preview-trailer">
+                <div class="container-information">
+                    <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
+                    <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
+                        formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
+        media.genre.join(", ") }}</span>
+                    <p class="plot-text hide-on-phone">{{ media.plot }}</p>
+                    <div class="container-cast hide-on-phone" style="display: flex;">
+                        <span class="hide-on-phone">Cast:&nbsp;</span>
+                        <span class="hide-on-phone" v-for="(actor, index) in media.actors">{{ actor.firstname }}<span
+                                v-if="actor.lastname">&nbsp;{{
+                                    actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <Rating :media="media" :average="true" />
+                        <span>• {{ media.ratings.length }}</span>
+                    </div>
 
-                <div class="button-container">
-                    <div @click="playLastVideo" class="button">
-                        <Icon name="mdi:play" width="30px" height="30px" />
-                        <span>Play</span>
+                    <div class="button-container">
+                        <div @click="playLastVideo" class="button">
+                            <Icon name="mdi:play" width="30px" height="30px" />
+                            <span>Play</span>
+                        </div>
+                        <div style="flex-grow: 1;"></div>
+                        <div class="trailer-button" @click="showTrailer = !showTrailer">
+                            <Icon name="mdi:movie-open-play" width="25px" height="25px" />
+                        </div>
+                        <div class="trailer-button hide-on-desktop" @click="showExtraInformation = !showExtraInformation">
+                            <Icon name="mdi:information-slab-circle-outline" width="25px" height="25px" />
+                        </div>
                     </div>
-                    <div style="flex-grow: 1;"></div>
-                    <div class="trailer-button" @click="showTrailer = !showTrailer">
-                        <Icon name="mdi:movie-open-play" width="25px" height="25px" />
-                    </div>
-                    <div class="trailer-button hide-on-desktop" @click="showExtraInformation = !showExtraInformation">
-                        <Icon name="mdi:information-slab-circle-outline" width="25px" height="25px" />
-                    </div>
+                </div>
+                <div class="overlay"></div>
+                <iframe ref="iframe" class="preview-trailer" :src="parseTrailer(media.trailer, false, false)"
+                    allow="autoplay; encrypted-media;"></iframe>
+            </div>
+
+            <!-- Show season button if it is season -->
+            <div v-if="!seasons.includes(-1)" class="season-btn">
+                <span @click="showDropdown = !showDropdown" style="padding-left: 6px">Season {{ selectedSeason }}
+                    <Icon name="mdi:chevron-down" style="min-width: 20px;" />
+                </span>
+                <ul v-if="showDropdown" class="season-dropdown">
+                    <li v-for="season in seasons.sort((a, b) => a - b)"
+                        @click="selectedSeason = season; showDropdown = false" class="season">Season {{ season }}</li>
+                </ul>
+            </div>
+
+            <!-- Show season episodes based on choosen season -->
+            <div v-if="media.videos.length > 1" class="container-episodes">
+                <!-- Movie episode cards -->
+                <ul v-if="seasons.includes(-1)" @wheel="scrollHorizontal" ref="episodeList" class="movie-content">
+                    <li @click="playVideo(video)" class="episode-card"
+                        v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)" :id="video.id">
+                        <div class="darken"></div>
+                        <span>{{ video.name }}</span>
+                        <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
+                        <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
+                        <div v-if="calcTimePercentage(video) !== 0" class="time"
+                            style="background-color: rgba(255, 255, 255, 0.5);"></div>
+                        <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
+                    </li>
+                </ul>
+
+                <!-- Serie episode cards -->
+                <ul v-else @wheel="scrollHorizontal" ref="episodeList" class="season-content">
+                    <li @click="playVideo(video)" class="episode-card"
+                        v-for="(video) in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
+                        :id="video.id">
+                        <div class="darken"></div>
+                        <span>{{ video.name }}</span>
+                        <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
+                        <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
+                        <div v-if="calcTimePercentage(video) !== 0" class="time"
+                            style="background-color: rgba(255, 255, 255, 0.5);"></div>
+                        <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
+                    </li>
+                </ul>
+                <div class="review-container">
+                    <Reviews :media1="media" />
                 </div>
             </div>
-            <div class="overlay"></div>
-            <iframe ref="iframe" class="preview-trailer" :src="parseTrailer(media.trailer, false, false)"
-                allow="autoplay; encrypted-media;"></iframe>
-        </div>
-
-        <!-- Show season button if it is season -->
-        <div v-if="!seasons.includes(-1)" class="season-btn">
-            <span @click="showDropdown = !showDropdown" style="padding-left: 6px">Season {{ selectedSeason }}
-                <Icon name="mdi:chevron-down" style="min-width: 20px;" />
-            </span>
-            <ul v-if="showDropdown" class="season-dropdown">
-                <li v-for="season in seasons.sort((a, b) => a - b)" @click="selectedSeason = season; showDropdown = false"
-                    class="season">Season {{ season }}</li>
-            </ul>
-        </div>
-
-        <!-- Show season episodes based on choosen season -->
-        <div v-if="media.videos.length > 1" class="container-episodes">
-            <!-- Movie episode cards -->
-            <ul v-if="seasons.includes(-1)" @wheel="scrollHorizontal" ref="episodeList" class="movie-content">
-                <li @click="playVideo(video)" class="episode-card"
-                    v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)" :id="video.id">
-                    <div class="darken"></div>
-                    <span>{{ video.name }}</span>
-                    <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
-                    <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
-                    <div v-if="calcTimePercentage(video) !== 0" class="time"
-                        style="background-color: rgba(255, 255, 255, 0.5);"></div>
-                    <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
-                </li>
-            </ul>
-
-            <!-- Serie episode cards -->
-            <ul v-else @wheel="scrollHorizontal" ref="episodeList" class="season-content">
-                <li @click="playVideo(video)" class="episode-card"
-                    v-for="(video) in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
-                    :id="video.id">
-                    <div class="darken"></div>
-                    <span>{{ video.name }}</span>
-                    <span style="position: absolute; bottom: 0; right: 0;">{{ formatTime(video.duration) }}</span>
-                    <img :src="`${config.public.baseURL}/stream/snapshot/${video.id}`">
-                    <div v-if="calcTimePercentage(video) !== 0" class="time"
-                        style="background-color: rgba(255, 255, 255, 0.5);"></div>
-                    <div class="time" :style="`width:${calcTimePercentage(video)}%`"></div>
-                </li>
-            </ul>
-            <div class="review-container">
+            <div v-if="seasons.includes(-1) && media.videos.length === 1" class="review-container-movie">
                 <Reviews :media1="media" />
             </div>
         </div>
-        <div v-if="seasons.includes(-1) && media.videos.length === 1" class="review-container-movie">
-            <Reviews :media1="media" />
+        <div @click="showTrailer = false" v-if="showTrailer" class="container-popup">
+            <iframe class="popup-trailer" :src="parseTrailer(media.trailer, true, true)"
+                allow="autoplay; encrypted-media;"></iframe>
         </div>
-    </div>
-    <div @click="showTrailer = false" v-if="showTrailer" class="container-popup">
-        <iframe class="popup-trailer" :src="parseTrailer(media.trailer, true, true)"
-            allow="autoplay; encrypted-media;"></iframe>
-    </div>
-    <div @click="showExtraInformation = false" v-if="showExtraInformation" class="container-popup">
-        <div class="container-popup-information">
-            <h1 style="text-transform: uppercase; margin-bottom: -10px; margin-top: 0;">{{ media.name }}</h1>
-            <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
-            <p class="plot-text">{{ media.plot }}</p>
-            <div class="container-cast">
-                <span>Cast:&nbsp;</span>
-                <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
-                    actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+        <div @click="showExtraInformation = false" v-if="showExtraInformation" class="container-popup">
+            <div class="container-popup-information">
+                <h1 style="text-transform: uppercase; margin-bottom: -10px; margin-top: 0;">{{ media.name }}</h1>
+                <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
+                <p class="plot-text">{{ media.plot }}</p>
+                <div class="container-cast">
+                    <span>Cast:&nbsp;</span>
+                    <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
+                        actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </template>
 
 <style scoped>
