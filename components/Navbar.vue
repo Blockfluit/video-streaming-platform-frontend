@@ -9,6 +9,7 @@ const { currentRoute } = useRouter();
 
 const { searchbox } = storeToRefs(mainStore)
 const showSearchField = ref(false)
+const searchBar = ref()
 
 const inputValue = ref()
 const showDropdown = ref(false)
@@ -21,6 +22,7 @@ const logout = () => {
 
 watch(inputValue, (o, n) => {
     searchbox.value = inputValue.value
+    console.log(inputValue)
 })
 </script>
 
@@ -42,10 +44,12 @@ watch(inputValue, (o, n) => {
                     <img src="/icons/dellekes_logo.png" class="home-icon" />
                 </NuxtLink>
                 <transition name="fade">
-                    <input key="1" class="search-bar" v-if="showSearchField" v-model="inputValue" type="text">
+                    <input ref="searchBar" key="1" class="search-bar" v-if="showSearchField" v-model="inputValue" type="text">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path)" @click="showSearchField = !showSearchField"
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === false" @click="showSearchField = true;"
                     name="fa-solid:search" size="20" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === true" @click="showSearchField = false; inputValue = ''"
+                    name="maki:cross" size="20" />
             </div>
             <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="charm:menu-hamburger" size="2.5rem" />
         </div>
@@ -60,8 +64,10 @@ watch(inputValue, (o, n) => {
                     <input key="1" class="search-bar" v-if="filter.includes(currentRoute.path) && showSearchField"
                         v-model="inputValue" type="text">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path)" @click="showSearchField = !showSearchField"
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === false" @click="showSearchField = true"
                     name="fa-solid:search" size="20" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === true" @click="showSearchField = false; inputValue = ''"
+                    name="maki:cross" size="20" />
             </div>
             <div class="menu-right">
                 <NuxtLink to="/request">REQUEST</NuxtLink>
@@ -89,7 +95,6 @@ nav {
     backdrop-filter: blur(5px);
     box-shadow: var(--box-shadow-2);
 }
-
 .desktop-nav {
     display: flex;
     flex-direction: row;
@@ -203,11 +208,12 @@ span:hover {
 
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.5s ease;
+    transition: all 0.5s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
+    width: 0px;
     opacity: 0;
 }
 
@@ -222,6 +228,12 @@ span:hover {
 
     .desktop-nav {
         display: none;
+    }
+    .search-results-desktop {
+        display: none;
+    }
+    .search-results-mobile {
+        display: flex;
     }
 }
 </style>

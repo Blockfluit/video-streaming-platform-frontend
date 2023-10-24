@@ -115,8 +115,8 @@ const doFilter = () => {
             <div class="container-information">
                 <h2 class="now-available">Now available:</h2>
                 <div @click="navigateToMedia()" class="container-information-title">
-                    <h1 class="trailer-name">{{ trailerMedia.name }}</h1>
-                    <h1 class="watch-now">| WATCH NOW</h1>
+                    <span class="trailer-name">{{ trailerMedia.name }}</span>
+                    <span class="watch-now">| WATCH NOW</span>
                 </div>
                 <div class="trailer-bullets">
                     <template v-for="(media, index) in recentMedia.length">
@@ -147,15 +147,17 @@ const doFilter = () => {
                 <CardRow :allMedia="[...allMedia].sort((a, b) => b.rating - a.rating).slice(0, 25)" />
             </div>
         </div>
-        <div>
-            <h2 class="carousel-title">{{ (searchbox === '') ? "All Media" : "Filtered Media" }}
-            </h2>
-            <div class="container-filtered-cards">
-                <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
-                    <Card :shownMedia="media" />
+        <transition name="slide-down">
+            <div style="margin-left: 30px;" v-if="searchbox !== ''" class="search-results-desktop">
+                <h2 class="carousel-title">Filtered Media
+                </h2>
+                <div class="container-filtered-cards">
+                    <div style="margin: 0px 10px 10px 0px !important;" v-for="(media) of filteredMedia">
+                        <Card :shownMedia="media" />
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 
@@ -164,19 +166,33 @@ h2 {
     margin: 0;
     font-weight: 600;
 }
-
+.search-results-desktop, .search-results-mobile  {
+    height: 100vh;
+    width: 100%;
+    position:absolute;
+    top: 0;
+    left: 0px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding-top: var(--navbar-height);
+    z-index: 5;
+    transition: top .5 ease;
+}
 .trailer-name {
     text-transform: uppercase;
     max-width: 70%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 2rem;
+    font-weight: 700;
 }
 
 .watch-now {
     font-weight: 200;
     font-size: var(--font-size-2);
     max-width: 70%;
+    font-size: 2rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -184,11 +200,10 @@ h2 {
 
 .now-available {
     margin-bottom: -15px;
-
 }
 
 .carousel-title {
-    margin: 40px 0 10px 6px
+    margin: 40px 0 10px 0px
 }
 
 .container-filtered-cards {
@@ -225,7 +240,7 @@ h2 {
     align-items: center;
 }
 
-.container-information-title h1 {
+.container-information-title span {
     margin: 10px 10px 0 0;
     cursor: pointer;
 }
@@ -245,6 +260,17 @@ iframe {
     width: 100%;
     top: -100%;
     border: 0;
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  top: -100%;
 }
 
 .overlay {
