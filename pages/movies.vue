@@ -101,15 +101,18 @@ const doFilter = () => {
                 <CardRow :allMedia="[...mainStore.getAllMovies]" />
             </div> -->
         </div>
-        <div>
-            <h2 class="carousel-title">{{ (filters.length === 0 && searchbox === '') ? "All Movies" : "Filtered Movies" }}
-            </h2>
-            <div class="container-filtered-cards">
-                <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
-                    <Card :shownMedia="media" />
+        
+        <transition name="slide-down">
+            <div v-if="searchbox !== ''" class="search-results">
+                <h2 class="carousel-title" style="display: flex; justify-content: center;">Search results
+                </h2>
+                <div class="container-filtered-cards">
+                    <div style="margin: 5px !important;" v-for="(media) of filteredMedia">
+                        <Card :shownMedia="media" />
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 
@@ -117,9 +120,32 @@ const doFilter = () => {
 h2 {
     font-weight: 600;
 }
+.search-results  {
+    height: 85vh;
+    width: 100%;
+    position:absolute;
+    top: 55px;
+    left: 0px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    margin-top: 60px;
+    background-color: var(--background-color-200);
+    z-index: 5;
+    transition: top .5 ease;
+}
+.search-results::-webkit-scrollbar {
+    display: none;
+}
 
-.carousel-title {
-    margin: 40px 0 10px 6px
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  top: -100%;
 }
 
 .container {
@@ -139,22 +165,18 @@ h2 {
     overflow-X: scroll;
 }
 
-.container-filter span {
-    margin: 10px;
+.carousel-title {
+    margin: 40px 0 10px 0px
 }
 
 .container-filtered-cards {
     display: flex;
+    width: 100%;
+    justify-content: center;
     flex-wrap: wrap;
 }
 
-.card {
-    margin-right: 10px !important;
-}
 
-.filter-card {
-    margin-right: 10px !important;
-}
 
 .filter {
     text-transform: capitalize;

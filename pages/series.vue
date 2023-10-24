@@ -101,21 +101,50 @@ const doFilter = () => {
                 <CardRow :allMedia="[...mainStore.getAllSeries]" />
             </div> -->
         </div>
-        <div>
-            <h2 class="carousel-title">{{ (filters.length === 0 && searchbox === '') ? "All Series" : "Filtered Series" }}
-            </h2>
-            <div class="container-filtered-cards">
-                <div style="margin: 10px 10px 0px 0px !important;" v-for="(media) of filteredMedia">
-                    <Card :shownMedia="media" />
+        <transition name="slide-down">
+            <div v-if="searchbox !== ''" class="search-results">
+                <h2 class="carousel-title" style="display: flex; justify-content: center;">Search results
+                </h2>
+                <div class="container-filtered-cards">
+                    <div style="margin: 5px !important;" v-for="(media) of filteredMedia">
+                        <Card :shownMedia="media" />
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 
 <style scoped>
 h2 {
     font-weight: 600;
+}
+.search-results  {
+    height: 85vh;
+    width: 100%;
+    position:absolute;
+    top: 55px;
+    left: 0px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    margin-top: 60px;
+    background-color: var(--background-color-200);
+    z-index: 5;
+    transition: top .5 ease;
+}
+
+.search-results::-webkit-scrollbar {
+    display: none;
+}
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  top: -100%;
 }
 
 .carousel-title {
@@ -140,6 +169,8 @@ h2 {
 
 .container-filtered-cards {
     display: flex;
+    width: 100%;
+    justify-content: center;
     flex-wrap: wrap;
 }
 
@@ -158,5 +189,11 @@ h2 {
 .filter:hover {
     cursor: pointer;
     color: var(--primary-color-100);
+}
+
+@media screen and (max-width: 700px) {
+    .container-filter::-webkit-scrollbar {
+        display: none;
+    }
 }
 </style>
