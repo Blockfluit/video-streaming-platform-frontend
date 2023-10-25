@@ -8,7 +8,7 @@ export const useUploadStore = defineStore("uploadStore", {
         jwtStore: useJwtStore(),
         mainStore: useMainStore(),
         name: useLocalStorage("upload-name", ""),
-        type: useLocalStorage("upload-type", ""),
+        type: useLocalStorage("upload-type", "MOVIE"),
         plot: useLocalStorage("upload-plot", ""),
         trailer: useLocalStorage("upload-trailer", ""),
         year: useLocalStorage("upload-year", ""),

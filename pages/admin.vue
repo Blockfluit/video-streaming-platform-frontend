@@ -215,7 +215,7 @@ const deleteToken = (token) => {
                         <td class="username">{{ user.username }}</td>
                         <td class="email">{{ user.email }}</td>
                         <td ref="updateRoleElement" class="role">
-                            <select @change="updateUser(user.username, null, updateRoleElement[index].children[0].value)">
+                            <select @change="e => updateUser(user.username, null, e.target.value)">
                                 <option :selected="user.role === 'USER'" value="USER">User</option>
                                 <option :selected="user.role === 'CRITIC'" value="CRITIC">Critic</option>
                                 <option :selected="user.role === 'ADMIN'" value="ADMIN">Admin</option>
@@ -278,6 +278,7 @@ const deleteToken = (token) => {
 .container {
     margin: 50px;
 }
+
 select {
     background-color: transparent;
     color: var(--primary-color-100);
@@ -286,6 +287,7 @@ select {
     padding: 3px;
     font-family: var(--font-family-1);
 }
+
 select:hover {
     cursor: pointer;
 }

@@ -3,6 +3,7 @@ import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
 import { useWatchStore } from "~/stores/watchStore";
+import { useJwtStore } from "~/stores/jwtStore";
 
 definePageMeta({
     layout: "main",
@@ -13,6 +14,7 @@ const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
 const watchStore = useWatchStore()
+const jwtStore = useJwtStore()
 
 const { watched } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
@@ -78,6 +80,10 @@ const parseTrailer = (trailer, controls, mute) => {
     return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0${controls ? "&controls=1" : "&controls=0"}${mute ? "&mute=0" : "&mute=1"}&disablekb&fs=0&loop=1&rel=0`
 }
 
+const editMedia = () => {
+    return navigateTo("edit")
+}
+
 const calcTimePercentage = (video) => {
     const currentWatched = mainStore.watched.find(entry => entry.videoId === video.id)
 
@@ -96,7 +102,12 @@ const calcTimePercentage = (video) => {
             <!-- Show trailer of movie or serie -->
             <div class="container-preview-trailer">
                 <div class="container-information">
-                    <h1 style="text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
+
+                    <div style="display: flex; align-items: baseline;">
+                        <h1 style=" text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
+                        <Icon @click="editMedia" v-if="jwtStore.isAdmin" name="mdi:pencil" width="30px" height="30px"
+                            style="pointer-events: all; cursor: pointer;" />
+                    </div>
                     <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
                         formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
         media.genre.join(", ") }}</span>

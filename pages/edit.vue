@@ -2,7 +2,9 @@
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
+import { useEditStore } from '~/stores/editStore'
 import { storeToRefs } from 'pinia';
+import { useMediaStore } from '~/stores/mediaStore';
 
 definePageMeta({
     layout: "main",
@@ -11,28 +13,36 @@ definePageMeta({
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
+const editStore = useEditStore()
 const jwtStore = useJwtStore()
+const mediaStore = useMediaStore()
 
 const { allGenres, allActors } = storeToRefs(mainStore)
-const { name, type, plot, trailer, year, genres, actors } = storeToRefs(uploadStore)
+const { type, plot, trailer, year, genres, actors } = storeToRefs(editStore)
+const { media } = storeToRefs(mediaStore)
 
 const acceptedFileExt = ["jpeg", "png", "jpg"]
 
 const searchGenres = ref("")
 const searchActors = ref("")
+const videosOrder = ref([...media.value.videos].sort((a, b) => a.index - b.index))
 
 const thumbnail = ref()
-const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
+const previewImageUrl = ref(config.public.baseURL + "/stream/thumbnail/" + media.value.id)
 
 onBeforeMount(() => {
     if (process.client) {
         mainStore.setAllActors()
         mainStore.setAllGenres()
+        type.value = media.value.type
+        genres.value = media.value.genre
+        actors.value = media.value.actors
     }
 })
 
 const thumbnailHandler = (e) => {
-    if (!acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
+    if (thumbnail.value !== undefined &&
+        !acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
         alert("Invalid File extension")
         return
     }
@@ -40,78 +50,78 @@ const thumbnailHandler = (e) => {
     previewImageUrl.value = URL.createObjectURL(e.target.files[0])
 }
 
-const addMedia = () => {
-    if (!acceptedFileExt.includes(thumbnail.value.type.split("/")[1])) {
+const updateMedia = () => {
+    if (thumbnail.value !== undefined &&
+        !acceptedFileExt.includes(thumbnail.value.type.split("/")[1])) {
         alert("Invalid File extension")
         return
     }
 
-    let actorIds = []
+    const actorIds = []
     actors.value.forEach(a => {
         actorIds.push(allActors.value.find(b => a.firstname === b.firstname &&
             a.lastname === b.lastname).id)
     })
 
-    const formData = new FormData()
-    formData.append("name", name.value)
-    formData.append("thumbnail", thumbnail.value)
-    formData.append("type", type.value)
-    formData.append("genres", genres.value)
-    formData.append("actors", actorIds)
-    formData.append("trailer", trailer.value)
-    formData.append("year", year.value)
-    formData.append("plot", plot.value)
+    const order = videosOrder.value.map(video => { return { id: video.id, index: video.index } })
 
-    fetch(config.public.baseURL + "/media", {
-        method: "POST",
+    const formData = new FormData()
+    if (thumbnail.value !== undefined) formData.append("thumbnail", thumbnail.value)
+    if (type.value !== "") formData.append("type", type.value)
+    if (genres.value.length !== 0) formData.append("genres", genres.value)
+    if (actors.value.length !== 0) formData.append("actors", actorIds)
+    if (trailer.value !== "") formData.append("trailer", trailer.value)
+    if (year.value !== "") formData.append("year", year.value)
+    if (plot.value !== "") formData.append("plot", plot.value)
+    if (videosOrder.value.length !== 0) {
+        order.forEach((entry, index) => {
+            formData.append(`order[${index}].id`, entry.id)
+            formData.append(`order[${index}].index`, entry.index)
+        })
+    }
+
+    fetch(config.public.baseURL + "/media/" + media.value.id, {
+        method: "PATCH",
         headers: {
             Accept: 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            "Authorization": `Bearer ${jwtStore.jwt}`
         },
         body: formData,
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            name.value = ""
-            type.value = "MOVIE"
-            actors.value = []
-            genres.value = []
-            plot.value = ""
-            trailer.value = ""
-            year.value = ""
-            thumbnail.value = null
-            previewImageUrl.value = "https://s.w-x.co/in-cat_in_glasses.jpg"
-            alert("Upload successful")
+            alert("Update successful")
         }
     }).catch(e => {
         console.log(e)
         alert(e)
     })
 }
+
+watch(videosOrder, (o, n) => {
+    console.log(videosOrder.value)
+}, { deep: true })
+
 </script>
 
 <template>
     <div class="container">
         <div class="container-add-media">
-            <form @submit.prevent="addMedia" class="container-vertical">
+            <form @submit.prevent="updateMedia" class="container-vertical">
                 <label>Thumbnail:</label>
-                <input @change="e => thumbnailHandler(e)" type="file" accept="image/jpeg, image/png" required>
+                <input @change="e => thumbnailHandler(e)" type="file" accept="image/jpeg, image/png">
                 <label>Name:</label>
-                <input class="input-field" v-model="name" placeholder="Name" type="text" required>
+                <p>{{ media.name }}</p>
                 <label>Type:</label>
                 <div>
-                    <input type="radio" v-model="type" required selected name="type" value="MOVIE"><label>Movie</label>
-                    <input type="radio" v-model="type" required name="type" value="SERIES"><label>Series</label>
+                    <input type="radio" v-model="type" selected name="type" value="MOVIE"><label>Movie</label>
+                    <input type="radio" v-model="type" name="type" value="SERIES"><label>Series</label>
                 </div>
-                <!-- <select v-model="type" required>
-                    <option value="MOVIE" selected>Movie</option>
-                    <option value="SERIES">Series</option>
-                </select> -->
                 <label>Plot:</label>
-                <input class="input-field" v-model="plot" placeholder="Plot" type="text" required>
+                <input class="input-field" v-model="plot" :placeholder="media.plot" type="text">
                 <label>Trailer URL:</label>
-                <input class="input-field" v-model="trailer" placeholder="Trailer" type="url" required>
+                <input class="input-field" v-model="trailer" :placeholder="media.trailer" type="url">
                 <label>Year of release:</label>
-                <input class="input-field" v-model="year" placeholder="Year" type="number" required>
+                <input class="input-field" v-model="year" :placeholder="media.year" type="number">
                 <label>Search actor:</label>
                 <input class="input-field" v-model="searchActors" placeholder="Search actor" type="search">
                 <div class="title">
@@ -174,10 +184,17 @@ const addMedia = () => {
                         </div>
                     </template>
                 </div>
-                <button class="submit-btn" type="submit">Add Media</button>
+                <button class="submit-btn" type="submit">update Media</button>
             </form>
         </div>
         <img style="margin-top: 50px; border-radius: 15px;" :src="previewImageUrl" class="preview-image">
+        <ul>
+            <div v-for="(video, index) in videosOrder" style="display: flex; align-items: center;">
+                <input @change="e => videosOrder[index].index = e.target.valueAsNumber" type="number" :value="video.index"
+                    style="width: 60px;">
+                <li style="list-style-type: none;">{{ video.name }}</li>
+            </div>
+        </ul>
     </div>
 </template>
 
