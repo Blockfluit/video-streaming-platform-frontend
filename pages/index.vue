@@ -178,6 +178,7 @@ h2 {
 
 .search-results {
     height: 97.5vh;
+    width: 100%;
     position: absolute;
     top: 0;
     left: 0px;

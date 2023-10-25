@@ -104,10 +104,13 @@ const deleteReview = (id) => {
             <Rating :media="media1" :average="false" />
         </div>
         <form v-if="jwtStore.getRole !== 'USER'" @submit.prevent="addReview(title, comment)">
-            <input v-model="title" placeholder="Write a title..." type="text" required>
-            <input v-model="comment" placeholder="Write a review..." type="text" required>
-            <button style="min-width: 150px;" type="submit">Post your review</button>
+            <div style="width: 100%;">
+                <input v-model="title" placeholder="Title..." type="text" required>
+                <input v-model="comment" placeholder="Review..." type="text" required>
+            </div>
+            <button class="post-btn" type="submit">Post review</button>
         </form>
+        <div class="divider"></div>
         <ul class="scroll-container">
             <div v-for="(review, index) in reviews.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))"
                 class="container-review">
@@ -161,7 +164,13 @@ span {
 .review-star {
     color: var(--primary-color-100);
 }
-
+.divider {
+    background-color: var(--background-color-100);
+    width: 100%;
+    height: 1px;
+    margin: 5px 0px;
+    filter: blur(1px);
+}
 .review-date {
     margin-left: 10px;
     font-weight: 400;
@@ -190,6 +199,8 @@ span {
     background-color: transparent;
     padding: 0;
     color: white;
+    border: none;
+    border-radius: 15px;
 }
 
 .review-btn:hover {
@@ -211,13 +222,15 @@ form {
     justify-content: center;
     align-items: center;
     height: 50px;
-    margin-bottom: 15px
+    margin-bottom: 15px;
+    height: 80px;
 }
 
 .focus {
     border: 1px dashed var(--primary-color-100);
     padding-left: 5px;
     border-radius: 3px;
+
 }
 
 .focus:focus {
@@ -235,20 +248,25 @@ form {
 input {
     border: none;
     border-bottom: 1px solid white;
-    padding-left: 1px;
+    padding: 6px;
+    padding-left: 5px;
     width: 100%;
     height: 100%;
     white-space: wrap;
 
 }
 
-button {
+input:focus {
+    border-bottom: 1px solid var(--primary-color-100);
+    outline: none;
+}
+
+.post-btn {
     height: 100%;
     margin-left: 10px;
     background-color: white;
     border: none;
     border-radius: 15px;
-    padding: 10px 10px;
     font-family: var(--font-family-1);
     font-weight: 600;
     color: var(--background-color-100)

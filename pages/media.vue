@@ -105,8 +105,8 @@ const calcTimePercentage = (video) => {
 
                     <div style="display: flex; align-items: baseline;">
                         <h1 style=" text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
-                        <Icon @click="editMedia" v-if="jwtStore.isAdmin" name="mdi:pencil" width="30px" height="30px"
-                            style="pointer-events: all; cursor: pointer;" />
+                        <Icon @click="editMedia" v-if="jwtStore.isAdmin" name="mdi:pencil" width="25px" height="25px"
+                            class="edit-btn" />
                     </div>
                     <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
                         formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
@@ -215,7 +215,14 @@ const calcTimePercentage = (video) => {
     height: 5px !important;
     width: 5px !important;
 }
-
+.edit-btn {
+    pointer-events: all;
+    cursor: pointer; 
+    margin-left: 10px;
+}
+.edit-btn:hover {
+    color: var(--primary-color-100);
+}
 img {
     width: 200px;
 }
@@ -254,6 +261,7 @@ img {
     width: 60vw;
     height: 70vh;
     border: 0;
+    z-index: 50;
 }
 
 .container-cast {
@@ -264,7 +272,7 @@ img {
 }
 
 .container-popup {
-    z-index: 10;
+    z-index: 50;
     position: fixed;
     display: flex;
     flex-direction: row;

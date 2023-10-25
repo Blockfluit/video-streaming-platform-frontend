@@ -69,7 +69,9 @@ const addActor = (firstname, lastname) => {
 .container:hover {
     cursor: pointer;
 }
-
+form {
+    width: 150px;
+}
 .icon {
     height: 15px;
     margin-right: 6px;
