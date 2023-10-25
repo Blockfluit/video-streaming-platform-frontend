@@ -155,7 +155,7 @@ h2 {
 }
 
 .carousel-title {
-    margin: 40px 0 10px 6px
+    margin: 40px 0 10px 0px
 }
 
 .container {
@@ -191,6 +191,8 @@ h2 {
     -ms-user-select: none;
     user-select: none;
     margin: 0 6px 4px 6px;
+    word-break: keep-all;
+    white-space: nowrap;
 }
 
 .filter:hover {
