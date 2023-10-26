@@ -38,11 +38,10 @@ onBeforeUnmount(() => {
 watch(allMedia, () => {
     // Sets 5 most recent media + all media from past 7 days
     recentMedia.value = []
-    recentMedia.value.push(...allMedia.value.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
-    recentMedia.value.push(
-        ...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
-            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-            .slice(0, 10)
+    recentMedia.value.push(...[...allMedia.value].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
+    recentMedia.value.push(...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+        .slice(0, 10)
     )
 
     trailerMedia.value = ref(recentMedia.value[trailerMediaId.value])
