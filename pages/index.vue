@@ -150,7 +150,8 @@ const doFilter = () => {
                 <h2 class="carousel-title" style="display: flex; justify-content: center;">All
                 </h2>
                 <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;" v-for="media of allMedia">
+                    <div style="margin: 5px !important;"
+                        v-for="media of [...allMedia].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))">
                         <Card :shownMedia="media" />
                     </div>
                 </div>

@@ -23,6 +23,7 @@ const { media } = storeToRefs(mediaStore)
 
 const acceptedFileExt = ["jpeg", "png", "jpg"]
 
+const updateVideos = ref(false)
 const searchGenres = ref("")
 const searchActors = ref("")
 const videosOrder = ref([...media.value.videos].sort((a, b) => a.index - b.index))
@@ -79,17 +80,38 @@ const updateMedia = () => {
             formData.append(`order[${index}].index`, entry.index)
         })
     }
+    formData.append("updateFiles", updateVideos.value)
 
     fetch(config.public.baseURL + "/media/" + media.value.id, {
         method: "PATCH",
         headers: {
             Accept: 'application/json',
-            "Authorization": `Bearer ${jwtStore.jwt}`
+            Authorization: `Bearer ${jwtStore.getJwt}`
         },
         body: formData,
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            alert("Update successful")
+            updateVideos.value = false
+            alert("Update successful.")
+            mediaStore.setMedia(media.value.id)
+        }
+    }).catch(e => {
+        console.log(e)
+        alert(e)
+    })
+}
+
+const deleteMedia = (id) => {
+    fetch(config.public.baseURL + "/media/" + id, {
+        method: "DELETE",
+        headers: {
+            Accept: 'application/json',
+            "Content-Type": 'application/json',
+            Authorization: `Bearer ${jwtStore.getJwt}`
+        }
+    }).then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+            alert("Successfully deleted media.")
         }
     }).catch(e => {
         console.log(e)
@@ -123,13 +145,18 @@ watch(videosOrder, (o, n) => {
                     <input class="input-field" v-model="trailer" :placeholder="media.trailer" type="url">
                     <label>Year of release:</label>
                     <input class="input-field" v-model="year" :placeholder="media.year" type="number">
+                    <label>Update videos:</label>
+                    <input class="input-field" v-model="updateVideos" type="checkbox">
                 </div>
                 <div style="margin: 20px 0px'; display: flex; align-items: center; flex-direction: column">
-                    <img style="margin: 50px; margin-bottom: 0; border-radius: 15px;" :src="previewImageUrl" class="preview-image">
+                    <img style="margin: 50px; margin-bottom: 0; border-radius: 15px;" :src="previewImageUrl"
+                        class="preview-image">
                     <span style="margin: 10px 0px;">Video Order:</span>
                     <ul class="video-order">
-                        <div v-for="(video, index) in videosOrder" style="display: flex; align-items: center; border-bottom: 1px solid white;">
-                            <input @change="e => videosOrder[index].index = e.target.valueAsNumber" type="number" :value="video.index"
+                        <div v-for="(video, index) in videosOrder"
+                            style="display: flex; align-items: center; border-bottom: 1px solid white;">
+                            <input @change="e => videosOrder[index].index = e.target.valueAsNumber" type="number"
+                                :value="video.index"
                                 style="width: 50px; border: none; border-right: 1px solid white; display: flex; text-align: center;">
                             <li style="list-style-type: none; margin-left: 10px;">{{ video.name }}</li>
                         </div>
@@ -193,12 +220,15 @@ watch(videosOrder, (o, n) => {
                                     <label class="genre-checkbox" style="margin-left: 10px;" :for="genre.name">{{
                                         genre.name.charAt(0).toUpperCase() + genre.name.slice(1) }}</label>
                                 </div>
-                                <Icon class="icon" @click="uploadStore.deleteGenre(genre.name)" name="material-symbols:delete">
+                                <Icon class="icon" @click="uploadStore.deleteGenre(genre.name)"
+                                    name="material-symbols:delete">
                                 </Icon>
                             </div>
                         </template>
                     </div>
                     <button class="submit-btn" type="submit">Update Media</button>
+                    <button @click="deleteMedia(media.id)" class="submit-btn"
+                        style="background-color: var(--primary-color-100);">Delete Media</button>
                 </div>
             </form>
         </div>
@@ -220,27 +250,32 @@ watch(videosOrder, (o, n) => {
     justify-content: flex-start;
     margin-bottom: 15px;
 }
+
 .edit-form {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
 }
+
 .icon:hover {
     color: var(--primary-color-100);
 }
+
 .video-order {
-    display: flex; 
-    flex-direction: column; 
-    margin: 0px 50px; 
-    padding: 0; 
-    max-height: 200px; 
-    overflow-y: scroll; 
-    border: 1px solid white; 
+    display: flex;
+    flex-direction: column;
+    margin: 0px 50px;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: scroll;
+    border: 1px solid white;
     border-radius: 5px;
 }
+
 .video-order div:last-child {
     border-bottom: none !important;
 }
+
 .actor {
     display: flex;
     align-items: center;
