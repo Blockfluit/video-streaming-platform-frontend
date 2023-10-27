@@ -215,14 +215,17 @@ const calcTimePercentage = (video) => {
     height: 5px !important;
     width: 5px !important;
 }
+
 .edit-btn {
     pointer-events: all;
-    cursor: pointer; 
+    cursor: pointer;
     margin-left: 10px;
 }
+
 .edit-btn:hover {
     color: var(--primary-color-100);
 }
+
 img {
     width: 200px;
 }
@@ -413,7 +416,7 @@ img {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 100%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.25) 100%);
 }
 
 .episode-card {
@@ -433,7 +436,7 @@ img {
 }
 
 .darken:hover {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 100%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.3) 100%);
 }
 
 .episode-card img {

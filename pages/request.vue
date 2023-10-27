@@ -10,15 +10,48 @@ const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 const mainStore = useMainStore()
 
+const toggleEdit = ref()
 const inputName = ref("")
 const inputYear = ref(new Date().getFullYear())
 const inputComment = ref("")
+const updateName = ref()
+const updateYear = ref()
+const updateComment = ref()
+
+const filterAllMediaCountBarElement = ref()
+const filterRequestsCountBarElement = ref()
 
 const allRequests = ref([])
+const filteredRequests = ref([])
+const filteredAllMedia = ref([])
 
 onBeforeMount(() => {
     getRequests()
 })
+
+const requestFilter = () => allRequests.value.filter(request => request.name.toLowerCase().includes(inputName.value.toLowerCase()) && request.status !== 'ADDED')
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+const allMediaFilter = () => mainStore.allMedia.filter(media => media.name.toLowerCase().includes(inputName.value.toLowerCase()))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+watch(allRequests, (o, n) => {
+    filteredRequests.value = requestFilter()
+    filteredAllMedia.value = allMediaFilter()
+})
+
+watch(inputName, (o, n) => {
+    filteredRequests.value = requestFilter()
+    filteredAllMedia.value = allMediaFilter()
+
+    filterAllMediaCountBarElement.value.style.width = filteredAllMedia.value.length / mainStore.allMedia.length * 100 + "%"
+    filterRequestsCountBarElement.value.style.width = filteredRequests.value.length / allRequests.value.length * 100 + "%"
+})
+
+const showRequestButtons = (request) => {
+    return (request.createdBy === jwtStore.getSubject && request.status === "NEW") ||
+        jwtStore.getRole == "ADMIN"
+}
 
 const getRequests = () => {
     fetch(config.public.baseURL + "/request", {
@@ -75,7 +108,7 @@ const addRequest = (name, year, comment) => {
     })
 }
 
-const updateRequest = (id, name, year, comment, status) => {
+const updateRequest = (id, options) => {
     if (status === "ADDED" &&
         !confirm(`Changing status to '${status}' will hide the request. Are you sure you want to do this?`)) return
 
@@ -87,10 +120,10 @@ const updateRequest = (id, name, year, comment, status) => {
             Authorization: `Bearer ${jwtStore.getJwt}`
         },
         body: JSON.stringify({
-            name: name,
-            year: year,
-            comment: comment,
-            status: status,
+            name: options.name,
+            year: options.year,
+            comment: options.comment,
+            status: options.status,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
@@ -134,10 +167,10 @@ const deleteRequest = (id) => {
                 <button type="submit">Add Request</button>
             </div>
         </form>
-        <div
-            v-if="!(allRequests.filter(request => request.name.toLowerCase().includes(inputName.toLowerCase())).length === 0 &&
-                mainStore.allMedia.filter(media => media.name.toLowerCase().includes(inputName.toLowerCase())).length === 0)">
-            <h2>Requests</h2>
+        <div v-show="!(filteredRequests.length === 0 &&
+            filteredAllMedia.length === 0)">
+            <h2>Requests {{ filteredRequests.length }}</h2>
+            <div ref="filterRequestsCountBarElement" class="filter-count-bar"></div>
             <table>
                 <thead>
                     <tr>
@@ -147,21 +180,26 @@ const deleteRequest = (id) => {
                         <td>Requested on</td>
                         <td>Requester</td>
                         <td>Status</td>
-                        <td v-if="jwtStore.isAdmin"></td>
+                        <td></td>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="height:30px;" v-for="request in allRequests.filter(request => request.name.toLowerCase().includes(inputName.toLowerCase()) && request.status !== 'ADDED')
-                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))">
-                        <td>{{ request.name }}</td>
-                        <td>{{ request.year }}</td>
-                        <td>{{ request.comment }}</td>
+                    <tr style="height:30px;" v-for="(request, index) in filteredRequests">
+                        <template v-if="toggleEdit !== index">
+                            <td>{{ request.name }}</td>
+                            <td>{{ request.year }}</td>
+                            <td>{{ request.comment }}</td>
+                        </template>
+                        <template v-else>
+                            <td><input type="text" v-model="updateName"></td>
+                            <td><input type="number" v-model="updateYear"></td>
+                            <td><input type="text" v-model="updateComment"></td>
+                        </template>
                         <td>{{ new Date(request.createdAt).toLocaleDateString() }}</td>
                         <td style="text-transform: capitalize;">{{ request.createdBy }}</td>
                         <td v-if="!jwtStore.isAdmin">{{ request.status }}</td>
-                        <td v-if="jwtStore.isAdmin">
-                            <select
-                                @change="e => updateRequest(request.id, undefined, undefined, undefined, e.target.value)">
+                        <td v-else>
+                            <select @change="e => updateRequest(request.id, { status: e.target.value })">
                                 <option :selected="request.status === 'NEW'" value="NEW">New</option>
                                 <option :selected="request.status === 'PROCESSING'" value="PROCESSING">Processing
                                 </option>
@@ -170,13 +208,27 @@ const deleteRequest = (id) => {
                                 <option :selected="request.status === 'ADDED'" value="ADDED">Added</option>
                             </select>
                         </td>
-                        <td v-if="jwtStore.isAdmin" @click="deleteRequest(request.id)">
-                            <Icon class="icon" name="material-symbols:delete"></Icon>
+                        <td v-if="showRequestButtons(request)">
+                            <button v-if="toggleEdit !== index" @click="toggleEdit = index;
+                            updateName = request.name;
+                            updateYear = request.year;
+                            updateComment = request.comment">
+                                <Icon name="mdi:pencil" />
+                            </button>
+                            <button v-else
+                                @click="toggleEdit = -1; updateRequest(request.id, { name: updateName, year: updateYear, comment: updateComment })">
+                                <Icon class="icon" name="ic:outline-check" />
+                            </button>
+                            <button @click="deleteRequest(request.id)">
+                                <Icon class="icon" name="material-symbols:delete" />
+                            </button>
                         </td>
+                        <td v-else></td>
                     </tr>
                 </tbody>
             </table>
-            <h2>Already available</h2>
+            <h2>Already available {{ filteredAllMedia.length }}</h2>
+            <div ref="filterAllMediaCountBarElement" class="filter-count-bar"></div>
             <table>
                 <thead>
                     <tr>
@@ -187,8 +239,7 @@ const deleteRequest = (id) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="height:30px;" v-for=" media  in  mainStore.allMedia.filter(media => media.name.toLowerCase().includes(inputName.toLowerCase()))
-                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))">
+                    <tr style="height:30px;" v-for="media in filteredAllMedia">
                         <td>{{ media.name }}</td>
                         <td>{{ media.year }}</td>
                         <td>{{ new Date(media.createdAt).toLocaleDateString() }}</td>
@@ -197,7 +248,8 @@ const deleteRequest = (id) => {
                 </tbody>
             </table>
         </div>
-        <div v-else>
+        <div v-show="filteredRequests.length === 0 &&
+            filteredAllMedia.length === 0">
             <h2>Your the first to request this!</h2>
         </div>
     </div>
@@ -208,6 +260,14 @@ const deleteRequest = (id) => {
     margin: 50px;
     display: flex;
     flex-direction: row;
+}
+
+.filter-count-bar {
+    width: 100%;
+    height: 5px;
+    background-color: var(--primary-color-100);
+    z-index: 10;
+    position: relative;
 }
 
 .icon {

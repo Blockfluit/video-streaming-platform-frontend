@@ -102,6 +102,8 @@ const updateMedia = () => {
 }
 
 const deleteMedia = (id) => {
+    if (!confirm("are you sure you want do delete this media? This cannot be undone!")) return
+
     fetch(config.public.baseURL + "/media/" + id, {
         method: "DELETE",
         headers: {
