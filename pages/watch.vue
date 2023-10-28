@@ -57,12 +57,12 @@ const setVideos = () => {
 }
 
 const playVideo = (targetVideo) => {
-    if (video === undefined) {
+    if (targetVideo === undefined) {
         clearInterval(intervalId)
         navigateTo("/media")
         return
     }
-    if (video !== undefined) {
+    if (targetVideo !== undefined) {
         clearInterval(intervalId)
         video.value = targetVideo
         setVideos()
