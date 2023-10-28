@@ -47,9 +47,9 @@ onBeforeUnmount(() => {
     }
 })
 
-watch(video, (o, n) => {
+watch(media, (o, n) => {
     setVideos()
-})
+}, { deep: true })
 
 const setVideos = () => {
     nextVideo.value = media.value.videos.find(entry => entry.index === video.value.index + 1)
@@ -65,6 +65,7 @@ const playVideo = (targetVideo) => {
     if (video !== undefined) {
         clearInterval(intervalId)
         video.value = targetVideo
+        setVideos()
         videoElement.value.currentTime = 0
         videoElement.value.load()
         videoElement.value.play()

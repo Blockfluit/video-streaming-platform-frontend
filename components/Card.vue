@@ -48,6 +48,7 @@ const navigateToMedia = () => {
 
 const navigateToLastVideo = (mediaId) => {
     media.value.id = props.shownMedia.id
+    mediaStore.setMedia(props.shownMedia.id)
 
     if (props.showLastVideo) {
         const lastWatched = getLastVideo(mediaId)
@@ -211,6 +212,7 @@ svg {
     .card {
         width: 160px;
     }
+
     .name {
         font-size: var(--font-size-4);
         font-weight: 700;
