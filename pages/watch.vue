@@ -11,13 +11,20 @@ const { media } = storeToRefs(mediaStore)
 const { volume, video } = storeToRefs(watchStore)
 
 const videoElement = ref({})
-const showReturnElement = ref(true)
+const showOverlay = ref(true)
 const countdownTimer = ref(0)
 const isPlaying = ref(false)
 const nextVideo = ref()
+const previousVideo = ref()
 
 let intervalId
 let timeoutId
+
+onBeforeMount(() => {
+    if (process.client) {
+        setVideos()
+    }
+})
 
 onMounted(() => {
     if (process.client) {
@@ -26,8 +33,8 @@ onMounted(() => {
 
         window.onmousemove = () => {
             clearTimeout(timeoutId)
-            showReturnElement.value = true
-            timeoutId = setTimeout(() => { showReturnElement.value = false }, 3000)
+            showOverlay.value = true
+            timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
         }
     }
 })
@@ -40,14 +47,36 @@ onBeforeUnmount(() => {
     }
 })
 
-const playNextVideo = () => {
-    const countdownInSec = 5
+watch(video, (o, n) => {
+    setVideos()
+})
 
-    videoElement.value.currentTime = 0
-    watchStore.updateWatched(video.value.id, 0)
-
+const setVideos = () => {
     nextVideo.value = media.value.videos.find(entry => entry.index === video.value.index + 1)
+    previousVideo.value = media.value.videos.find(entry => entry.index === video.value.index - 1)
+}
+
+const playVideo = (targetVideo) => {
+    if (video === undefined) {
+        clearInterval(intervalId)
+        navigateTo("/media")
+        return
+    }
+    if (video !== undefined) {
+        clearInterval(intervalId)
+        video.value = targetVideo
+        videoElement.value.currentTime = 0
+        videoElement.value.load()
+        videoElement.value.play()
+        return
+    }
+}
+
+const playVideoWithCountdown = (targetVideo) => {
+    const countdownInSec = 5
     countdownTimer.value = countdownInSec
+
+    watchStore.updateWatched(video.value.id, 0)
 
     intervalId = setInterval(() => {
         countdownTimer.value--
@@ -55,35 +84,49 @@ const playNextVideo = () => {
             return
         }
 
-        if (nextVideo.value === undefined) {
-            clearInterval(intervalId)
-            navigateTo("/media")
-            return
-        }
-        if (nextVideo.value !== undefined) {
-            clearInterval(intervalId)
-            video.value = nextVideo
-            videoElement.value.load()
-            videoElement.value.play()
-            return
-        }
+        playVideo(targetVideo)
     }, 1000)
 }
 </script>
 
 <template>
     <div class="container">
-        <div v-if="showReturnElement || !isPlaying" @click="navigateTo(`/media`)" class="container-return">
-            <Icon name="bi:chevron-left" class="back-icon" size="1.5rem" />
-            <div class="container-vertical">
-                <span class="title">{{ video.name
-                }}</span>
-                <span v-if="video.season !== -1" style="font-size: var(--font-size-5);">Season
-                    {{ video.season }}</span>
+        <header v-if="showOverlay || !isPlaying" class="container-header">
+            <div style="display: flex; flex-direction: column;">
+                <h3 style="pointer-events: none; margin: 0">{{ video.name }}</h3>
+                <h4 v-if="video.season !== -1" style="margin: 0">Season {{ video.season }}</h4>
+            </div>
+            <button @click="navigateTo(`/media`)" class="back-button">
+                <Icon name="fa6-solid:x" class="back-icon" size="2rem" style="color: var(--text-color-1);" />
+            </button>
+        </header>
+        <div class="container-next-video">
+            <div v-if="(showOverlay || !isPlaying) && previousVideo !== undefined" @click="playVideo(previousVideo)"
+                class="container-next-video-left">
+                <Icon name="bi:chevron-left" class="back-icon" size="2rem" />
+                <h3 class="hide-on-desktop">Previous</h3>
+                <div class="container-vertical hide-on-phone">
+                    <span class="title" style="font-size: var(--font-size-4);">{{ previousVideo.name
+                    }}</span>
+                    <span v-if="previousVideo.season !== -1" style="font-size: var(--font-size-5);">Season
+                        {{ previousVideo.season }}</span>
+                </div>
+            </div>
+            <div style="flex-grow: 1;"></div>
+            <div v-if="(showOverlay || !isPlaying) && nextVideo !== undefined" @click="playVideo(nextVideo)"
+                class="container-next-video-right">
+                <div class="container-vertical hide-on-phone">
+                    <span class="title" style="font-size: var(--font-size-4);">{{ nextVideo.name
+                    }}</span>
+                    <span v-if="nextVideo.season !== -1" style="font-size: var(--font-size-5);">Season
+                        {{ nextVideo.season }}</span>
+                </div>
+                <h3 class="hide-on-desktop">Next</h3>
+                <Icon name="bi:chevron-right" class="back-icon" size="2rem" />
             </div>
         </div>
-        <video @play="isPlaying = true" @pause="isPlaying = false" @ended="playNextVideo" ref="videoElement"
-            crossorigin="anonymous" controls autoplay>
+        <video @play="isPlaying = true" @pause="isPlaying = false" @ended="playVideoWithCountdown(nextVideo)"
+            ref="videoElement" crossorigin="anonymous" controls autoplay>
             <source :src="`${config.public.baseURL}/stream/video/${video.id}`" type="video/mp4" />
             <track v-for="subtitle in video.subtitles" :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
                 :label="subtitle.label" kind="subtitles" :srclang="subtitle.srcLang" :default="subtitle.defaultSub" />
@@ -104,6 +147,22 @@ const playNextVideo = () => {
 </template>
 
 <style scoped>
+.container {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    left: 0;
+    background-color: rgb(0, 0, 0);
+}
+
+.container video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
 .container-center {
     display: flex;
     flex-direction: row;
@@ -129,14 +188,49 @@ const playNextVideo = () => {
     margin: 0;
 }
 
-.container-return {
+.container-next-video {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    z-index: 10;
+    position: absolute;
+    bottom: 70px;
+    padding: 30px;
+}
+
+.container-next-video-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    left: 0;
+    cursor: pointer;
+}
+
+.container-next-video-left:hover {
+    color: var(--primary-color-100);
+}
+
+.container-next-video-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    right: 0;
+    cursor: pointer;
+}
+
+.container-next-video-right:hover {
+    color: var(--primary-color-100);
+}
+
+.container-header {
+    width: 100%;
     z-index: 10;
     position: absolute;
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    margin: 40px 30px;
-    padding: 5px 15px;
+    padding: 30px;
 }
 
 .title {
@@ -153,32 +247,37 @@ const playNextVideo = () => {
     flex-direction: column;
 }
 
+.back-button {
+    cursor: pointer;
+    background-color:
+        transparent;
+    border: 0;
+}
+
 .back-icon {
-    margin-right: 15px;
+    margin: 15px;
 }
 
-.container {
-    position: fixed;
-    top: 0;
-    /* top: var(--navbar-height); */
-    width: 100%;
-    /* height: calc(100% - var(--navbar-height)); */
-    height: 100%;
-    z-index: 100;
-    left: 0;
-    background-color: rgb(0, 0, 0);
+.hide-on-phone {
+    display: flex;
 }
 
-.container video {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+.hide-on-desktop {
+    display: none;
 }
 
 @media screen and (max-width: 992px) {
     .container-vertical span {
         font-size: var(--font-size-4);
         text-transform: capitalize;
+    }
+
+    .hide-on-phone {
+        display: none;
+    }
+
+    .hide-on-desktop {
+        display: flex;
     }
 }
 </style>
