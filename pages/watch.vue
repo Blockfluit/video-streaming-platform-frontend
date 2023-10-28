@@ -173,15 +173,16 @@ const playVideoWithCountdown = (targetVideo) => {
 }
 
 .container-countdown {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    background-color: var(--background-color-200);
-    z-index: 10;
+    pointer-events: none;
+    background: radial-gradient(rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.3) 100%);
     position: fixed;
-    border-radius: var(--border-radius-1);
     padding: 10px;
-    border: 4px solid var(--primary-color-100);
 }
 
 .container-countdown * {
