@@ -29,8 +29,13 @@ onBeforeMount(() => {
     getRequests()
 })
 
-const requestFilter = () => allRequests.value.filter(request => request.name.toLowerCase().includes(inputName.value.toLowerCase()) && request.status !== 'ADDED')
+const requestFilter = () => allRequests.value.filter(request => request.name.toLowerCase().includes(inputName.value.toLowerCase()))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .sort((a, b) => {
+        if(a.status === "ADDED") return 1
+        if(a.status === b.status) return 0
+        if(a.status !== "ADDED") return -1
+    })
 
 const allMediaFilter = () => mainStore.allMedia.filter(media => media.name.toLowerCase().includes(inputName.value.toLowerCase()))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -169,7 +174,7 @@ const deleteRequest = (id) => {
         </form>
         <div v-show="!(filteredRequests.length === 0 &&
             filteredAllMedia.length === 0)">
-            <h2>Requests {{ filteredRequests.length }}</h2>
+            <h2>Requests <span style="font-weight: 200; margin-left: 5px;">{{ filteredRequests.length }}</span></h2>
             <div ref="filterRequestsCountBarElement" class="filter-count-bar"></div>
             <table>
                 <thead>
@@ -191,9 +196,9 @@ const deleteRequest = (id) => {
                             <td>{{ request.comment }}</td>
                         </template>
                         <template v-else>
-                            <td><input type="text" v-model="updateName"></td>
-                            <td><input type="number" v-model="updateYear"></td>
-                            <td><input type="text" v-model="updateComment"></td>
+                            <td><input style="max-width: 100px;" type="text" v-model="updateName"></td>
+                            <td><input style="max-width: 100px;" type="number" v-model="updateYear"></td>
+                            <td><input style="max-width: 100px;" type="text" v-model="updateComment"></td>
                         </template>
                         <td>{{ new Date(request.createdAt).toLocaleDateString() }}</td>
                         <td style="text-transform: capitalize;">{{ request.createdBy }}</td>
@@ -212,41 +217,43 @@ const deleteRequest = (id) => {
                             <button v-if="toggleEdit !== index" @click="toggleEdit = index;
                             updateName = request.name;
                             updateYear = request.year;
-                            updateComment = request.comment">
+                            updateComment = request.comment" class="admin-btn">
                                 <Icon name="mdi:pencil" />
                             </button>
-                            <button v-else
+                            <button v-else class="admin-btn"
                                 @click="toggleEdit = -1; updateRequest(request.id, { name: updateName, year: updateYear, comment: updateComment })">
-                                <Icon class="icon" name="ic:outline-check" />
+                                <Icon name="ic:outline-check" />
                             </button>
-                            <button @click="deleteRequest(request.id)">
-                                <Icon class="icon" name="material-symbols:delete" />
+                            <button class="admin-btn" @click="deleteRequest(request.id)">
+                                <Icon name="material-symbols:delete" />
                             </button>
                         </td>
                         <td v-else></td>
                     </tr>
                 </tbody>
             </table>
-            <h2>Already available {{ filteredAllMedia.length }}</h2>
-            <div ref="filterAllMediaCountBarElement" class="filter-count-bar"></div>
-            <table>
-                <thead>
-                    <tr>
-                        <td>Name</td>
-                        <td>Year</td>
-                        <td>Added on</td>
-                        <td>Type</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="height:30px;" v-for="media in filteredAllMedia">
-                        <td>{{ media.name }}</td>
-                        <td>{{ media.year }}</td>
-                        <td>{{ new Date(media.createdAt).toLocaleDateString() }}</td>
-                        <td>{{ media.type }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div v-show="inputName !== ''">
+                <h2>Already available <span style="font-weight: 200; margin-left: 5px;">{{ filteredAllMedia.length }}</span></h2>
+                <div ref="filterAllMediaCountBarElement" class="filter-count-bar"></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Year</td>
+                            <td>Added on</td>
+                            <td>Type</td>
+                        </tr>
+                    </thead>
+                    <tbody style="height: 100px; overflow-y: scroll;">
+                        <tr style="height:30px;" v-for="media in filteredAllMedia">
+                            <td>{{ media.name }}</td>
+                            <td>{{ media.year }}</td>
+                            <td>{{ new Date(media.createdAt).toLocaleDateString() }}</td>
+                            <td>{{ media.type }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div v-show="filteredRequests.length === 0 &&
             filteredAllMedia.length === 0">
@@ -262,6 +269,7 @@ const deleteRequest = (id) => {
     flex-direction: row;
 }
 
+
 .filter-count-bar {
     width: 100%;
     height: 5px;
@@ -269,17 +277,16 @@ const deleteRequest = (id) => {
     z-index: 10;
     position: relative;
 }
-
-.icon {
-    display: flex;
-    align-items: center;
+.admin-btn {
+    background-color: transparent;
+    color: white;
+    padding: 10px;
 }
-
-.icon:hover {
+.admin-btn:hover {
     color: var(--primary-color-100);
     cursor: pointer;
+    background-color: transparent;
 }
-
 .container-add-request {
     display: flex;
     flex-direction: column;
@@ -337,5 +344,23 @@ tbody tr:nth-child(even) {
 
 table thead {
     background-color: #121212;
+}
+select {
+    background-color: transparent;
+    color: var(--primary-color-100);
+    border: 1px solid var(--primary-color-100);
+    border-radius: 5px;
+    padding: 3px;
+    font-family: var(--font-family-1);
+}
+
+select:hover {
+    cursor: pointer;
+}
+
+select option {
+    background-color: var(--background-color-200);
+    color: var(--primary-color-100);
+
 }
 </style>
