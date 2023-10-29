@@ -239,8 +239,10 @@ const deleteToken = (token) => {
                         <option value="CRITIC">Critic</option>
                         <option value="ADMIN">Admin</option>
                     </select>
-                    <label for="isMasterToken">Master</label>
-                    <input id="isMasterToken" v-model="masterToken" type="checkbox">
+                    <div style="display: flex; align-items: center;">
+                        <label for="isMasterToken">Master</label>
+                        <input style="margin: 10px;" id="isMasterToken" v-model="masterToken" type="checkbox">
+                    </div>
                     <button type="submit">Add Token</button>
                 </div>
             </form>

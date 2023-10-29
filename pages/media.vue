@@ -105,8 +105,6 @@ const calcTimePercentage = (video) => {
 
                     <div style="display: flex; align-items: baseline;">
                         <h1 style=" text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
-                        <Icon @click="editMedia" v-if="jwtStore.isAdmin" name="mdi:pencil" width="25px" height="25px"
-                            class="edit-btn" />
                     </div>
                     <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
                         formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
@@ -129,6 +127,10 @@ const calcTimePercentage = (video) => {
                             <span>Play</span>
                         </div>
                         <div style="flex-grow: 1;"></div>
+                        <div @click="editMedia" v-if="jwtStore.isAdmin" class="trailer-button">
+                            <Icon name="mdi:pencil" width="25px" height="25px"
+                            class="edit-btn" />
+                        </div>
                         <div class="trailer-button" @click="showTrailer = !showTrailer">
                             <Icon name="mdi:movie-open-play" width="25px" height="25px" />
                         </div>

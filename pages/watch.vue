@@ -30,8 +30,14 @@ onMounted(() => {
     if (process.client) {
         videoElement.value.currentTime = watchStore.startTime
         videoElement.value.volume = volume.value
+        setTimeout(() => { showOverlay.value = false }, 3000)
 
         window.onmousemove = () => {
+            clearTimeout(timeoutId)
+            showOverlay.value = true
+            timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
+        }
+        window.ontouchend = () => {
             clearTimeout(timeoutId)
             showOverlay.value = true
             timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
@@ -94,11 +100,11 @@ const playVideoWithCountdown = (targetVideo) => {
     <div class="container">
         <header v-if="showOverlay || !isPlaying" class="container-header">
             <div style="display: flex; flex-direction: column;">
-                <h3 style="pointer-events: none; margin: 0">{{ video.name }}</h3>
-                <h4 v-if="video.season !== -1" style="margin: 0">Season {{ video.season }}</h4>
+                <h3 style="pointer-events: none; margin: 0; font-weight: 700;">{{ video.name }}</h3>
+                <h4 v-if="video.season !== -1" style="margin: 0; font-weight: 300;">Season {{ video.season }}</h4>
             </div>
             <button @click="navigateTo(`/media`)" class="back-button">
-                <Icon name="fa6-solid:x" class="back-icon" size="2rem" style="color: var(--text-color-1);" />
+                <Icon name="radix-icons:cross-1" class="back-icon" size="1.5rem" style="color: var(--text-color-1);" />
             </button>
         </header>
         <div class="container-next-video">
@@ -229,9 +235,7 @@ const playVideoWithCountdown = (targetVideo) => {
     z-index: 10;
     position: absolute;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
-    align-items: center;
     padding: 30px;
 }
 
@@ -251,13 +255,16 @@ const playVideoWithCountdown = (targetVideo) => {
 
 .back-button {
     cursor: pointer;
-    background-color:
-        transparent;
+    background-color: transparent;
     border: 0;
+    height: fit-content;
+    padding: 5px;
+    margin-left: 10px;
 }
 
 .back-icon {
-    margin: 15px;
+    margin: 0;
+
 }
 
 .hide-on-phone {
@@ -273,11 +280,15 @@ const playVideoWithCountdown = (targetVideo) => {
         font-size: var(--font-size-4);
         text-transform: capitalize;
     }
-
+    .container-header h3 {
+        font-size: 1.2rem;
+    }
     .hide-on-phone {
         display: none;
     }
-
+    .container-next-video {
+        padding: 30px 15px;
+    }
     .hide-on-desktop {
         display: flex;
     }
