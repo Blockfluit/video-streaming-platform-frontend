@@ -189,7 +189,7 @@ const deleteToken = (token) => {
                 <div class="container-add-user">
                     <span style="font-size: 2rem; font-weight: 600;">Add User</span>
                     <input v-model="username" placeholder="Username*" type="text" required>
-                    <input v-model="email" placeholder="Email" type="email">
+                    <!-- <input v-model="email" placeholder="Email" type="email"> -->
                     <input v-model="password" placeholder="Password*" type="text" required>
                     <select style="margin-bottom: 10px;" v-model="role">
                         <option value="USER">User</option>
@@ -203,7 +203,7 @@ const deleteToken = (token) => {
                 <thead>
                     <tr>
                         <td>Username</td>
-                        <td class="email">Email</td>
+                        <!-- <td class="email">Email</td> -->
                         <td>Role</td>
                         <td>Last Active</td>
                         <td></td>
@@ -213,7 +213,7 @@ const deleteToken = (token) => {
                     <tr class="row"
                         v-for="(user, index) in [...users].sort((a, b) => new Date(b.lastActiveAt) - new Date(a.lastActiveAt))">
                         <td class="username">{{ user.username }}</td>
-                        <td class="email">{{ user.email }}</td>
+                        <!-- <td class="email">{{ user.email }}</td> -->
                         <td ref="updateRoleElement" class="role">
                             <select @change="e => updateUser(user.username, null, e.target.value)">
                                 <option :selected="user.role === 'USER'" value="USER">User</option>

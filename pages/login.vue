@@ -46,10 +46,10 @@ const login = (username, password) => {
                 <span style="text-align: center;">Please enter your username and password</span>
                 <input v-model="username" type="text" placeholder="username" required>
                 <input v-model="password" type="password" placeholder="password" required>
-                <div style="display: flex; justify-content: center;">
+                <!-- <div style="display: flex; justify-content: center;">
                     <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
                     </span>
-                </div>
+                </div> -->
                 <button type="submit">Login</button>
                 <span class="got-token">Got a token? <NuxtLink to="/register">Signup</NuxtLink>
                 </span>
