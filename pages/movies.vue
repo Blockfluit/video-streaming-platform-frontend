@@ -97,8 +97,10 @@ const doFilter = () => {
                 <CardRow :allMedia="[...mainStore.getAllMovies].sort((a, b) => b.views - a.views).slice(0, 25)" />
             </div>
             <div>
-                <h2 class="carousel-title" style="display: flex; justify-content: center;">All Movies
-                </h2>
+                <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
+                    <span style="font-size: 3rem; font-weight: 800;">All movies</span>
+                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ allMovies.length }}</span>
+                </div>
                 <div class="container-filtered-cards">
                     <div style="margin: 5px !important;" v-for="media of filteredMedia">
                         <Card :shownMedia="media" />
@@ -109,8 +111,10 @@ const doFilter = () => {
 
         <transition name="slide-down">
             <div v-if="searchbox !== '' || filters.length > 0" class="search-results">
-                <h2 class="carousel-title" style="display: flex; justify-content: center;">Search results
-                </h2>
+                <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
+                    <span style="font-size: 3rem; font-weight: 800;">Movie results</span>
+                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ filteredMedia.size }}</span>
+                </div>
                 <div class="container-filtered-cards">
                     <div style="margin: 5px !important;" v-for="media of filteredMedia">
                         <Card :shownMedia="media" />

@@ -50,16 +50,20 @@ const hoverButtonHandler = (showButton) => {
 
 <template>
     <div @mouseover="hoverButtonHandler(true)" @mouseleave="hoverButtonHandler(false)" class="container-cards">
-        <div v-if="showButtons && showLeftButton" @click="previousCards()" class="button left" style="left: 0;">
-            <Icon name="fa-solid:chevron-left" />
+        <div v-if="showButtons && showLeftButton" @click="previousCards()" class="button left">
+            <div class="background">
+                <Icon name="fa-solid:chevron-left" class="icon" />
+            </div>
         </div>
         <div ref="cardsElement" class="carousel">
             <div class="media-card" v-for="(media) of allMedia">
                 <Card :shownMedia="media" :showLastVideo="showLastVideo ?? false" />
             </div>
         </div>
-        <div v-if="showButtons && showRightButton" @click="nextCards(1)" class="button right" style="right: 0;">
-            <Icon name="fa-solid:chevron-right" />
+        <div v-if="showButtons && showRightButton" @click="nextCards(1)" class="button right">
+            <div class="background">
+                <Icon name="fa-solid:chevron-right" class="icon" />
+            </div>
         </div>
     </div>
 </template>
@@ -75,6 +79,7 @@ const hoverButtonHandler = (showButton) => {
 
 .container-cards {
     position: relative;
+    overflow: hidden;
 }
 
 .carousel {
@@ -89,19 +94,24 @@ const hoverButtonHandler = (showButton) => {
     height: 0;
     width: 0;
 }
+.background {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100px;
+    height: 50px;
+    width: 50px;
+    background-color: var(--background-color-100);
+}
 
 .button {
     position: absolute;
     z-index: 11;
     top: 0;
     height: 100%;
-    width: 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.8);
-
 }
 
 .button:hover {
@@ -110,10 +120,12 @@ const hoverButtonHandler = (showButton) => {
 
 .left {
     border-radius: var(--border-radius-1) 0px 0px var(--border-radius-1);
+    left: 5px;
 }
 
 .right {
     border-radius: 0px var(--border-radius-1) var(--border-radius-1) 0px;
+    right: 5px;
 }
 
 @media screen and (max-width: 992px) {
