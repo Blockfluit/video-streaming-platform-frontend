@@ -78,13 +78,15 @@ const navigateToMedia = () => {
     navigateTo(`/media`)
 }
 
+// Needs refactoring
 const parseTrailer = (trailer) => {
     if (trailer === undefined) {
-        return ""
+        return "https://www.youtube.com/watch?v=J---aiyznGQ"
     }
-    const trailerParams = trailer.split("watch?v=")[1]
-    const trailerId = trailerParams.split("&t=")[0]
-    const time = trailerParams.includes("&t=") ? trailerParams.split("&t=")[1].replace("s", "") : ""
+    const trailerLongId = trailer.includes("watch?v=") ? trailer.split("watch?v=")[1] : "J---aiyznGQ"
+    if (trailerLongId === "J---aiyznGQ") trailer = "https://www.youtube.com/watch?v=J---aiyznGQ"
+    const trailerId = trailerLongId.split("&t=")[0]
+    const time = trailerLongId.includes("&t=") ? trailerLongId.split("&t=")[1].replace("s", "") : ""
 
     return trailer.replace("watch?v=", "embed/") + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0${time !== "" ? "&start=" + time : ""}`
 }
