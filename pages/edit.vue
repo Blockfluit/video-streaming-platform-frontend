@@ -206,24 +206,23 @@ watch(videosOrder, (o, n) => {
                     <input v-model="searchGenres" class="input-field" placeholder="Search genre" type="search">
 
                     <div class="genre-list">
-                        <template v-for="genre in allGenres.filter(genre => genre.name.toLowerCase().includes(searchGenres.toLowerCase()))
-                            .sort((a, b) => a.name.localeCompare(b.name))
+                        <template v-for="genre in allGenres.filter(genre => genre.toLowerCase().includes(searchGenres.toLowerCase()))
+                            .sort((a, b) => a.localeCompare(b))
                             .sort((a, b) => {
-                                const cond1 = genres.includes(a.name)
-                                const cond2 = genres.includes(b.name)
+                                const cond1 = genres.includes(a)
+                                const cond2 = genres.includes(b)
                                 if (cond1 && !cond2) return -1
                                 if (!cond1 && cond2) return 1
                                 if (!cond1 === cond2) return 0
                             })">
                             <div class="genre">
                                 <div>
-                                    <input class="genre-checkbox" v-model="genres" type="checkbox" :id="genre.name"
-                                        :value="genre.name">
-                                    <label class="genre-checkbox" style="margin-left: 10px;" :for="genre.name">{{
-                                        genre.name.charAt(0).toUpperCase() + genre.name.slice(1) }}</label>
+                                    <input class="genre-checkbox" v-model="genres" type="checkbox" :id="genre"
+                                        :value="genre">
+                                    <label class="genre-checkbox" style="margin-left: 10px;" :for="genre">{{
+                                        genre.charAt(0).toUpperCase() + genre.slice(1) }}</label>
                                 </div>
-                                <Icon class="icon" @click="uploadStore.deleteGenre(genre.name)"
-                                    name="material-symbols:delete">
+                                <Icon class="icon" @click="uploadStore.deleteGenre(genre)" name="material-symbols:delete">
                                 </Icon>
                             </div>
                         </template>
