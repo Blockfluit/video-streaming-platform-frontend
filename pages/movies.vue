@@ -80,6 +80,10 @@ const doFilter = () => {
             <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
             <div
                 :set="media = mainStore.getAllMovies.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
+                    .filter(media => {
+                        const a = watched.find(entry => entry.mediaId === media.id)
+                        return (a.timestamp / a.duration) < 0.99
+                    })
                     .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
                         new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))">
                 <h2 v-if="media.length > 0" class="carousel-title">Continue Watching</h2>

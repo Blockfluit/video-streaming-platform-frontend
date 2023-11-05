@@ -19,6 +19,7 @@ const previousVideo = ref()
 
 let intervalId
 let timeoutId
+let updateIntervalId
 
 onBeforeMount(() => {
     if (process.client) {
@@ -42,6 +43,10 @@ onMounted(() => {
             showOverlay.value = true
             timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
         }
+        clearInterval(updateIntervalId)
+        updateIntervalId = setInterval(() => {
+            watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
+        }, 10000)
     }
 })
 
@@ -50,6 +55,7 @@ onBeforeUnmount(() => {
         watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
         volume.value = videoElement.value.volume
         window.onmousemove = null
+        clearInterval(updateIntervalId)
     }
 })
 
@@ -83,7 +89,7 @@ const playVideoWithCountdown = (targetVideo) => {
     const countdownInSec = 5
     countdownTimer.value = countdownInSec
 
-    watchStore.updateWatched(video.value.id, 0)
+    watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
 
     intervalId = setInterval(() => {
         countdownTimer.value--
@@ -280,15 +286,19 @@ const playVideoWithCountdown = (targetVideo) => {
         font-size: var(--font-size-4);
         text-transform: capitalize;
     }
+
     .container-header h3 {
         font-size: 1.2rem;
     }
+
     .hide-on-phone {
         display: none;
     }
+
     .container-next-video {
         padding: 30px 15px;
     }
+
     .hide-on-desktop {
         display: flex;
     }

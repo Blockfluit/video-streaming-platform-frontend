@@ -51,7 +51,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.watched = data
+                this.watched = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
             }).catch(e => {
                 console.log(e)
             })
