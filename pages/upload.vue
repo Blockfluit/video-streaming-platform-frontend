@@ -172,7 +172,7 @@ const addMedia = () => {
                                     <input class="genre-checkbox" v-model="genres" type="checkbox" :id="genre"
                                         :value="genre">
                                     <label class="genre-checkbox" style="margin-left: 10px;" :for="genre">{{
-                                        genre.charAt(0).toUpperCase() + genre.slice(1) }}</label>
+                                        genre }}</label>
                                 </div>
                                 <Icon class="icon" @click="uploadStore.deleteGenre(genre)" name="material-symbols:delete">
                                 </Icon>
