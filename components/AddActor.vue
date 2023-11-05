@@ -20,6 +20,7 @@ const inputLastname = ref()
 const addActor = (firstname, lastname) => {
     if (allActors.value.find(actor => actor.firstname.toLowerCase() === firstname.toLowerCase() &&
         actor.lastname.toLowerCase() === lastname.toLowerCase()) !== undefined) {
+        actors.value.push({ firstname: firstname, lastname: lastname })
         alert("Actor already exists")
         return
     }
@@ -69,9 +70,11 @@ const addActor = (firstname, lastname) => {
 .container:hover {
     cursor: pointer;
 }
+
 form {
     width: 150px;
 }
+
 .icon {
     height: 15px;
     margin-right: 6px;

@@ -82,9 +82,11 @@ const parseTrailer = (trailer) => {
     if (trailer === undefined) {
         return ""
     }
+    const trailerParams = trailer.split("watch?v=")[1]
+    const trailerId = trailerParams.split("&t=")[0]
+    const time = trailerParams.includes("&t=") ? trailerParams.split("&t=")[1].replace("s", "") : ""
 
-    let trailerId = trailer.split('watch?v=')[1]
-    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0`
+    return trailer.replace("watch?v=", "embed/") + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0${time !== "" ? "&start=" + time : ""}`
 }
 
 const doFilter = () => {
@@ -148,7 +150,8 @@ const doFilter = () => {
             <div>
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
                     <span style="font-size: 3rem; font-weight: 800;">All media</span>
-                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ allMedia.length }}</span>
+                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ allMedia.length
+                    }}</span>
                 </div>
                 <div class="container-filtered-cards">
                     <div style="margin: 5px !important;"
@@ -162,7 +165,8 @@ const doFilter = () => {
             <div v-if="searchbox !== ''" class="search-results">
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
                     <span style="font-size: 3rem; font-weight: 800;">Search results</span>
-                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ filteredMedia.size }}</span>
+                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{
+                        filteredMedia.size }}</span>
                 </div>
                 <div class="container-filtered-cards">
                     <div style="margin: 5px !important;" v-for="media of filteredMedia">

@@ -70,11 +70,9 @@ const doFilter = () => {
     <div class="container">
         <div @wheel="scrollHorizontal" class="container-filter" ref="filterElement">
             <template v-for="(genre, index) in allGenres">
-                <input type="checkbox" :id="index" :value="genre.name" v-model="filters" style="display: none;">
-                <label :for="index"
-                    :style="filters.includes(genre.name) ? 'color: var(--primary-color-200)' : 'color: white'"
-                    class="filter">{{ genre.name
-                    }}</label>
+                <input type="checkbox" :id="index" :value="genre" v-model="filters" style="display: none;">
+                <label :for="index" :style="filters.includes(genre) ? 'color: var(--primary-color-200)' : 'color: white'"
+                    class="filter">{{ genre }}</label>
             </template>
         </div>
         <div v-if="filters.length === 0 && searchbox === ''">
@@ -99,7 +97,8 @@ const doFilter = () => {
             <div>
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
                     <span style="font-size: 3rem; font-weight: 800;">All movies</span>
-                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ allMovies.length }}</span>
+                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ allMovies.length
+                    }}</span>
                 </div>
                 <div class="container-filtered-cards">
                     <div style="margin: 5px !important;" v-for="media of filteredMedia">
@@ -113,7 +112,8 @@ const doFilter = () => {
             <div v-if="searchbox !== '' || filters.length > 0" class="search-results">
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
                     <span style="font-size: 3rem; font-weight: 800;">Movie results</span>
-                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ filteredMedia.size }}</span>
+                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{
+                        filteredMedia.size }}</span>
                 </div>
                 <div class="container-filtered-cards">
                     <div style="margin: 5px !important;" v-for="media of filteredMedia">
@@ -177,7 +177,8 @@ h2 {
 }
 
 .carousel-title {
-    margin: 40px 0 10px 0px
+    margin: 40px 0 10px 0px;
+    font-weight: 800;
 }
 
 .container-filtered-cards {

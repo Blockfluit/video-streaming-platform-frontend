@@ -69,7 +69,8 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.allGenres = data
+                this.allGenres = data.map(a => a.name.toLowerCase())
+                    .sort()
             }).catch(e => {
                 console.log(e)
             })

@@ -19,6 +19,7 @@ const inputGenre = ref()
 
 const addGenre = (genre) => {
     if (allGenres.value.find(genre => genre.name === genre.value) !== undefined) {
+        genres.value.push(genre)
         alert("Genre already exists")
         return
     }
@@ -49,7 +50,7 @@ const addGenre = (genre) => {
 <template>
     <div class="container">
         <Icon @click="showAddGenre = !showAddGenre" name="fa-solid:plus" size="1rem" class="icon" />
-        <form v-if="showAddGenre" @submit.prevent="addGenre(inputGenre)">
+        <form v-if="showAddGenre" @submit.prevent="addGenre(inputGenre.toLowerCase())">
             <input v-model="inputGenre" type="text" placeholder="genre" required>
             <button type="submit">Add Genre</button>
         </form>
@@ -65,9 +66,11 @@ const addGenre = (genre) => {
 .container:hover {
     cursor: pointer;
 }
+
 form {
     width: 150px;
 }
+
 .icon {
     height: 15px;
     margin-right: 6px;

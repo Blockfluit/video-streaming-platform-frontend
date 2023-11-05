@@ -38,6 +38,7 @@ const getAllUsers = () => {
             return response.json()
         }
     }).then((data) => {
+        console.log(data)
         users.value = data
     }).catch(e => {
         console.log(e)
@@ -206,6 +207,7 @@ const deleteToken = (token) => {
                         <!-- <td class="email">Email</td> -->
                         <td>Role</td>
                         <td>Last Active</td>
+                        <td class="email">Last Login</td>
                         <td></td>
                     </tr>
                 </thead>
@@ -222,6 +224,7 @@ const deleteToken = (token) => {
                             </select>
                         </td>
                         <td class="last-active">{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
+                        <td class="email">{{ new Date(user.lastLoginAt).toLocaleString() }}</td>
                         <td class="delete" @click="deleteUser(user.username)">
                             <Icon class="icon" name="material-symbols:delete"></Icon>
                         </td>
