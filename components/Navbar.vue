@@ -28,35 +28,39 @@ watch(inputValue, (o, n) => {
 
 <template>
     <nav>
-        <div v-if="showDropdown" class="container-dropdown">
-            <NuxtLink @click="showDropdown = false" to="/">HOME</NuxtLink>
-            <NuxtLink @click="showDropdown = false" to="/movies">MOVIES</NuxtLink>
-            <NuxtLink @click="showDropdown = false" to="/series">SERIES</NuxtLink>
-            <NuxtLink @click="showDropdown = false" to="/request">REQUEST</NuxtLink>
-            <!-- <NuxtLink to="/contact">CONTACT</NuxtLink> -->
-            <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
-            <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
-            <span @click="logout(); showDropdown = false">LOGOUT</span>
-        </div>
+        <transition name="fadedown">
+            <div v-if="showDropdown" @click="showDropdown = false" class="container-dropdown">
+                <NuxtLink @click="showDropdown = false" to="/" style="margin-top: 50px;">HOME</NuxtLink>
+                <NuxtLink @click="showDropdown = false" to="/movies">MOVIES</NuxtLink>
+                <NuxtLink @click="showDropdown = false" to="/series">SERIES</NuxtLink>
+                <NuxtLink @click="showDropdown = false" to="/request">REQUEST</NuxtLink>
+                <NuxtLink to="/cinema">CINEMA</NuxtLink>
+                <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
+                <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
+                <span class="logout" @click="logout(); showDropdown = false">LOGOUT</span>
+            </div>
+        </transition>
         <div class="mobile-menu">
             <div style="display:flex; align-items: center;">
-                <NuxtLink to="/">
+                <NuxtLink class="logo-mobile" to="/">
                     <img src="/icons/dellekes_logo.png" class="home-icon" />
                 </NuxtLink>
                 <transition name="fade">
                     <input ref="searchBar" key="1" class="search-bar" v-if="showSearchField" v-model="inputValue"
-                        type="text">
+                        type="text" style="margin-left: 20px;">
                 </transition>
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchField === false"
-                    @click="showSearchField = true;" name="fa-solid:search" size="20" />
+                    @click="showSearchField = true;" name="ph:magnifying-glass" size="25" class="search-icon-mobile" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchField === true"
-                    @click="showSearchField = false; inputValue = ''" name="maki:cross" size="20" />
+                    @click="showSearchField = false; inputValue = ''" name="radix-icons:cross-2" size="20"
+                    class="search-icon" />
             </div>
-            <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="charm:menu-hamburger" size="2.5rem" />
+            <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="solar:hamburger-menu-outline"
+                size="35px" />
         </div>
         <div class="desktop-nav">
             <div class="menu-left">
-                <NuxtLink to="/">
+                <NuxtLink class="logo-center" to="/">
                     <img src="/icons/dellekes_logo.png" class="home-icon" />
                 </NuxtLink>
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
@@ -66,15 +70,16 @@ watch(inputValue, (o, n) => {
                         v-model="inputValue" type="text">
                 </transition>
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchField === false" @click="showSearchField = true"
-                    name="fa-solid:search" size="20" />
+                    name="ph:magnifying-glass" size="25" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchField === true"
-                    @click="showSearchField = false; inputValue = ''" name="maki:cross" size="20" />
+                    @click="showSearchField = false; inputValue = ''" name="radix-icons:cross-2" size="20"
+                    class="search-icon" />
             </div>
             <div class="menu-right">
-                <NuxtLink to="/request">REQUEST</NuxtLink>
-                <NuxtLink v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
-                <NuxtLink v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
-                <span @click="logout">LOGOUT</span>
+                <div>
+                    <Icon class="hamburger-menu-desktop" @click="showDropdown = !showDropdown"
+                        name="solar:hamburger-menu-outline" size="35px" />
+                </div>
             </div>
         </div>
     </nav>
@@ -97,6 +102,18 @@ nav {
     box-shadow: var(--box-shadow-2);
 }
 
+svg {
+    min-width: fit-content;
+}
+
+.search-icon {
+    margin-left: 10px;
+}
+
+.search-icon-mobile {
+    margin-left: 30px;
+}
+
 .desktop-nav {
     display: flex;
     flex-direction: row;
@@ -110,6 +127,25 @@ nav {
     justify-content: space-between;
 }
 
+.profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 25px;
+    border: 1px solid white;
+}
+
+.profile:hover {
+    border: 1px solid var(--primary-color-100);
+    cursor: pointer;
+}
+
+.profile:hover svg {
+    color: var(--primary-color-100);
+}
+
 .search-bar {
     border: 1px solid white;
     border-radius: 5px;
@@ -117,29 +153,43 @@ nav {
     width: 100%;
 }
 
-nav a {
+.logo-center {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0%);
+}
+
+.logo-mobile {
+    margin-left: 2vw;
+}
+
+nav a,
+.logout {
     text-decoration: none;
-    padding: 0 30px;
     white-space: nowrap;
     font-size: var(--font-size-3);
     font-weight: 500;
+}
+
+.menu-left a {
+    padding-right: 30px;
+    text-decoration: none;
+    white-space: nowrap;
+    font-size: var(--font-size-3);
+    font-weight: 500;
+}
+
+.menu-left .logo-center {
+    padding: 0;
 }
 
 .hamburger-menu {
-    padding: 5px;
-    margin-right: 25px;
+    margin-right: 2vw;
 }
+
 
 a:hover {
     color: var(--primary-color-100)
-}
-
-span {
-    text-decoration: none;
-    padding: 0 30px;
-    white-space: nowrap;
-    font-size: var(--font-size-3);
-    font-weight: 500;
 }
 
 span:hover {
@@ -147,12 +197,7 @@ span:hover {
     cursor: pointer;
 }
 
-.icon {
-    min-width: 50px;
-}
-
 .home-icon {
-    min-width: 50px;
     color: var(--primary-color-300)
 }
 
@@ -162,7 +207,7 @@ span:hover {
 }
 
 .home-icon {
-    height: 35px;
+    height: 50px;
     aspect-ratio: auto;
     margin-top: 10px;
 }
@@ -179,16 +224,22 @@ span:hover {
 
 .container-dropdown {
     display: flex;
+    align-items: center;
     flex-direction: column;
     top: var(--navbar-height);
     position: fixed;
-    background-color: rgba(18, 18, 18, 0.95);
-    backdrop-filter: blur(5px);
+    right: 0;
+    width: 300px;
+    height: 100vh;
+    background-color: rgba(18, 18, 18, 0.97);
+    z-index: 9;
 }
 
 .container-dropdown a,
 .container-dropdown span {
-    margin: 5px;
+    margin: 10px;
+    font-size: 2rem;
+    font-weight: 600;
 }
 
 .mobile-menu {
@@ -206,6 +257,7 @@ span:hover {
 .menu-right {
     display: flex;
     align-items: center;
+    padding: 0px 30px;
 }
 
 .fade-enter-active,
@@ -219,6 +271,17 @@ span:hover {
     opacity: 0;
 }
 
+.fadedown-enter-active,
+.fadedown-leave-active {
+    transition: all 0.5s ease;
+}
+
+.fadedown-enter-from,
+.fadedown-leave-to {
+    right: -100%;
+    opacity: 0;
+}
+
 @media screen and (max-width: 992px) {
     .mobile-menu {
         display: flex;
@@ -226,6 +289,10 @@ span:hover {
 
     nav {
         justify-content: end;
+    }
+
+    .container-dropdown {
+        width: 100%;
     }
 
     .desktop-nav {

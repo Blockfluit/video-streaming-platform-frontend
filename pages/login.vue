@@ -40,12 +40,15 @@ const login = (username, password) => {
 
 <template>
     <div class="container">
+        <a href="https://dellekes.nl">
+            <img src="/icons/dellekes_logo.png" alt="logo" class="logo">
+        </a>
         <form @submit.prevent="login(username, password)">
             <div class="container-login">
-                <header>Login</header>
-                <span style="text-align: center;">Please enter your username and password</span>
-                <input v-model="username" type="text" placeholder="username" required>
-                <input v-model="password" type="password" placeholder="password" required>
+                <!-- <header>Login</header> -->
+                <span style="text-align: center; margin-bottom: 10px;">Please enter your username and password</span>
+                <input v-model="username" type="text" placeholder="Username" required>
+                <input v-model="password" type="password" placeholder="Password" required>
                 <!-- <div style="display: flex; justify-content: center;">
                     <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
                     </span>
@@ -61,6 +64,11 @@ const login = (username, password) => {
 <style scoped>
 header {
     font-size: var(--font-size-1);
+    font-weight: 700;
+}
+
+.logo {
+    width: 150px;
 }
 
 section {
@@ -69,13 +77,16 @@ section {
 
 input {
     text-align: center;
-    border-color: rgb(255, 255, 255);
-    border-radius: 100px;
-    border-width: 1px;
-    border-style: solid;
+    border: none;
+    border-bottom: 1px solid white;
     padding: 10px;
     margin: 4px;
     width: 80%;
+}
+
+input:focus {
+    outline: none;
+    border-bottom: 1px solid var(--primary-color-100)
 }
 
 /* Firefox */
@@ -93,6 +104,23 @@ input::-ms-input-placeholder {
     font-size: var(--font-size-4);
     color: var(--text-color-2);
     text-align: center;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill::first-line,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    border-bottom: 1px solid white;
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0px 1000px var(--background-color-100) inset;
+    font-family: "Poppins";
+    font-size: inherit;
 }
 
 button {
@@ -118,25 +146,23 @@ span {
 }
 
 .container {
-    height: 80vh;
+    height: 100vh;
+    width: 100vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     align-content: center;
     justify-content: center;
+    background-color: var(--background-color-100);
 }
 
 
 .container-login {
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
     align-items: center;
     width: 500px;
-    height: 500px;
     padding: 10px 20px;
-    border-radius: 15px;
-    background-color: var(--background-color-100);
 }
 
 .forgot-password {
@@ -149,8 +175,10 @@ span {
     font-size: var(--font-size-5);
 }
 
-.got-token {
+.got-token,
+.got-token a {
     font-size: var(--font-size-4);
+    text-decoration: none;
 }
 
 a {
@@ -158,7 +186,8 @@ a {
 }
 
 a:hover {
-    color: var(--primary-color-300)
+    color: var(--primary-color-300);
+    text-decoration: underline;
 }
 
 @media screen and (max-width: 700px) {
