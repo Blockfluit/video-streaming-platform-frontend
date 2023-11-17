@@ -15,6 +15,7 @@ definePageMeta({
 
 let hb;
 let user;
+let intervalId;
 
 
 async function setSession() {
@@ -50,7 +51,7 @@ onMounted(async () => {
         admin = hb.admin_token
     }
     user = { name: jwtStore.getSubject, id: hb.userId }
-    setInterval(() => {
+    intervalId = setInterval(() => {
         fetch("https://cinema.dellekes.nl/heartbeat", {
             method: "POST",
             headers: {
@@ -65,6 +66,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     hb.destroy()
+    clearInterval(intervalId)
 })
 </script>
 <template>

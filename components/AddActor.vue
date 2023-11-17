@@ -21,6 +21,8 @@ const addActor = (firstname, lastname) => {
     if (allActors.value.find(actor => actor.firstname.toLowerCase() === firstname.toLowerCase() &&
         actor.lastname.toLowerCase() === lastname.toLowerCase()) !== undefined) {
         actors.value.push({ firstname: firstname, lastname: lastname })
+        inputLastname.value = '';
+        inputFirstname.value = '';
         alert("Actor already exists")
         return
     }
