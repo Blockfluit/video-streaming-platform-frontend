@@ -33,7 +33,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.allMedia = data
+                this.allMedia = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
             }).catch(e => {
                 console.log(e)
             })

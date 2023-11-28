@@ -15,6 +15,7 @@ let timeoutId
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 const filteredMedia = ref(new Set())
+const lazyAllMedia = ref([])
 
 const iframe = ref()
 
@@ -29,14 +30,32 @@ onBeforeMount(() => {
 
 onMounted(() => {
     setTrailerTimeout(0)
+
+    window.onscroll = () => {
+        const showAmount = ((document.body.getBoundingClientRect().top * -1) + document.body.clientHeight) / document.body.scrollHeight * allMedia.value.length
+        if (showAmount > lazyAllMedia.value.length) {
+            lazyAllMedia.value.push(...allMedia.value.slice(lazyAllMedia.value.length, showAmount))
+        }
+    }
 })
 
 onBeforeUnmount(() => {
     clearTimeout(timeoutId)
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.onscroll = () => { }
 })
 
 watch(allMedia, () => {
-    // Sets 5 most recent media + all media from past 7 days
+    setRecentMedia()
+    doFilter()
+})
+
+watch(searchbox, (o, n) => {
+    doFilter()
+})
+
+// Sets 5 most recent media + all media from past 7 days
+const setRecentMedia = async () => {
     recentMedia.value = []
     recentMedia.value.push(...[...allMedia.value].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).splice(0, 5))
     recentMedia.value.push(...allMedia.value.filter(media => !recentMedia.value.includes(media) && new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
@@ -46,12 +65,7 @@ watch(allMedia, () => {
 
     trailerMedia.value = ref(recentMedia.value[trailerMediaId.value])
     nextTrailer(trailerMediaId.value)
-    doFilter()
-})
-
-watch(searchbox, (o, n) => {
-    doFilter()
-})
+}
 
 const setTrailerTimeout = (index) => {
     clearTimeout(timeoutId)
@@ -91,7 +105,7 @@ const parseTrailer = (trailer) => {
     return trailer.replace("watch?v=", "embed/") + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0${time !== "" ? "&start=" + time : ""}`
 }
 
-const doFilter = () => {
+const doFilter = async () => {
     filteredMedia.value.clear()
 
     if (searchbox.value !== "") {
@@ -160,8 +174,7 @@ const doFilter = () => {
                     }}</span>
                 </div>
                 <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;"
-                        v-for="media of [...allMedia].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))">
+                    <div style="margin: 5px !important;" v-for="media of lazyAllMedia">
                         <Card :shownMedia="media" />
                     </div>
                 </div>

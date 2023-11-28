@@ -42,6 +42,8 @@ const previousCards = () => {
 }
 
 const hoverButtonHandler = (showButton) => {
+    if (cardsElement.value === null) return
+
     showButtons.value = showButton
     showLeftButton.value = cardsElement.value.scrollLeft > 0
     showRightButton.value = cardsElement.value.getBoundingClientRect().right < cardsElement.value.children[cardsElement.value.children.length - 1].getBoundingClientRect().right - 10
@@ -94,6 +96,7 @@ const hoverButtonHandler = (showButton) => {
     height: 0;
     width: 0;
 }
+
 .background {
     display: flex;
     align-items: center;

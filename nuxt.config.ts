@@ -3,12 +3,14 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
     ssr: false,
     modules: [
+        '@nuxt/image',
         '@pinia/nuxt',
         'nuxt-icon',
         '@vite-pwa/nuxt',
     ],
     app: {
-        pageTransition: { name: 'page', mode: 'out-in' }
+        // pageTransition: { name: 'page', mode: 'out-in' }
+        pageTransition: false
     },
     pwa: {
         manifest: {
@@ -59,5 +61,9 @@ export default defineNuxtConfig({
         autoImports: [
             'defineStore'
         ]
+    },
+    image: {
+        inject: true,
+        quality: 60,
     }
 })

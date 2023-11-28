@@ -66,7 +66,7 @@ const navigateToLastVideo = (mediaId) => {
     <div class="card">
         <div @mouseover="showExtraInformation = true" class="container-information">
             <div class="container-img">
-                <img :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id">
+                <NuxtImg :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id" loading="lazy" />
             </div>
             <div v-if="showLastVideo" class="information">
                 <div style="background-color: rgba(255, 255, 255, 0.3)">

@@ -14,11 +14,26 @@ const allMovies = ref([])
 const filteredMedia = ref(new Set())
 const filters = ref([])
 const filterElement = ref()
+const lazyAllMovies = ref([])
 
 onBeforeMount(() => {
     mainStore.setAllMedia()
     mainStore.setWatched()
     mainStore.setAllGenres()
+})
+
+onMounted(() => {
+    window.onscroll = () => {
+        const showAmount = ((document.body.getBoundingClientRect().top * -1) + document.body.clientHeight) / document.body.scrollHeight * allMovies.value.length
+        if (showAmount > lazyAllMovies.value.length) {
+            lazyAllMovies.value.push(...allMovies.value.slice(lazyAllMovies.value.length, showAmount))
+        }
+    }
+})
+
+onBeforeUnmount(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.onscroll = () => { }
 })
 
 watch(allMedia, (o, n) => {
@@ -39,7 +54,7 @@ function scrollHorizontal(e) {
     filterElement.value.scrollLeft += e.deltaY;
 }
 
-const doFilter = () => {
+const doFilter = async () => {
     filteredMedia.value.clear()
 
     for (const entry of filters.value) {
@@ -105,7 +120,7 @@ const doFilter = () => {
                     }}</span>
                 </div>
                 <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;" v-for="media of filteredMedia">
+                    <div style="margin: 5px !important;" v-for="media of lazyAllMovies">
                         <Card :shownMedia="media" />
                     </div>
                 </div>
