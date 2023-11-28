@@ -32,9 +32,9 @@ onBeforeMount(() => {
 const requestFilter = () => allRequests.value.filter(request => request.name.toLowerCase().includes(inputName.value.toLowerCase()))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .sort((a, b) => {
-        if(a.status === "ADDED") return 1
-        if(a.status === b.status) return 0
-        if(a.status !== "ADDED") return -1
+        if (a.status === "ADDED") return 1
+        if (a.status === b.status) return 0
+        if (a.status !== "ADDED") return -1
     })
 
 const allMediaFilter = () => mainStore.allMedia.filter(media => media.name.toLowerCase().includes(inputName.value.toLowerCase()))
@@ -174,7 +174,9 @@ const deleteRequest = (id) => {
         </form>
         <div v-show="!(filteredRequests.length === 0 &&
             filteredAllMedia.length === 0)">
-            <h2>Requests <span style="font-weight: 200; margin-left: 5px;">{{ filteredRequests.length }}</span></h2>
+            <span style="font-size: 2rem; font-weight: 600; margin-bottom: 20px;">Requests <span
+                    style="font-weight: 200; margin-left: 5px;">{{
+                        filteredRequests.length }}</span></span>
             <div ref="filterRequestsCountBarElement" class="filter-count-bar"></div>
             <table>
                 <thead>
@@ -233,7 +235,8 @@ const deleteRequest = (id) => {
                 </tbody>
             </table>
             <div v-show="inputName !== ''">
-                <h2>Already available <span style="font-weight: 200; margin-left: 5px;">{{ filteredAllMedia.length }}</span></h2>
+                <h2>Already available <span style="font-weight: 200; margin-left: 5px;">{{ filteredAllMedia.length }}</span>
+                </h2>
                 <div ref="filterAllMediaCountBarElement" class="filter-count-bar"></div>
                 <table>
                     <thead>
@@ -277,16 +280,19 @@ const deleteRequest = (id) => {
     z-index: 10;
     position: relative;
 }
+
 .admin-btn {
     background-color: transparent;
     color: white;
     padding: 10px;
 }
+
 .admin-btn:hover {
     color: var(--primary-color-100);
     cursor: pointer;
     background-color: transparent;
 }
+
 .container-add-request {
     display: flex;
     flex-direction: column;
@@ -345,6 +351,7 @@ tbody tr:nth-child(even) {
 table thead {
     background-color: #121212;
 }
+
 select {
     background-color: transparent;
     color: var(--primary-color-100);
