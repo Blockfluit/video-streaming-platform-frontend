@@ -1,13 +1,15 @@
 <script setup>
 import Hyperbeam from '@hyperbeam/web';
 import { useJwtStore } from "~/stores/jwtStore";
+import { io } from "socket.io-client";
+
 
 const jwtStore = useJwtStore()
 const volumeInput = ref(50)
 const HbCloudComputer = ref()
 const cursorDisabled = ref(true);
 const cursorDisabledAdmin = ref(true);
-const activeUsers = ref([])
+const activeUsers = ref()
 
 definePageMeta({
     layout: "main",
@@ -17,9 +19,8 @@ let hb;
 let user;
 let intervalId;
 
-
 async function setSession() {
-    const session = await fetch("https://cinema.dellekes.nl/session")
+    const session = await fetch("http://localhost:3010/session")
         .then(res => res.json()).catch(err => alert(err))
     hb = await Hyperbeam(HbCloudComputer.value, session.embed_url, {
         adminToken: session.admin_token
@@ -35,6 +36,7 @@ function setPermissions(id) {
 }
 
 function openFullscreen() {
+    console.log(HbCloudComputer.value.requestFullscreen)
     if (HbCloudComputer.value.requestFullscreen) {
         HbCloudComputer.value.requestFullscreen();
     } else if (HbCloudComputer.value.webkitRequestFullscreen) { /* Safari */
@@ -46,22 +48,34 @@ function openFullscreen() {
 
 onMounted(async () => {
     await setSession()
-    let admin
-    if (typeof hb.admin_token !== undefined) {
-        admin = hb.admin_token
-    }
+
+    var socket = io("http://localhost:3010/", {
+        query: {
+            name: `${jwtStore.getSubject}`
+        }
+    });
+
+    socket.on('connection', (users) => activeUsers.value = users)
+
+
+    // socket.on("heartbeat", (users) => {
+    //     console.log(users)
+    //     activeUsers.value = users
+    //     console.log(activeUsers.value)
+    // })
+
     user = { name: jwtStore.getSubject, id: hb.userId }
-    intervalId = setInterval(() => {
-        fetch("https://cinema.dellekes.nl/heartbeat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(user)
-        })
-            .then((data) => data.json())
-            .then((json) => activeUsers.value = json)
-    }, 2000)
+    // intervalId = setInterval(() => {
+    //     fetch("http://localhost:3010/heartbeat", {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify(user)
+    //     })
+    //         .then((data) => data.json())
+    //         .then((json) => activeUsers.value = json)
+    // }, 2000)
 })
 
 onUnmounted(() => {
@@ -75,8 +89,8 @@ onUnmounted(() => {
         <div ref="HbCloudComputer" class="hyperbeam"></div>
         <div class="controls">
             <div class="users">
-                <div class="avatars" v-for="user in activeUsers" :class="user[1] ? 'admin' : ''">
-                    {{ user.name }}
+                <div class="avatars" v-for="user in activeUsers">
+                    {{ user }}
                 </div>
             </div>
             <div class="control-buttons">
@@ -150,6 +164,7 @@ onUnmounted(() => {
     margin-top: 25px;
     overflow: hidden;
     width: 1280px;
+    max-width: 95vw;
     aspect-ratio: 16/9;
     background-color: var(--background-color-100);
     box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.6);
@@ -163,6 +178,7 @@ onUnmounted(() => {
     margin-top: 20px;
     margin-bottom: 100px;
     width: 1280px;
+    max-width: 95vw;
 }
 
 .control-buttons {
