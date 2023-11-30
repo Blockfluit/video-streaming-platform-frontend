@@ -10,17 +10,17 @@ const HbCloudComputer = ref()
 const cursorDisabled = ref(true);
 const cursorDisabledAdmin = ref(true);
 const activeUsers = ref()
+const config = useRuntimeConfig()
 
 definePageMeta({
     layout: "main",
 });
 
 let hb;
-let user;
 let intervalId;
 
 async function setSession() {
-    const session = await fetch("http://localhost:3010/session")
+    const session = await fetch(config.public.cinemaURL + "session")
         .then(res => res.json()).catch(err => alert(err))
     hb = await Hyperbeam(HbCloudComputer.value, session.embed_url, {
         adminToken: session.admin_token
@@ -49,33 +49,12 @@ function openFullscreen() {
 onMounted(async () => {
     await setSession()
 
-    var socket = io("http://localhost:3010/", {
+    var socket = io(config.public.cinemaURL, {
         query: {
             name: `${jwtStore.getSubject}`
         }
     });
-
     socket.on('connection', (users) => activeUsers.value = users)
-
-
-    // socket.on("heartbeat", (users) => {
-    //     console.log(users)
-    //     activeUsers.value = users
-    //     console.log(activeUsers.value)
-    // })
-
-    user = { name: jwtStore.getSubject, id: hb.userId }
-    // intervalId = setInterval(() => {
-    //     fetch("http://localhost:3010/heartbeat", {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json"
-    //         },
-    //         body: JSON.stringify(user)
-    //     })
-    //         .then((data) => data.json())
-    //         .then((json) => activeUsers.value = json)
-    // }, 2000)
 })
 
 onUnmounted(() => {

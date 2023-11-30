@@ -12,6 +12,8 @@ const { media } = storeToRefs(mediaStore)
 const recentMedia = ref([{ name: "" }])
 let timeoutId
 
+const showPlayIcon = ref(false)
+const currentTrailerIndex = ref()
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 const filteredMedia = ref(new Set())
@@ -85,6 +87,7 @@ const nextTrailer = (index) => {
         trailerMediaId.value = recentMedia.value.length - 1
     }
     trailerMedia.value = recentMedia.value[trailerMediaId.value]
+    currentTrailerIndex.value = trailerMediaId.value
 }
 
 const navigateToMedia = () => {
@@ -136,13 +139,22 @@ const doFilter = async () => {
                     <span class="watch-now">| WATCH NOW</span>
                 </div>
                 <div class="trailer-bullets">
+                    <Icon name="material-symbols:chevron-left-rounded" @click="setTrailerTimeout(currentTrailerIndex - 1)"
+                        class="trailer-chevron" />
                     <template v-for="(media, index) in recentMedia.length">
                         <span @click="setTrailerTimeout(index)" style="cursor: pointer;"
                             :style="index === trailerMediaId ? 'color: var(--primary-color-100)' : ''">•</span>
                     </template>
+                    <Icon name="material-symbols:chevron-right-rounded" @click="setTrailerTimeout(currentTrailerIndex + 1)"
+                        class="trailer-chevron" />
                 </div>
             </div>
-            <div class="overlay"></div>
+            <div @mouseover="showPlayIcon = true" @mouseleave="showPlayIcon = false" class="overlay"
+                @click="navigateToMedia()">
+                <transition name="fade">
+                    <Icon v-if="showPlayIcon" name="material-symbols:play-arrow-rounded" class="play-icon" size="128px" />
+                </transition>
+            </div>
             <iframe ref="iframe" :src="parseTrailer(trailerMedia.trailer)" name="Trailer"
                 allow="autoplay; encrypted-media;"></iframe>
         </div>
@@ -216,8 +228,24 @@ h2 {
     transition: top .5 ease;
 }
 
+.trailer-chevron {
+    margin-top: 2px;
+    font-size: 40px;
+    min-width: fit-content;
+    min-height: fit-content;
+}
+
+.trailer-chevron:hover {
+    cursor: pointer;
+    color: var(--primary-color-100);
+}
+
 .search-results::-webkit-scrollbar {
     display: none;
+}
+
+.play-icon {
+    color: rgba(255, 255, 255, 0.7)
 }
 
 .trailer-name {
@@ -247,6 +275,7 @@ h2 {
 .carousel-title {
     margin: 40px 0 10px 0px;
     font-weight: 800;
+    user-select: none;
 }
 
 .container-filtered-cards {
@@ -277,6 +306,7 @@ h2 {
     padding: 0 30px;
     left: 0;
     bottom: 0;
+    user-select: none;
 }
 
 .container-information-title {
@@ -295,7 +325,8 @@ h2 {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    font-size: 40px;
+    align-items: center;
+    font-size: 64px;
 }
 
 iframe {
@@ -310,9 +341,26 @@ iframe {
 .overlay {
     z-index: 1;
     position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(255, 255, 255, 0) 100%);
+}
+
+.overlay:hover {
+    cursor: pointer;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 
 .slide-down-enter-active,
@@ -341,6 +389,14 @@ iframe {
         width: 200%;
         left: -50%;
         top: -100%;
+    }
+
+    .trailer-bullets {
+        font-size: 40px;
+    }
+
+    .trailer-chevron {
+        font-size: 24px;
     }
 
     .container-trailer {
