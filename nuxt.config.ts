@@ -52,6 +52,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             baseURL: process.env.BASE_URL || 'https://api.yourdomain.nl/api/v1',
+            cinemaURL: "https://cinema.yourapi.com/"
         },
     },
     css: [

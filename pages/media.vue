@@ -395,6 +395,7 @@ img {
     margin: 20px 30px;
     padding: 4px 0px;
     position: relative;
+    user-select: none;
 }
 
 .season-content {

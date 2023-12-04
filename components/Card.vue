@@ -133,6 +133,7 @@ img {
     justify-content: space-between;
     align-items: center;
     margin: 0px 10px;
+    user-select: none;
 }
 
 .name {
@@ -186,6 +187,7 @@ img {
     height: 100%;
     width: 100%;
     border-radius: var(--border-radius-1) var(--border-radius-1) 0 0;
+    user-select: none;
 }
 
 .show-rating span,

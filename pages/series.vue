@@ -181,6 +181,7 @@ h2 {
 .carousel-title {
     margin: 40px 0 10px 0px;
     font-weight: 800;
+    user-select: none;
 }
 
 .container {
