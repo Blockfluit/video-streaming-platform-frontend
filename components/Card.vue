@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { useMainStore } from '~/stores/mainStore';
 import { useMediaStore } from '~/stores/mediaStore';
 import { useWatchStore } from '~/stores/watchStore';
+import { useJwtStore } from '~/stores/jwtStore';
 
 const props = defineProps({
     shownMedia: {},
@@ -12,6 +13,7 @@ const props = defineProps({
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
 const watchStore = useWatchStore()
+const jwtStore = useJwtStore()
 
 const { watched } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
@@ -64,33 +66,42 @@ const navigateToLastVideo = (mediaId) => {
 
 <template>
     <div class="card">
-        <div @mouseover="showExtraInformation = true" class="container-information">
+        <div @mouseover="showExtraInformation = true"
+             class="container-information">
             <div class="container-img">
-                <NuxtImg :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id" loading="lazy" />
+                <NuxtImg :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id"
+                         loading="lazy" />
             </div>
-            <div v-if="showLastVideo" class="information">
+            <div v-if="showLastVideo"
+                 class="information">
                 <div style="background-color: rgba(255, 255, 255, 0.3)">
-                    <div class="time" :style="`width: ${timePercentage}%`"></div>
+                    <div class="time"
+                         :style="`width: ${timePercentage}%`"></div>
                 </div>
                 <span class="last-video-name">{{ getLastVideo(shownMedia.id).name }}</span>
             </div>
-            <div @click="navigateToLastVideo(shownMedia.id)" @mouseleave="showExtraInformation = false"
-                v-if="showExtraInformation" class="show-rating">
+            <div @click="navigateToLastVideo(shownMedia.id)"
+                 @mouseleave="showExtraInformation = false"
+                 v-if="showExtraInformation"
+                 class="show-rating">
                 <div v-if="shownMedia.rating >= 1">
                     <template v-for="star in 5">
                         <Icon class="star"
-                            :style="{ color: shownMedia.rating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
-                            name="mdi:star" />
+                              :style="{ color: shownMedia.rating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
+                              name="mdi:star" />
                     </template>
                 </div>
                 <div v-else>
                     <h3>No Rating</h3>
                 </div>
+                <span v-if="jwtStore.isAdmin">{{ shownMedia.views }} unique views</span>
             </div>
         </div>
-        <div @click="navigateToMedia()" class="title">
+        <div @click="navigateToMedia()"
+             class="title">
             <span class="name">{{ shownMedia.name }}</span>
-            <span v-if="shownMedia.videos > 1" class="total-videos">{{ shownMedia.videos }}</span>
+            <span v-if="shownMedia.videos > 1"
+                  class="total-videos">{{ shownMedia.videos }}</span>
         </div>
     </div>
 </template>

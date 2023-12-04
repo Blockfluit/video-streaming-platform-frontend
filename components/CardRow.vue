@@ -42,7 +42,7 @@ const previousCards = () => {
 }
 
 const hoverButtonHandler = (showButton) => {
-    if (cardsElement.value === null) return
+    if (cardsElement.value === null || cardsElement.value.children.length === 0) return
 
     showButtons.value = showButton
     showLeftButton.value = cardsElement.value.scrollLeft > 0
@@ -51,20 +51,31 @@ const hoverButtonHandler = (showButton) => {
 </script>
 
 <template>
-    <div @mouseover="hoverButtonHandler(true)" @mouseleave="hoverButtonHandler(false)" class="container-cards">
-        <div v-if="showButtons && showLeftButton" @click="previousCards()" class="button left">
+    <div @mouseover="hoverButtonHandler(true)"
+         @mouseleave="hoverButtonHandler(false)"
+         class="container-cards">
+        <div v-if="showButtons && showLeftButton"
+             @click="previousCards()"
+             class="button left">
             <div class="background">
-                <Icon name="fa-solid:chevron-left" class="icon" />
+                <Icon name="fa-solid:chevron-left"
+                      class="icon" />
             </div>
         </div>
-        <div ref="cardsElement" class="carousel">
-            <div class="media-card" v-for="(media) of allMedia">
-                <Card :shownMedia="media" :showLastVideo="showLastVideo ?? false" />
+        <div ref="cardsElement"
+             class="carousel">
+            <div class="media-card"
+                 v-for="(media) of allMedia">
+                <Card :shownMedia="media"
+                      :showLastVideo="showLastVideo ?? false" />
             </div>
         </div>
-        <div v-if="showButtons && showRightButton" @click="nextCards(1)" class="button right">
+        <div v-if="showButtons && showRightButton"
+             @click="nextCards(1)"
+             class="button right">
             <div class="background">
-                <Icon name="fa-solid:chevron-right" class="icon" />
+                <Icon name="fa-solid:chevron-right"
+                      class="icon" />
             </div>
         </div>
     </div>

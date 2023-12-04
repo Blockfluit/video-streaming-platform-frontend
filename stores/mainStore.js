@@ -9,16 +9,14 @@ export const useMainStore = defineStore("mainStore", {
             name: "",
             trailer: ""
         }]),
-        watched: [],
+        allMovies: useLocalStorage("all-movies", []),
+        allSeries: useLocalStorage("all-series", []),
+        allGenres: useLocalStorage("all-genres", []),
+        allActors: useLocalStorage("all-actors", []),
+        lastWatchedUsers: useLocalStorage("last-watched-users", []),
+        watched: useLocalStorage("watched", []),
         searchbox: "",
-        allActors: [],
-        allGenres: [],
     }),
-    getters: {
-        getAll: (state) => state.allMedia,
-        getAllMovies: (state) => state.allMedia.filter(media => media["type"] === "MOVIE"),
-        getAllSeries: (state) => state.allMedia.filter(media => media["type"] === "SERIES"),
-    },
     actions: {
         setAllMedia() {
             fetch(this.config.public.baseURL + "/media/", {
@@ -34,6 +32,8 @@ export const useMainStore = defineStore("mainStore", {
                 }
             }).then((data) => {
                 this.allMedia = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                this.allMovies = data.filter(media => media["type"] === "MOVIE")
+                this.allSeries = data.filter(media => media["type"] === "SERIES")
             }).catch(e => {
                 console.log(e)
             })
@@ -89,6 +89,24 @@ export const useMainStore = defineStore("mainStore", {
                 }
             }).then((data) => {
                 this.allActors = data
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+        setLastWatchedUsers() {
+            fetch(this.config.public.baseURL + "/media/last-watched", {
+                method: "GET",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+            }).then((data) => {
+                this.lastWatchedUsers = data
             }).catch(e => {
                 console.log(e)
             })

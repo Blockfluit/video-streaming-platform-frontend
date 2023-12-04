@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
 
-const { allMedia, watched, searchbox } = storeToRefs(mainStore)
+const { allMedia, watched, searchbox, lastWatchedUsers } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
 
 const recentMedia = ref([{ name: "" }])
@@ -17,7 +17,8 @@ const currentTrailerIndex = ref()
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 const filteredMedia = ref(new Set())
-const lazyAllMedia = ref([])
+const lazyAllMedia = ref([...allMedia.value.slice(0, 100)])
+const recentWatched = ref([])
 
 const iframe = ref()
 
@@ -28,23 +29,23 @@ definePageMeta({
 onBeforeMount(() => {
     mainStore.setAllMedia()
     mainStore.setWatched()
+    mainStore.setAllGenres()
+    mainStore.setLastWatchedUsers()
+    setRecentWatched()
 })
 
 onMounted(() => {
     setTrailerTimeout(0)
-
-    window.onscroll = () => {
-        const showAmount = ((document.body.getBoundingClientRect().top * -1) + document.body.clientHeight) / document.body.scrollHeight * allMedia.value.length
-        if (showAmount > lazyAllMedia.value.length) {
-            lazyAllMedia.value.push(...allMedia.value.slice(lazyAllMedia.value.length, showAmount))
-        }
-    }
+    window.addEventListener("scroll", addMediaOnScroll)
 })
 
 onBeforeUnmount(() => {
     clearTimeout(timeoutId)
     window.scrollTo({ top: 0, behavior: 'instant' })
-    window.onscroll = () => { }
+})
+
+onUnmounted(() => {
+    window.removeEventListener("scroll", addMediaOnScroll)
 })
 
 watch(allMedia, () => {
@@ -55,6 +56,13 @@ watch(allMedia, () => {
 watch(searchbox, (o, n) => {
     doFilter()
 })
+
+function addMediaOnScroll() {
+    const showAmount = ((document.body.getBoundingClientRect().top * -1) + document.body.clientHeight) / document.body.scrollHeight * allMedia.value.length
+    if (showAmount > lazyAllMedia.value.length) {
+        lazyAllMedia.value.push(...allMedia.value.slice(lazyAllMedia.value.length, showAmount))
+    }
+}
 
 // Sets 5 most recent media + all media from past 7 days
 const setRecentMedia = async () => {
@@ -67,6 +75,17 @@ const setRecentMedia = async () => {
 
     trailerMedia.value = ref(recentMedia.value[trailerMediaId.value])
     nextTrailer(trailerMediaId.value)
+}
+
+async function setRecentWatched() {
+    recentWatched.value = allMedia.value.filter(media => watched.value.map(entry => entry.mediaId).includes(media.id))
+        .filter(media => {
+            const a = watched.value.find(entry => entry.mediaId === media.id)
+            return (a.timestamp / a.duration) < 0.99
+        })
+        .sort((a, b) => new Date(watched.value.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
+            new Date(a.updatedAt))[0].updatedAt) - new Date(watched.value.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))
+        .slice(0, 12)
 }
 
 const setTrailerTimeout = (index) => {
@@ -131,53 +150,72 @@ const doFilter = async () => {
 
 <template>
     <div class="container">
-        <div v-if="searchbox === ''" class="container-trailer">
+        <div v-if="searchbox === ''"
+             class="container-trailer">
             <div class="container-information">
                 <h2 class="now-available">Now available:</h2>
-                <div @click="navigateToMedia()" class="container-information-title">
+                <div @click="navigateToMedia()"
+                     class="container-information-title">
                     <span class="trailer-name">{{ trailerMedia.name }}</span>
                     <span class="watch-now">| WATCH NOW</span>
                 </div>
                 <div class="trailer-bullets">
-                    <Icon name="material-symbols:chevron-left-rounded" @click="setTrailerTimeout(currentTrailerIndex - 1)"
-                        class="trailer-chevron" />
+                    <Icon name="material-symbols:chevron-left-rounded"
+                          @click="setTrailerTimeout(currentTrailerIndex - 1)"
+                          class="trailer-chevron" />
                     <template v-for="(media, index) in recentMedia.length">
-                        <span @click="setTrailerTimeout(index)" style="cursor: pointer;"
-                            :style="index === trailerMediaId ? 'color: var(--primary-color-100)' : ''">•</span>
+                        <span @click="setTrailerTimeout(index)"
+                              style="cursor: pointer;"
+                              :style="index === trailerMediaId ? 'color: var(--primary-color-100)' : ''">•</span>
                     </template>
-                    <Icon name="material-symbols:chevron-right-rounded" @click="setTrailerTimeout(currentTrailerIndex + 1)"
-                        class="trailer-chevron" />
+                    <Icon name="material-symbols:chevron-right-rounded"
+                          @click="setTrailerTimeout(currentTrailerIndex + 1)"
+                          class="trailer-chevron" />
                 </div>
             </div>
-            <div @mouseover="showPlayIcon = true" @mouseleave="showPlayIcon = false" class="overlay"
-                @click="navigateToMedia()">
+            <div @mouseover="showPlayIcon = true"
+                 @mouseleave="showPlayIcon = false"
+                 class="overlay"
+                 @click="navigateToMedia()">
                 <transition name="fade">
-                    <Icon v-if="showPlayIcon" name="material-symbols:play-arrow-rounded" class="play-icon" size="128px" />
+                    <Icon v-if="showPlayIcon"
+                          name="material-symbols:play-arrow-rounded"
+                          class="play-icon"
+                          size="128px" />
                 </transition>
             </div>
-            <iframe ref="iframe" :src="parseTrailer(trailerMedia.trailer)" name="Trailer"
-                allow="autoplay; encrypted-media;"></iframe>
+            <iframe ref="iframe"
+                    :src="parseTrailer(trailerMedia.trailer)"
+                    name="Trailer"
+                    allow="autoplay; encrypted-media;"></iframe>
         </div>
         <div v-if="searchbox === ''">
-            <!-- This monstrosity of a filter filters all watched media and sort them based on what was watched most recently -->
-            <div :set="media1 = allMedia.filter(media => watched.map(entry => entry.mediaId).includes(media.id))
-                .filter(media => {
-                    const a = watched.find(entry => entry.mediaId === media.id)
-                    return (a.timestamp / a.duration) < 0.99
-                })
-                .sort((a, b) => new Date(watched.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
-                    new Date(a.updatedAt))[0].updatedAt) - new Date(watched.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))
-                .slice(0, 12)">
-                <h2 v-if="media1.length > 0" class="carousel-title">Continue Watching</h2>
-                <CardRow :allMedia="media1" :showLastVideo=true />
+            <div v-if="recentWatched.length > 0">
+                <h2 class="carousel-title">Continue Watching</h2>
+                <CardRow :allMedia="recentWatched"
+                         :showLastVideo=true />
             </div>
             <div>
-                <h2 class="carousel-title">25 Most Popular</h2>
-                <CardRow :allMedia="[...allMedia].sort((a, b) => b.views - a.views).slice(0, 25)" />
+                <h2 class="carousel-title">What others are watching</h2>
+                <CardRow :allMedia="[...lastWatchedUsers]" />
+            </div>
+            <div>
+                <h2 class="carousel-title">25 Most Viewed</h2>
+                <CardRow :allMedia="[...allMedia]
+                    .sort((a, b) => b.views - a.views)
+                    .slice(0, 25)" />
             </div>
             <div>
                 <h2 class="carousel-title">25 Best Rated</h2>
-                <CardRow :allMedia="[...allMedia].sort((a, b) => b.rating - a.rating).slice(0, 25)" />
+                <CardRow :allMedia="[...allMedia]
+                    .sort((a, b) => {
+                        if (a.rating < b.rating) return 1
+                        if (a.rating > b.rating) return -1
+                        if (a.views < b.views) return 1
+                        if (a.views > b.views) return -1
+                        return 0;
+                    })
+                    .slice(0, 25)" />
             </div>
             <div>
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
@@ -186,21 +224,24 @@ const doFilter = async () => {
                     }}</span>
                 </div>
                 <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;" v-for="media of lazyAllMedia">
+                    <div style="margin: 5px !important;"
+                         v-for="media of lazyAllMedia">
                         <Card :shownMedia="media" />
                     </div>
                 </div>
             </div>
         </div>
         <transition name="slide-down">
-            <div v-if="searchbox !== ''" class="search-results">
+            <div v-if="searchbox !== ''"
+                 class="search-results">
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
                     <span style="font-size: 3rem; font-weight: 800;">Search results</span>
                     <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{
                         filteredMedia.size }}</span>
                 </div>
                 <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;" v-for="media of filteredMedia">
+                    <div style="margin: 5px !important;"
+                         v-for="media of filteredMedia">
                         <Card :shownMedia="media" />
                     </div>
                 </div>

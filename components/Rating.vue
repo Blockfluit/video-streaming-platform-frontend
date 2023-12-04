@@ -13,7 +13,6 @@ const mediaStore = useMediaStore()
 
 const { media } = storeToRefs(mediaStore)
 
-const stars = ref([0, 1, 2, 3, 4])
 const ratingElement = ref()
 const config = useRuntimeConfig()
 
@@ -60,7 +59,7 @@ const resetRating = () => {
     const userRating = media.value.ratings.find(entry => entry.username === jwtStore.getSubject) ?? { score: 0 }
 
     const rating = props.average ?
-        media.value.ratings.reduce((acc, rating) => acc + rating.score, 0) / media.value.ratings.length / 2 :
+        Math.floor(media.value.ratings.reduce((acc, rating) => acc + rating.score, 0) / media.value.ratings.length / 2) :
         userRating.score / 2
 
     for (const element of ratingElement.value.children) {
@@ -72,9 +71,15 @@ const resetRating = () => {
 
 <template>
     <div class="container-rating">
-        <div @mouseover="hoverHandler" @mouseleave="resetRating" ref="ratingElement" class="container-stars">
-            <template v-for="(id) in stars">
-                <Icon class="star" @click="addRating((id + 1) * 2)" :id="id" name="mdi:star" />
+        <div @mouseover="hoverHandler"
+             @mouseleave="resetRating"
+             ref="ratingElement"
+             class="container-stars">
+            <template v-for="(id) in 5">
+                <Icon class="star"
+                      @click="addRating((id) * 2)"
+                      :id="id - 1"
+                      name="mdi:star" />
             </template>
         </div>
     </div>
