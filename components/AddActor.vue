@@ -14,16 +14,23 @@ const { actors } = storeToRefs(uploadStore)
 
 const showAddActor = ref(false)
 
-const inputFirstname = ref()
-const inputLastname = ref()
+const inputFirstname = ref("")
+const inputLastname = ref("")
 
 const addActor = (firstname, lastname) => {
-    if (allActors.value.find(actor => actor.firstname.toLowerCase() === firstname.toLowerCase() &&
-        actor.lastname.toLowerCase() === lastname.toLowerCase()) !== undefined) {
-        actors.value.push({ firstname: firstname, lastname: lastname })
-        inputLastname.value = '';
-        inputFirstname.value = '';
-        alert("Actor already exists")
+    const predicate = (actor) => {
+        const first = actor.firstname === null ? "" : actor.firstname
+        const last = actor.lastname === null ? "" : actor.lastname
+        return (first.toLowerCase() === firstname.toLowerCase() &&
+            last.toLowerCase() === lastname.toLowerCase())
+    }
+
+    const actor = allActors.value.find(predicate)
+
+    if (actor !== undefined) {
+        actors.value.push({ firstname: actor.firstname, lastname: actor.lastname })
+        inputLastname.value = "";
+        inputFirstname.value = "";
         return
     }
 
@@ -42,8 +49,8 @@ const addActor = (firstname, lastname) => {
         if (response.status >= 200 && response.status < 300) {
             mainStore.setAllActors()
             actors.value.push({ firstname: firstname, lastname: lastname })
-            inputFirstname.value = null
-            inputLastname.value = null
+            inputFirstname.value = ""
+            inputLastname.value = ""
         }
     }).catch(e => {
         console.log(e)
@@ -54,10 +61,19 @@ const addActor = (firstname, lastname) => {
 
 <template>
     <div class="container">
-        <Icon @click="showAddActor = !showAddActor" name="fa-solid:plus" size="25" class="icon" />
-        <form v-if="showAddActor" @submit.prevent="addActor(inputFirstname, inputLastname)">
-            <input v-model="inputFirstname" type="text" placeholder="firstname" required>
-            <input v-model="inputLastname" type="text" placeholder="lastname">
+        <Icon @click="showAddActor = !showAddActor"
+              name="fa-solid:plus"
+              size="25"
+              class="icon" />
+        <form v-if="showAddActor"
+              @submit.prevent="addActor(inputFirstname, inputLastname)">
+            <input v-model="inputFirstname"
+                   type="text"
+                   placeholder="firstname"
+                   required>
+            <input v-model="inputLastname"
+                   type="text"
+                   placeholder="lastname">
             <button type="submit">Add Actor</button>
         </form>
     </div>
