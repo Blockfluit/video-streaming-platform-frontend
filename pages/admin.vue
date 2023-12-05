@@ -232,8 +232,8 @@ const deleteToken = (token) => {
                                 <option :selected="user.role === 'ADMIN'" value="ADMIN">Admin</option>
                             </select>
                         </td>
-                        <td v-if="user.lastWatched.length > 0">
-                            <div style="display: flex; align-items: center;">
+                        <td>
+                            <div v-if="user.lastWatched.length > 0" style="display: flex; align-items: center;">
                                 {{ user.lastWatched[0].name }}
                                 <div v-if="new Date(user.lastWatched[0].updatedAt) > new Date(Date.now() - 30000)"
                                     class="watch-indicator"></div>
