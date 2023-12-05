@@ -13,6 +13,7 @@ const { allActors } = storeToRefs(mainStore)
 const { actors } = storeToRefs(uploadStore)
 
 const showAddActor = ref(false)
+const firstNameRef = ref()
 
 const inputFirstname = ref("")
 const inputLastname = ref("")
@@ -51,6 +52,7 @@ const addActor = (firstname, lastname) => {
             actors.value.push({ firstname: firstname, lastname: lastname })
             inputFirstname.value = ""
             inputLastname.value = ""
+            firstNameRef.value.focus()
         }
     }).catch(e => {
         console.log(e)
@@ -61,19 +63,10 @@ const addActor = (firstname, lastname) => {
 
 <template>
     <div class="container">
-        <Icon @click="showAddActor = !showAddActor"
-              name="fa-solid:plus"
-              size="25"
-              class="icon" />
-        <form v-if="showAddActor"
-              @submit.prevent="addActor(inputFirstname, inputLastname)">
-            <input v-model="inputFirstname"
-                   type="text"
-                   placeholder="firstname"
-                   required>
-            <input v-model="inputLastname"
-                   type="text"
-                   placeholder="lastname">
+        <Icon @click="showAddActor = !showAddActor" name="fa-solid:plus" size="25" class="icon" />
+        <form v-if="showAddActor" @submit.prevent="addActor(inputFirstname, inputLastname)">
+            <input v-model="inputFirstname" ref="firstNameRef" type="text" placeholder="firstname" required>
+            <input v-model="inputLastname" type="text" placeholder="lastname">
             <button type="submit">Add Actor</button>
         </form>
     </div>
