@@ -13,7 +13,7 @@ const { allMedia, searchbox, allGenres, watched, allSeries } = storeToRefs(mainS
 const filteredMedia = ref(new Set())
 const filters = ref([])
 const filterElement = ref()
-const lazyAllSeries = ref([...allSeries.value.slice(0, 100)])
+const lazyAllSeries = ref([...allSeries.value.slice(0, 50)])
 const recentWatched = ref([])
 const recentUploaded = ref([])
 
@@ -73,7 +73,7 @@ async function setRecentWatched() {
 }
 
 async function setRecentUploaded() {
-    recentUploaded.value = allSeries.value.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
+    recentUploaded.value = allSeries.value.filter(media => new Date(media.updatedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
 }
 

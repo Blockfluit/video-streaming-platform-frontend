@@ -106,7 +106,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.lastWatchedUsers = data
+                this.lastWatchedUsers = data.slice(0, 50)
             }).catch(e => {
                 console.log(e)
             })

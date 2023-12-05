@@ -73,7 +73,7 @@ async function setRecentWatched() {
 }
 
 async function setRecentUploaded() {
-    recentUploaded.value = allMovies.value.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
+    recentUploaded.value = allMovies.value.filter(media => new Date(media.updatedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
 }
 

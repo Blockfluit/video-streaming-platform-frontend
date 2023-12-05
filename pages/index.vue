@@ -17,7 +17,7 @@ const currentTrailerIndex = ref()
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 const filteredMedia = ref(new Set())
-const lazyAllMedia = ref([...allMedia.value.slice(0, 100)])
+const lazyAllMedia = ref([...allMedia.value.slice(0, 50)])
 const recentWatched = ref([])
 
 const iframe = ref()
@@ -197,7 +197,7 @@ const doFilter = async () => {
             </div>
             <div>
                 <h2 class="carousel-title">What others are watching</h2>
-                <CardRow :allMedia="[...lastWatchedUsers]" />
+                <CardRow :allMedia="lastWatchedUsers" />
             </div>
             <div>
                 <h2 class="carousel-title">25 Most Viewed</h2>
