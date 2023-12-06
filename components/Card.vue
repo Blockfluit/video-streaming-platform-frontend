@@ -41,10 +41,21 @@ function getLastVideo(mediaId) {
 function navigationHandler(mediaId, showLastVideo) {
     if (showLastVideo) {
         const lastWatched = getLastVideo(mediaId)
-        navigateTo(`watch?mid=${mediaId}&vid=${lastWatched.videoId}`)
+        navigateTo({
+            path: "/watch",
+            query: {
+                mid: mediaId,
+                vid: lastWatched.videoId
+            }
+        })
         return
     }
-    navigateTo(`/media?id=${mediaId}`)
+    navigateTo({
+        path: "/media",
+        query: {
+            id: mediaId,
+        }
+    })
 }
 </script>
 

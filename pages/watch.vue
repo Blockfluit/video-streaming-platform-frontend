@@ -66,7 +66,7 @@ function resetOverlay() {
 async function playVideo(videoId, time) {
     if (videoId === undefined) {
         clearInterval(intervalId)
-        navigateTo(`/media?id=${currentMediaId}`)
+        navigateToMedia(currentMediaId)
         return
     }
     if (videoId !== undefined) {
@@ -105,7 +105,12 @@ function playVideoWithCountdown(videoId) {
 }
 
 function navigateToMedia(mediaId) {
-    navigateTo(`/media?id=${mediaId}`)
+    navigateTo({
+        path: "/media",
+        query: {
+            id: mediaId,
+        }
+    })
 }
 </script>
 

@@ -1,6 +1,5 @@
 <script setup>
 import { useMainStore } from "~/stores/mainStore";
-import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
 
 const mainStore = useMainStore()
@@ -108,7 +107,12 @@ const nextTrailer = (index) => {
 }
 
 const navigateToMedia = (mediaId) => {
-    navigateTo(`/media?id=${mediaId}`)
+    navigateTo({
+        path: "/media",
+        query: {
+            id: mediaId,
+        }
+    })
 }
 
 // Needs refactoring

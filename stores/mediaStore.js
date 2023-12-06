@@ -7,7 +7,7 @@ export const useMediaStore = defineStore("mediaStore", {
         config: useRuntimeConfig(),
         jwtStore: useJwtStore(),
         watchStore: useWatchStore(),
-        media: useLocalStorage("media", { name: "", videos: [], genre: [], actors: [], seasons: [] },),
+        media: useLocalStorage("media", { name: "", videos: [], genre: [], actors: [], seasons: [] }),
     }),
     actions: {
         async setMedia(id) {
@@ -23,8 +23,9 @@ export const useMediaStore = defineStore("mediaStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.media = data[0]
-                this.media.seasons = [...new Set(data[0].videos.map(video => video.season))]
+                const newData = data[0]
+                newData.seasons = [...new Set(data[0].videos.map(video => video.season))]
+                this.media = newData
             }).catch(e => {
                 console.log(e)
             })

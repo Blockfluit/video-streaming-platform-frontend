@@ -49,7 +49,13 @@ function scrollHorizontal(e) {
 }
 
 const playVideo = (videoId) => {
-    navigateTo(`/watch?mid=${currentMediaId}&vid=${videoId}`)
+    navigateTo({
+        path: "/watch",
+        query: {
+            mid: currentMediaId,
+            vid: videoId,
+        }
+    })
 }
 
 const formatTime = (seconds) => {
@@ -76,11 +82,19 @@ const parseTrailer = (trailer, controls, mute) => {
     const trailerId = trailerLongId.split("&t=")[0]
     const time = trailerLongId.includes("&t=") ? trailerLongId.split("&t=")[1].replace("s", "") : ""
 
-    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0${controls ? "&controls=1" : "&controls=0"}${mute ? "&mute=0" : "&mute=1"}&disablekb&fs=0&loop=1&rel=0${time !== "" ? "&start=" + time : ""}`
+    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0${controls ?
+        "&controls=1" : "&controls=0"}${mute ?
+            "&mute=0" : "&mute=1"}&disablekb&fs=0&loop=1&rel=0${time !== "" ?
+                "&start=" + time : ""}`
 }
 
-const editMedia = () => {
-    return navigateTo(`edit?id=${currentMediaId}`)
+function editMedia(mediaId) {
+    navigateTo({
+        path: "/edit",
+        query: {
+            id: mediaId,
+        }
+    })
 }
 
 const calcTimePercentage = (video) => {
@@ -135,7 +149,7 @@ const calcTimePercentage = (video) => {
                             <span>Play</span>
                         </div>
                         <div style="flex-grow: 1;"></div>
-                        <div @click="editMedia"
+                        <div @click="editMedia(currentMediaId)"
                              v-if="jwtStore.isAdmin"
                              class="trailer-button">
                             <Icon name="mdi:pencil"
