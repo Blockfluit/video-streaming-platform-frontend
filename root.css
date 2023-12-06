@@ -36,6 +36,9 @@
 
     --border-radius-1: 10px;
 }
+* {
+    box-sizing: border-box;
+}
 
 html {
     width: 100%;
