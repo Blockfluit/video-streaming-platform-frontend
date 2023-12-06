@@ -18,8 +18,8 @@ export const useMainStore = defineStore("mainStore", {
         searchbox: "",
     }),
     actions: {
-        setAllMedia() {
-            fetch(this.config.public.baseURL + "/media/", {
+        async setAllMedia() {
+            return fetch(this.config.public.baseURL + "/media/", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
@@ -38,8 +38,8 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        setWatched() {
-            fetch(this.config.public.baseURL + "/watched", {
+        async setWatched() {
+            return fetch(this.config.public.baseURL + "/watched", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
@@ -56,8 +56,8 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        setAllGenres() {
-            fetch(this.config.public.baseURL + "/genres", {
+        async setAllGenres() {
+            return fetch(this.config.public.baseURL + "/genres", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
@@ -75,8 +75,8 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        setAllActors() {
-            fetch(this.config.public.baseURL + "/actors", {
+        async setAllActors() {
+            return fetch(this.config.public.baseURL + "/actors", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
@@ -93,8 +93,8 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        setLastWatchedUsers() {
-            fetch(this.config.public.baseURL + "/media/last-watched", {
+        async setLastWatchedUsers() {
+            return fetch(this.config.public.baseURL + "/media/last-watched", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',

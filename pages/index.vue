@@ -4,10 +4,8 @@ import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
 
 const mainStore = useMainStore()
-const mediaStore = useMediaStore()
 
 const { allMedia, watched, searchbox, lastWatchedUsers } = storeToRefs(mainStore)
-const { media } = storeToRefs(mediaStore)
 
 const recentMedia = ref([{ name: "" }])
 let timeoutId
@@ -109,9 +107,8 @@ const nextTrailer = (index) => {
     currentTrailerIndex.value = trailerMediaId.value
 }
 
-const navigateToMedia = () => {
-    media.value.id = trailerMedia.value.id
-    navigateTo(`/media`)
+const navigateToMedia = (mediaId) => {
+    navigateTo(`/media?id=${mediaId}`)
 }
 
 // Needs refactoring
@@ -154,7 +151,7 @@ const doFilter = async () => {
              class="container-trailer">
             <div class="container-information">
                 <h2 class="now-available">Now available:</h2>
-                <div @click="navigateToMedia()"
+                <div @click="navigateToMedia(trailerMedia.id)"
                      class="container-information-title">
                     <span class="trailer-name">{{ trailerMedia.name }}</span>
                     <span class="watch-now">| WATCH NOW</span>
@@ -176,7 +173,7 @@ const doFilter = async () => {
             <div @mouseover="showPlayIcon = true"
                  @mouseleave="showPlayIcon = false"
                  class="overlay"
-                 @click="navigateToMedia()">
+                 @click="navigateToMedia(trailerMedia.id)">
                 <transition name="fade">
                     <Icon v-if="showPlayIcon"
                           name="material-symbols:play-arrow-rounded"

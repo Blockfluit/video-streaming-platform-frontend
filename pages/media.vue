@@ -2,7 +2,6 @@
 import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
-import { useWatchStore } from "~/stores/watchStore";
 import { useJwtStore } from "~/stores/jwtStore";
 
 definePageMeta({
@@ -13,14 +12,13 @@ const config = useRuntimeConfig()
 
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
-const watchStore = useWatchStore()
 const jwtStore = useJwtStore()
 
 const { watched } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
-const { startTime, video } = storeToRefs(watchStore)
 
-const seasons = ref([])
+let currentMediaId
+
 const iframe = ref(null)
 const latestVideo = ref()
 const selectedSeason = ref(1)
@@ -29,20 +27,19 @@ const episodeList = ref()
 const showTrailer = ref(false)
 const showExtraInformation = ref(false)
 
-watch(media, (o, n) => {
-    seasons.value = [...new Set(media.value.videos.map(video => video.season))]
-})
-
-watch(watched, (o, n) => {
+watch(watched, (n, o) => {
     latestVideo.value = watched.value.filter(entry => entry.mediaId === media.value.id)
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
     if (latestVideo.value !== undefined) {
         selectedSeason.value = latestVideo.value.season
     }
-})
+}, { deep: true })
 
 onBeforeMount(() => {
-    mediaStore.setMedia(media.value.id)
+    const route = useRoute()
+    currentMediaId = route.query.id
+
+    mediaStore.setMedia(currentMediaId)
     mainStore.setWatched()
 })
 
@@ -51,17 +48,15 @@ function scrollHorizontal(e) {
     episodeList.value.scrollLeft += e.deltaY;
 }
 
-const playVideo = (selectedVideo) => {
-    video.value = selectedVideo
-    const currentWatched = watched.value.find(entry => entry.videoId === selectedVideo.id)
-    startTime.value = currentWatched !== undefined ? currentWatched.timestamp : 0
-    navigateTo(`/watch`)
+const playVideo = (videoId) => {
+    navigateTo(`/watch?mid=${currentMediaId}&vid=${videoId}`)
 }
 
 const formatTime = (seconds) => {
     return Math.floor(seconds / 60) + "min"
 }
 
+// Probably needs some refactoring
 const playLastVideo = () => {
     const lastVideo = watched.value.filter(video => video.mediaId === media.value.id)
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
@@ -69,10 +64,9 @@ const playLastVideo = () => {
 
     const video = media.value.videos.find(video => video.id === lastVideoId) ??
         media.value.videos.find(video => video.index === 0)
-    playVideo(video)
+    playVideo(video.id)
 }
 
-// Needs refactoring
 const parseTrailer = (trailer, controls, mute) => {
     if (trailer === undefined) {
         return "https://www.youtube.com/watch?v=J---aiyznGQ"
@@ -86,7 +80,7 @@ const parseTrailer = (trailer, controls, mute) => {
 }
 
 const editMedia = () => {
-    return navigateTo("edit")
+    return navigateTo(`edit?id=${currentMediaId}`)
 }
 
 const calcTimePercentage = (video) => {
@@ -171,7 +165,7 @@ const calcTimePercentage = (video) => {
             </div>
 
             <!-- Show season button if it is season -->
-            <div v-if="!seasons.includes(-1)"
+            <div v-if="!media.seasons.includes(-1)"
                  class="season-btn">
                 <span @click="showDropdown = !showDropdown"
                       style="padding-left: 6px">Season {{ selectedSeason }}
@@ -180,7 +174,7 @@ const calcTimePercentage = (video) => {
                 </span>
                 <ul v-if="showDropdown"
                     class="season-dropdown">
-                    <li v-for="season in seasons.sort((a, b) => a - b)"
+                    <li v-for="season in media.seasons.sort((a, b) => a - b)"
                         @click="selectedSeason = season; showDropdown = false"
                         class="season">Season {{ season }}</li>
                 </ul>
@@ -190,11 +184,11 @@ const calcTimePercentage = (video) => {
             <div v-if="media.videos.length > 1"
                  class="container-episodes">
                 <!-- Movie episode cards -->
-                <ul v-if="seasons.includes(-1)"
+                <ul v-if="media.seasons.includes(-1)"
                     @wheel="scrollHorizontal"
                     ref="episodeList"
                     class="movie-content">
-                    <li @click="playVideo(video)"
+                    <li @click="playVideo(video.id)"
                         class="episode-card"
                         v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)"
                         :id="video.id">
@@ -215,7 +209,7 @@ const calcTimePercentage = (video) => {
                     @wheel="scrollHorizontal"
                     ref="episodeList"
                     class="season-content">
-                    <li @click="playVideo(video)"
+                    <li @click="playVideo(video.id)"
                         class="episode-card"
                         v-for="(video) in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
                         :id="video.id">
@@ -234,7 +228,7 @@ const calcTimePercentage = (video) => {
                     <Reviews :media1="media" />
                 </div>
             </div>
-            <div v-if="seasons.includes(-1) && media.videos.length === 1"
+            <div v-if="media.seasons.includes(-1) && media.videos.length === 1"
                  class="review-container-movie">
                 <Reviews :media1="media" />
             </div>

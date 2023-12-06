@@ -7,11 +7,11 @@ export const useMediaStore = defineStore("mediaStore", {
         config: useRuntimeConfig(),
         jwtStore: useJwtStore(),
         watchStore: useWatchStore(),
-        media: useLocalStorage("media", { name: "", videos: [], genre: [], actors: [] }),
+        media: useLocalStorage("media", { name: "", videos: [], genre: [], actors: [], seasons: [] },),
     }),
     actions: {
-        setMedia(id) {
-            fetch(this.config.public.baseURL + "/media/" + id, {
+        async setMedia(id) {
+            return fetch(this.config.public.baseURL + "/media/" + id, {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
@@ -24,6 +24,7 @@ export const useMediaStore = defineStore("mediaStore", {
                 }
             }).then((data) => {
                 this.media = data[0]
+                this.media.seasons = [...new Set(data[0].videos.map(video => video.season))]
             }).catch(e => {
                 console.log(e)
             })

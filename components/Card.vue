@@ -1,8 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 import { useMainStore } from '~/stores/mainStore';
-import { useMediaStore } from '~/stores/mediaStore';
-import { useWatchStore } from '~/stores/watchStore';
 import { useJwtStore } from '~/stores/jwtStore';
 
 const props = defineProps({
@@ -11,17 +9,14 @@ const props = defineProps({
 })
 
 const mainStore = useMainStore()
-const mediaStore = useMediaStore()
-const watchStore = useWatchStore()
 const jwtStore = useJwtStore()
 
 const { watched } = storeToRefs(mainStore)
-const { media } = storeToRefs(mediaStore)
-const { startTime, video } = storeToRefs(watchStore)
 
 const config = useRuntimeConfig()
 const showExtraInformation = ref(false)
 const timePercentage = ref(0)
+
 
 onBeforeMount(() => {
     const lastWatched = getLastVideo(props.shownMedia.id)
@@ -43,24 +38,13 @@ function getLastVideo(mediaId) {
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
 }
 
-const navigateToMedia = () => {
-    media.value.id = props.shownMedia.id
-    navigateTo(`/media`)
-}
-
-const navigateToLastVideo = (mediaId) => {
-    media.value.id = props.shownMedia.id
-    mediaStore.setMedia(props.shownMedia.id)
-
-    if (props.showLastVideo) {
+function navigationHandler(mediaId, showLastVideo) {
+    if (showLastVideo) {
         const lastWatched = getLastVideo(mediaId)
-        lastWatched.id = lastWatched.videoId
-        video.value = lastWatched
-        startTime.value = lastWatched.timestamp
-        navigateTo(`watch`)
+        navigateTo(`watch?mid=${mediaId}&vid=${lastWatched.videoId}`)
         return
     }
-    navigateTo(`/media`)
+    navigateTo(`/media?id=${mediaId}`)
 }
 </script>
 
@@ -80,7 +64,7 @@ const navigateToLastVideo = (mediaId) => {
                 </div>
                 <span class="last-video-name">{{ getLastVideo(shownMedia.id).name }}</span>
             </div>
-            <div @click="navigateToLastVideo(shownMedia.id)"
+            <div @click="navigationHandler(shownMedia.id, showLastVideo)"
                  @mouseleave="showExtraInformation = false"
                  v-if="showExtraInformation"
                  class="show-rating">
@@ -97,7 +81,7 @@ const navigateToLastVideo = (mediaId) => {
                 <span v-if="jwtStore.isAdmin">{{ shownMedia.views }} unique views</span>
             </div>
         </div>
-        <div @click="navigateToMedia()"
+        <div @click="navigationHandler(shownMedia.id)"
              class="title">
             <span class="name">{{ shownMedia.name }}</span>
             <span v-if="shownMedia.videos > 1"

@@ -8,45 +8,40 @@ const watchStore = useWatchStore()
 const config = useRuntimeConfig()
 
 const { media } = storeToRefs(mediaStore)
-const { volume, video } = storeToRefs(watchStore)
+const { volume, video, nextVideo, previousVideo, startTime } = storeToRefs(watchStore)
 
 const videoElement = ref({})
 const showOverlay = ref(true)
 const countdownTimer = ref(0)
 const isPlaying = ref(false)
-const nextVideo = ref()
-const previousVideo = ref()
 
 let intervalId
 let timeoutId
 let updateIntervalId
+let currentMediaId
+let currentVideoId
 
 onBeforeMount(() => {
     if (process.client) {
-        setVideos()
+        const route = useRoute()
+        currentMediaId = parseInt(route.query.mid)
+        currentVideoId = parseInt(route.query.vid)
     }
 })
 
 onMounted(() => {
     if (process.client) {
-        videoElement.value.currentTime = watchStore.startTime
         videoElement.value.volume = volume.value
-        setTimeout(() => { showOverlay.value = false }, 3000)
+        playVideo(currentVideoId)
 
-        window.onmousemove = () => {
-            clearTimeout(timeoutId)
-            showOverlay.value = true
-            timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
-        }
-        window.ontouchend = () => {
-            clearTimeout(timeoutId)
-            showOverlay.value = true
-            timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
-        }
+        window.addEventListener("mousemove", resetOverlay)
+        window.addEventListener("touchend", resetOverlay)
+
+        setTimeout(() => { showOverlay.value = false }, 3000)
         clearInterval(updateIntervalId)
         updateIntervalId = setInterval(() => {
             watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
-        }, 10000)
+        }, 5000)
     }
 })
 
@@ -54,38 +49,46 @@ onBeforeUnmount(() => {
     if (process.client) {
         watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
         volume.value = videoElement.value.volume
-        window.onmousemove = null
+
+        window.removeEventListener("mousemove", resetOverlay)
+        window.removeEventListener("touchend", resetOverlay)
+
         clearInterval(updateIntervalId)
     }
 })
 
-watch(media, (o, n) => {
-    setVideos()
-}, { deep: true })
-
-const setVideos = () => {
-    nextVideo.value = media.value.videos.find(entry => entry.index === video.value.index + 1)
-    previousVideo.value = media.value.videos.find(entry => entry.index === video.value.index - 1)
+function resetOverlay() {
+    clearTimeout(timeoutId)
+    showOverlay.value = true
+    timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
 }
 
-const playVideo = (targetVideo) => {
-    if (targetVideo === undefined) {
+async function playVideo(videoId, time) {
+    if (videoId === undefined) {
         clearInterval(intervalId)
-        navigateTo("/media")
+        navigateTo(`/media?id=${currentMediaId}`)
         return
     }
-    if (targetVideo !== undefined) {
+    if (videoId !== undefined) {
         clearInterval(intervalId)
-        video.value = targetVideo
-        setVideos()
-        videoElement.value.currentTime = 0
+        await watchStore.setVideo(currentMediaId, videoId)
         videoElement.value.load()
+        const playTime = time !== undefined ?
+            time : (startTime.value / video.value.duration) < 0.995 ?
+                startTime.value : 0
+        videoElement.value.currentTime = playTime
         videoElement.value.play()
+
+        useRouter()
+            .push({
+                path: "/watch",
+                query: { mid: currentMediaId, vid: videoId }
+            })
         return
     }
 }
 
-const playVideoWithCountdown = (targetVideo) => {
+function playVideoWithCountdown(videoId) {
     const countdownInSec = 5
     countdownTimer.value = countdownInSec
 
@@ -97,60 +100,93 @@ const playVideoWithCountdown = (targetVideo) => {
             return
         }
 
-        playVideo(targetVideo)
+        playVideo(videoId)
     }, 1000)
+}
+
+function navigateToMedia(mediaId) {
+    navigateTo(`/media?id=${mediaId}`)
 }
 </script>
 
 <template>
     <div class="container">
-        <header v-if="showOverlay || !isPlaying" class="container-header">
+        <header v-if="showOverlay || !isPlaying"
+                class="container-header">
             <div style="display: flex; flex-direction: column;">
                 <h3 style="pointer-events: none; margin: 0; font-weight: 700;">{{ video.name }}</h3>
-                <h4 v-if="video.season !== -1" style="margin: 0; font-weight: 300;">Season {{ video.season }}</h4>
+                <h4 v-if="video.season !== -1"
+                    style="margin: 0; font-weight: 300;">Season {{ video.season }}</h4>
             </div>
-            <button @click="navigateTo(`/media`)" class="back-button">
-                <Icon name="radix-icons:cross-1" class="back-icon" size="1.5rem" style="color: var(--text-color-1);" />
+            <button @click="navigateToMedia(currentMediaId)"
+                    class="back-button">
+                <Icon name="radix-icons:cross-1"
+                      class="back-icon"
+                      size="1.5rem"
+                      style="color: var(--text-color-1);" />
             </button>
         </header>
         <div class="container-next-video">
-            <div v-if="(showOverlay || !isPlaying) && previousVideo !== undefined" @click="playVideo(previousVideo)"
-                class="container-next-video-left">
-                <Icon name="bi:chevron-left" class="back-icon" size="2rem" />
+            <div v-if="(showOverlay || !isPlaying) && previousVideo !== undefined"
+                 @click="playVideo(previousVideo.id, 0)"
+                 class="container-next-video-left">
+                <Icon name="bi:chevron-left"
+                      class="back-icon"
+                      size="2rem" />
                 <h3 class="hide-on-desktop">Previous</h3>
                 <div class="container-vertical hide-on-phone">
-                    <span class="title" style="font-size: var(--font-size-4);">{{ previousVideo.name
-                    }}</span>
-                    <span v-if="previousVideo.season !== -1" style="font-size: var(--font-size-5);">Season
+                    <span class="title"
+                          style="font-size: var(--font-size-4);">{{ previousVideo.name
+                          }}</span>
+                    <span v-if="previousVideo.season !== -1"
+                          style="font-size: var(--font-size-5);">Season
                         {{ previousVideo.season }}</span>
                 </div>
             </div>
             <div style="flex-grow: 1;"></div>
-            <div v-if="(showOverlay || !isPlaying) && nextVideo !== undefined" @click="playVideo(nextVideo)"
-                class="container-next-video-right">
+            <div v-if="(showOverlay || !isPlaying) && nextVideo !== undefined"
+                 @click="playVideo(nextVideo.id, 0)"
+                 class="container-next-video-right">
                 <div class="container-vertical hide-on-phone">
-                    <span class="title" style="font-size: var(--font-size-4);">{{ nextVideo.name
-                    }}</span>
-                    <span v-if="nextVideo.season !== -1" style="font-size: var(--font-size-5);">Season
+                    <span class="title"
+                          style="font-size: var(--font-size-4);">{{ nextVideo.name
+                          }}</span>
+                    <span v-if="nextVideo.season !== -1"
+                          style="font-size: var(--font-size-5);">Season
                         {{ nextVideo.season }}</span>
                 </div>
                 <h3 class="hide-on-desktop">Next</h3>
-                <Icon name="bi:chevron-right" class="back-icon" size="2rem" />
+                <Icon name="bi:chevron-right"
+                      class="back-icon"
+                      size="2rem" />
             </div>
         </div>
-        <video @play="isPlaying = true" @pause="isPlaying = false" @ended="playVideoWithCountdown(nextVideo)"
-            ref="videoElement" crossorigin="anonymous" controls autoplay>
-            <source :src="`${config.public.baseURL}/stream/video/${video.id}`" type="video/mp4" />
-            <track v-for="subtitle in video.subtitles" :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
-                :label="subtitle.label" kind="subtitles" :srclang="subtitle.srcLang" :default="subtitle.defaultSub" />
+        <video @play="isPlaying = true"
+               @pause="isPlaying = false"
+               @ended="playVideoWithCountdown(nextVideo === undefined ? unedefined : nextVideo.id)"
+               ref="videoElement"
+               crossorigin="anonymous"
+               controls
+               autoplay>
+            <source :src="`${config.public.baseURL}/stream/video/${video.id}`"
+                    type="video/mp4" />
+            <track v-for="subtitle in video.subtitles"
+                   :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
+                   :label="subtitle.label"
+                   kind="subtitles"
+                   :srclang="subtitle.srcLang"
+                   :default="subtitle.defaultSub" />
         </video>
-        <div v-if="countdownTimer > 0" class="container-center">
-            <div v-if="nextVideo !== undefined" class="container-countdown">
+        <div v-if="countdownTimer > 0"
+             class="container-center">
+            <div v-if="nextVideo !== undefined"
+                 class="container-countdown">
                 <h3>Next video:</h3>
                 <h3 style="font-weight: 100;">{{ nextVideo.name }}</h3>
                 <h1>{{ countdownTimer }}</h1>
             </div>
-            <div v-else class="container-countdown">
+            <div v-else
+                 class="container-countdown">
                 <h3>Returning to:</h3>
                 <h3 style="font-weight: 100;">{{ media.name }}</h3>
                 <h1>{{ countdownTimer }}</h1>

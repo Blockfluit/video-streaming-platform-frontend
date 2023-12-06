@@ -16,10 +16,6 @@ const { media } = storeToRefs(mediaStore)
 const ratingElement = ref()
 const config = useRuntimeConfig()
 
-onBeforeMount(() => {
-    mediaStore.setMedia(props.media.id)
-})
-
 watch(media, (o, n) => {
     resetRating()
 })
