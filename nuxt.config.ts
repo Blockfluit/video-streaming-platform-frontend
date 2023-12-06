@@ -9,8 +9,7 @@ export default defineNuxtConfig({
         '@vite-pwa/nuxt',
     ],
     app: {
-        // pageTransition: { name: 'page', mode: 'out-in' }
-        pageTransition: false
+        pageTransition: { name: 'page', mode: 'out-in' },
     },
     pwa: {
         manifest: {
