@@ -20,10 +20,11 @@ const { media } = storeToRefs(mediaStore)
 let currentMediaId
 
 const iframe = ref(null)
-const latestVideo = ref()
+const lastVideo = ref()
 const selectedSeason = ref(1)
 const showDropdown = ref(false)
-const episodeList = ref()
+const episodeContainer = ref()
+const episodeElements = ref()
 const showTrailer = ref(false)
 const showExtraInformation = ref(false)
 
@@ -33,23 +34,57 @@ onBeforeMount(() => {
 
     mediaStore.setMedia(currentMediaId)
     mainStore.setWatched()
+        .then(() => {
+            setLastVideo()
+        })
 })
 
-watch(watched, (n, o) => {
-    latestVideo.value = watched.value.filter(entry => entry.mediaId === currentMediaId)
-        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
-    if (latestVideo.value !== undefined) {
-        selectedSeason.value = latestVideo.value.season
-    }
-}, { deep: true })
+
+watch(episodeElements, (n, o) => {
+    let attempts = 10
+
+    const intervalId = setInterval(() => {
+        if (n[0] === undefined || attempts < 0) {
+            clearInterval(intervalId)
+            return
+        }
+        if (n[0].getBoundingClientRect().left !== 0) {
+            scrollToLastVideo(n)
+            clearInterval(intervalId)
+            return
+        }
+        attempts--
+    }, 100)
+})
 
 function scrollHorizontal(e) {
     e.preventDefault();
-    episodeList.value.scrollLeft += e.deltaY;
+    episodeContainer.value.scrollLeft += e.deltaY;
 }
 
 const playVideo = (videoId) => {
     navigateTo(`/media/${currentMediaId}/watch/${videoId}`)
+}
+
+function setLastVideo() {
+    lastVideo.value = watched.value.filter(entry => entry.mediaId === currentMediaId)
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+    if (lastVideo.value !== undefined) {
+        selectedSeason.value = lastVideo.value.season
+    }
+}
+
+function scrollToLastVideo(elementList) {
+    for (let child of elementList) {
+        if (parseInt(child.id) === lastVideo.value.videoId) {
+            episodeContainer.value.scrollTo({
+                left: (child.getBoundingClientRect().left - episodeContainer.value.getBoundingClientRect().left),
+                behavior: "smooth"
+            })
+            child.style.border = "2px solid white"
+        }
+    }
+
 }
 
 const formatTime = (seconds) => {
@@ -189,9 +224,10 @@ const calcTimePercentage = (video) => {
                 <!-- Movie episode cards -->
                 <ul v-if="media.seasons.includes(-1)"
                     @wheel="scrollHorizontal"
-                    ref="episodeList"
+                    ref="episodeContainer"
                     class="movie-content">
                     <li @click="playVideo(video.id)"
+                        ref="episodeElements"
                         class="episode-card"
                         v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)"
                         :id="video.id">
@@ -210,9 +246,10 @@ const calcTimePercentage = (video) => {
                 <!-- Serie episode cards -->
                 <ul v-else
                     @wheel="scrollHorizontal"
-                    ref="episodeList"
+                    ref="episodeContainer"
                     class="season-content">
                     <li @click="playVideo(video.id)"
+                        ref="episodeElements"
                         class="episode-card"
                         v-for="(video) in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
                         :id="video.id">

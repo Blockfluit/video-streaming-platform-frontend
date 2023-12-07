@@ -13,7 +13,7 @@ const { allMedia, searchbox, allGenres, watched, allMovies } = storeToRefs(mainS
 const filteredMedia = ref(new Set())
 const filters = ref([])
 const filterElement = ref({})
-const lazyAllMovies = ref([...allMovies.value.slice(0, 100)])
+const lazyAllMovies = ref([])
 const recentWatched = ref([])
 const recentUploaded = ref([])
 
@@ -21,11 +21,13 @@ onBeforeMount(() => {
     mainStore.setAllMedia()
     mainStore.setWatched()
     mainStore.setAllGenres()
-    setRecentWatched()
-    setRecentUploaded()
 })
 
 onMounted(() => {
+    setRecentWatched()
+    setRecentUploaded()
+    lazyAllMovies.value = [...allMovies.value.slice(0, 100)]
+
     window.addEventListener("scroll", addMediaOnScroll)
 })
 
