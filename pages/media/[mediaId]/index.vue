@@ -27,21 +27,21 @@ const episodeList = ref()
 const showTrailer = ref(false)
 const showExtraInformation = ref(false)
 
+onBeforeMount(() => {
+    const route = useRoute()
+    currentMediaId = parseInt(route.params.mediaId)
+
+    mediaStore.setMedia(currentMediaId)
+    mainStore.setWatched()
+})
+
 watch(watched, (n, o) => {
-    latestVideo.value = watched.value.filter(entry => entry.mediaId === media.value.id)
+    latestVideo.value = watched.value.filter(entry => entry.mediaId === currentMediaId)
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
     if (latestVideo.value !== undefined) {
         selectedSeason.value = latestVideo.value.season
     }
 }, { deep: true })
-
-onBeforeMount(() => {
-    const route = useRoute()
-    currentMediaId = route.query.id
-
-    mediaStore.setMedia(currentMediaId)
-    mainStore.setWatched()
-})
 
 function scrollHorizontal(e) {
     e.preventDefault();
@@ -49,13 +49,7 @@ function scrollHorizontal(e) {
 }
 
 const playVideo = (videoId) => {
-    navigateTo({
-        path: "/watch",
-        query: {
-            mid: currentMediaId,
-            vid: videoId,
-        }
-    })
+    navigateTo(`/media/${currentMediaId}/watch/${videoId}`)
 }
 
 const formatTime = (seconds) => {
@@ -89,12 +83,7 @@ const parseTrailer = (trailer, controls, mute) => {
 }
 
 function editMedia(mediaId) {
-    navigateTo({
-        path: "/edit",
-        query: {
-            id: mediaId,
-        }
-    })
+    navigateTo(`/edit/${mediaId}`)
 }
 
 const calcTimePercentage = (video) => {

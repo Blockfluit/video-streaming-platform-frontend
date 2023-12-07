@@ -24,8 +24,8 @@ let currentVideoId
 onBeforeMount(() => {
     if (process.client) {
         const route = useRoute()
-        currentMediaId = parseInt(route.query.mid)
-        currentVideoId = parseInt(route.query.vid)
+        currentMediaId = parseInt(route.params.mediaId)
+        currentVideoId = parseInt(route.params.videoId)
     }
 })
 
@@ -80,10 +80,7 @@ async function playVideo(videoId, time) {
         videoElement.value.play()
 
         useRouter()
-            .push({
-                path: "/watch",
-                query: { mid: currentMediaId, vid: videoId }
-            })
+            .push(`/media/${currentMediaId}/watch/${videoId}`)
         return
     }
 }
@@ -105,12 +102,7 @@ function playVideoWithCountdown(videoId) {
 }
 
 function navigateToMedia(mediaId) {
-    navigateTo({
-        path: "/media",
-        query: {
-            id: mediaId,
-        }
-    })
+    navigateTo(`/media/${mediaId}`)
 }
 </script>
 

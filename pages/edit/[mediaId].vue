@@ -29,14 +29,15 @@ const searchActors = ref("")
 const updateVideos = ref(false)
 const videosOrder = ref([])
 const thumbnail = ref()
-const previewImageUrl = ref(config.public.baseURL + "/stream/thumbnail/" + media.value.id)
+const previewImageUrl = ref("")
 
+const filteredActors = ref([])
 let currentMediaId
 
 onBeforeMount(() => {
     if (process.client) {
         const route = useRoute()
-        currentMediaId = route.query.id
+        currentMediaId = route.params.mediaId
 
         mediaStore.setMedia(currentMediaId)
         mainStore.setAllActors()
@@ -44,6 +45,10 @@ onBeforeMount(() => {
 
         resetInputFields()
     }
+})
+
+onMounted(() => {
+    filterActors(searchActors.value)
 })
 
 watch(media, (n, o) => {
@@ -59,6 +64,7 @@ function resetInputFields() {
     actors.value = media.value.actors
     updateVideos.value = false
     videosOrder.value = [...media.value.videos].sort((a, b) => a.index - b.index)
+    previewImageUrl.value = config.public.baseURL + "/stream/thumbnail/" + media.value.id
 }
 
 const thumbnailHandler = (e) => {
@@ -70,6 +76,18 @@ const thumbnailHandler = (e) => {
     }
     thumbnail.value = e.target.files[0]
     previewImageUrl.value = URL.createObjectURL(e.target.files[0])
+}
+
+async function filterActors(search) {
+    filteredActors.value = allActors.value.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))
+        .sort((a, b) => {
+            const cond1 = actors.value.findIndex(c => c.firstname === a.firstname && c.lastname === a.lastname) !== -1
+            const cond2 = actors.value.findIndex(c => c.firstname === b.firstname && c.lastname === b.lastname) !== -1
+            if (cond1 && !cond2) return -1
+            if (!cond1 && cond2) return 1
+            if (!cond1 === cond2) return 0
+        })
 }
 </script>
 
@@ -145,7 +163,8 @@ const thumbnailHandler = (e) => {
                     <input class="input-field"
                            v-model="searchActors"
                            placeholder="Search actor"
-                           type="search">
+                           type="search"
+                           @keyup="filterActors(searchActors)">
                     <div class="title">
                         <div style="display: flex; align-items: center;">
                             <label style="margin-right: 10px;">Actors:</label>
@@ -154,15 +173,7 @@ const thumbnailHandler = (e) => {
                         <span>Selected: {{ actors.length }}</span>
                     </div>
                     <div class="actor-list">
-                        <template v-for="actor in allActors.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(searchActors.toLowerCase()))
-                            .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))
-                            .sort((a, b) => {
-                                const cond1 = actors.findIndex(c => c.firstname === a.firstname && c.lastname === a.lastname) !== -1
-                                const cond2 = actors.findIndex(c => c.firstname === b.firstname && c.lastname === b.lastname) !== -1
-                                if (cond1 && !cond2) return -1
-                                if (!cond1 && cond2) return 1
-                                if (!cond1 === cond2) return 0
-                            })">
+                        <template v-for="actor in filteredActors">
                             <div class="actor">
                                 <div>
                                     <input class="actor-checkbox"

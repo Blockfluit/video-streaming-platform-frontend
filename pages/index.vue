@@ -107,12 +107,7 @@ const nextTrailer = (index) => {
 }
 
 const navigateToMedia = (mediaId) => {
-    navigateTo({
-        path: "/media",
-        query: {
-            id: mediaId,
-        }
-    })
+    navigateTo(`/media/${mediaId}`)
 }
 
 // Needs refactoring
