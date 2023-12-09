@@ -48,7 +48,9 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-    filterActors(searchActors.value)
+    if (process.client) {
+        filterActors(searchActors.value)
+    }
 })
 
 watch(media, (n, o) => {

@@ -20,12 +20,14 @@ let timeoutId
 let updateIntervalId
 let currentMediaId
 let currentVideoId
+let timestamp
 
 onBeforeMount(() => {
     if (process.client) {
         const route = useRoute()
         currentMediaId = parseInt(route.params.mediaId)
         currentVideoId = parseInt(route.params.videoId)
+        timestamp = route.query.t !== undefined ? parseInt(route.query.t) : undefined
     }
 })
 
@@ -57,6 +59,16 @@ onBeforeUnmount(() => {
     }
 })
 
+function getStartTime() {
+    if (timestamp !== undefined) {
+        return timestamp
+    }
+    if ((startTime.value / video.value.duration) > 0.995) {
+        return 0
+    }
+    return startTime.value
+}
+
 function resetOverlay() {
     clearTimeout(timeoutId)
     showOverlay.value = true
@@ -73,10 +85,7 @@ async function playVideo(videoId, time) {
         clearInterval(intervalId)
         await watchStore.setVideo(currentMediaId, videoId)
         videoElement.value.load()
-        const playTime = time !== undefined ?
-            time : (startTime.value / video.value.duration) < 0.995 ?
-                startTime.value : 0
-        videoElement.value.currentTime = playTime
+        videoElement.value.currentTime = time !== undefined ? time : getStartTime()
         videoElement.value.play()
 
         useRouter()

@@ -18,25 +18,33 @@ const recentWatched = ref([])
 const recentUploaded = ref([])
 
 onBeforeMount(() => {
-    mainStore.setAllMedia()
-    mainStore.setWatched()
-    mainStore.setAllGenres()
+    if (process.client) {
+        mainStore.setAllMedia()
+        mainStore.setWatched()
+        mainStore.setAllGenres()
+    }
 })
 
 onMounted(() => {
-    setRecentWatched()
-    setRecentUploaded()
-    lazyAllSeries.value = [...allSeries.value.slice(0, 50)]
+    if (process.client) {
+        setRecentWatched()
+        setRecentUploaded()
+        lazyAllSeries.value = [...allSeries.value.slice(0, 50)]
 
-    window.addEventListener("scroll", addMediaOnScroll)
+        window.addEventListener("scroll", addMediaOnScroll)
+    }
 })
 
 onBeforeUnmount(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    if (process.client) {
+        window.scrollTo({ top: 0, behavior: 'instant' })
+    }
 })
 
 onUnmounted(() => {
-    window.removeEventListener("scroll", addMediaOnScroll)
+    if (process.client) {
+        window.removeEventListener("scroll", addMediaOnScroll)
+    }
 })
 
 watch(allMedia, () => {

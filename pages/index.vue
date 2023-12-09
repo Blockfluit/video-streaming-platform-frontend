@@ -24,28 +24,36 @@ definePageMeta({
 });
 
 onBeforeMount(() => {
-    mainStore.setAllMedia()
-    mainStore.setWatched()
-    mainStore.setAllGenres()
-    mainStore.setLastWatchedUsers()
+    if (process.client) {
+        mainStore.setAllMedia()
+        mainStore.setWatched()
+        mainStore.setAllGenres()
+        mainStore.setLastWatchedUsers()
+    }
 
 })
 
 onMounted(() => {
-    setRecentWatched()
-    lazyAllMedia.value = [...allMedia.value.slice(0, 50)]
+    if (process.client) {
+        setRecentWatched()
+        lazyAllMedia.value = [...allMedia.value.slice(0, 50)]
 
-    setTrailerTimeout(0)
-    window.addEventListener("scroll", addMediaOnScroll)
+        setTrailerTimeout(0)
+        window.addEventListener("scroll", addMediaOnScroll)
+    }
 })
 
 onBeforeUnmount(() => {
-    clearTimeout(timeoutId)
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    if (process.client) {
+        clearTimeout(timeoutId)
+        window.scrollTo({ top: 0, behavior: 'instant' })
+    }
 })
 
 onUnmounted(() => {
-    window.removeEventListener("scroll", addMediaOnScroll)
+    if (process.client) {
+        window.removeEventListener("scroll", addMediaOnScroll)
+    }
 })
 
 watch(allMedia, () => {

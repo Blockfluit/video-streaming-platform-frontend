@@ -23,20 +23,24 @@ const intervalCounter = ref(0)
 let updateInterval
 
 onBeforeMount(() => {
-    adminStore.getAllUsers()
-    adminStore.getAllTokens()
+    if (process.client) {
+        adminStore.getAllUsers()
+        adminStore.getAllTokens()
+    }
 })
 
 onMounted(() => {
-    clearInterval(updateInterval)
-    updateInterval = setInterval(() => {
-        intervalCounter.value--
+    if (process.client) {
+        clearInterval(updateInterval)
+        updateInterval = setInterval(() => {
+            intervalCounter.value--
 
-        if (intervalCounter.value < 0) {
-            adminStore.getAllUsers()
-            intervalCounter.value = 10
-        }
-    }, 1000);
+            if (intervalCounter.value < 0) {
+                adminStore.getAllUsers()
+                intervalCounter.value = 10
+            }
+        }, 1000);
+    }
 })
 </script>
 

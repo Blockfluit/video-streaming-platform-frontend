@@ -18,6 +18,7 @@ const { watched } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
 
 let currentMediaId
+let scrollAttempts = 10
 
 const iframe = ref(null)
 const lastVideo = ref()
@@ -29,31 +30,31 @@ const showTrailer = ref(false)
 const showExtraInformation = ref(false)
 
 onBeforeMount(() => {
-    const route = useRoute()
-    currentMediaId = parseInt(route.params.mediaId)
+    if (process.client) {
+        const route = useRoute()
+        currentMediaId = parseInt(route.params.mediaId)
 
-    mediaStore.setMedia(currentMediaId)
-    mainStore.setWatched()
-        .then(() => {
-            setLastVideo()
-        })
+        mediaStore.setMedia(currentMediaId)
+        mainStore.setWatched()
+            .then(() => {
+                setLastVideo()
+            })
+    }
 })
 
 
-watch(episodeElements, (n, o) => {
-    let attempts = 10
-
+watch(lastVideo, (n, o) => {
     const intervalId = setInterval(() => {
-        if (n[0] === undefined || attempts < 0) {
+        if (scrollAttempts < 0) {
             clearInterval(intervalId)
             return
         }
-        if (n[0].getBoundingClientRect().left !== 0) {
-            scrollToLastVideo(n)
+        if (episodeElements.value !== undefined) {
+            scrollToLastVideo(episodeElements.value)
             clearInterval(intervalId)
             return
         }
-        attempts--
+        scrollAttempts--
     }, 100)
 })
 
@@ -81,7 +82,7 @@ function scrollToLastVideo(elementList) {
                 left: (child.getBoundingClientRect().left - episodeContainer.value.getBoundingClientRect().left),
                 behavior: "smooth"
             })
-            child.style.border = "2px solid white"
+            child.style.border = "2px solid rgba(255, 255, 255, 0.7)"
         }
     }
 
