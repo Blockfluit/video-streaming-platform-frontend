@@ -26,7 +26,9 @@ const filteredRequests = ref([])
 const filteredAllMedia = ref([])
 
 onBeforeMount(() => {
-    getRequests()
+    if (process.client) {
+        getRequests()
+    }
 })
 
 const requestFilter = () => allRequests.value.filter(request => request.name.toLowerCase().includes(inputName.value.toLowerCase()))
@@ -166,18 +168,27 @@ const deleteRequest = (id) => {
         <form @submit.prevent="addRequest(inputName, inputYear, inputComment)">
             <div class="container-add-request">
                 <span style="font-size: 2rem; font-weight: 600;">Request movie/series</span>
-                <input v-model="inputName" placeholder="Name" type="text" required>
-                <input v-model="inputYear" placeholder="Release year" type="number" required>
-                <input v-model="inputComment" placeholder="Comment" type="text">
+                <input v-model="inputName"
+                       placeholder="Name"
+                       type="text"
+                       required>
+                <input v-model="inputYear"
+                       placeholder="Release year"
+                       type="number"
+                       required>
+                <input v-model="inputComment"
+                       placeholder="Comment"
+                       type="text">
                 <button type="submit">Add Request</button>
             </div>
         </form>
         <div v-show="!(filteredRequests.length === 0 &&
             filteredAllMedia.length === 0)">
             <span style="font-size: 2rem; font-weight: 600; margin-bottom: 20px;">Requests <span
-                    style="font-weight: 200; margin-left: 5px;">{{
-                        filteredRequests.length }}</span></span>
-            <div ref="filterRequestsCountBarElement" class="filter-count-bar"></div>
+                      style="font-weight: 200; margin-left: 5px;">{{
+                          filteredRequests.length }}</span></span>
+            <div ref="filterRequestsCountBarElement"
+                 class="filter-count-bar"></div>
             <table>
                 <thead>
                     <tr>
@@ -191,42 +202,57 @@ const deleteRequest = (id) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="height:30px;" v-for="(request, index) in filteredRequests">
+                    <tr style="height:30px;"
+                        v-for="(request, index) in filteredRequests">
                         <template v-if="toggleEdit !== index">
                             <td>{{ request.name }}</td>
                             <td>{{ request.year }}</td>
                             <td>{{ request.comment }}</td>
                         </template>
                         <template v-else>
-                            <td><input style="max-width: 100px;" type="text" v-model="updateName"></td>
-                            <td><input style="max-width: 100px;" type="number" v-model="updateYear"></td>
-                            <td><input style="max-width: 100px;" type="text" v-model="updateComment"></td>
+                            <td><input style="max-width: 100px;"
+                                       type="text"
+                                       v-model="updateName"></td>
+                            <td><input style="max-width: 100px;"
+                                       type="number"
+                                       v-model="updateYear"></td>
+                            <td><input style="max-width: 100px;"
+                                       type="text"
+                                       v-model="updateComment"></td>
                         </template>
                         <td>{{ new Date(request.createdAt).toLocaleDateString() }}</td>
                         <td style="text-transform: capitalize;">{{ request.createdBy }}</td>
                         <td v-if="!jwtStore.isAdmin">{{ request.status }}</td>
                         <td v-else>
                             <select @change="e => updateRequest(request.id, { status: e.target.value })">
-                                <option :selected="request.status === 'NEW'" value="NEW">New</option>
-                                <option :selected="request.status === 'PROCESSING'" value="PROCESSING">Processing
+                                <option :selected="request.status === 'NEW'"
+                                        value="NEW">New</option>
+                                <option :selected="request.status === 'PROCESSING'"
+                                        value="PROCESSING">Processing
                                 </option>
-                                <option :selected="request.status === 'NOT_AVAILABLE'" value="NOT_AVAILABLE">Not available
+                                <option :selected="request.status === 'NOT_AVAILABLE'"
+                                        value="NOT_AVAILABLE">Not available
                                 </option>
-                                <option :selected="request.status === 'ADDED'" value="ADDED">Added</option>
+                                <option :selected="request.status === 'ADDED'"
+                                        value="ADDED">Added</option>
                             </select>
                         </td>
                         <td v-if="showRequestButtons(request)">
-                            <button v-if="toggleEdit !== index" @click="toggleEdit = index;
-                            updateName = request.name;
-                            updateYear = request.year;
-                            updateComment = request.comment" class="admin-btn">
+                            <button v-if="toggleEdit !== index"
+                                    @click="toggleEdit = index;
+                                    updateName = request.name;
+                                    updateYear = request.year;
+                                    updateComment = request.comment"
+                                    class="admin-btn">
                                 <Icon name="mdi:pencil" />
                             </button>
-                            <button v-else class="admin-btn"
-                                @click="toggleEdit = -1; updateRequest(request.id, { name: updateName, year: updateYear, comment: updateComment })">
+                            <button v-else
+                                    class="admin-btn"
+                                    @click="toggleEdit = -1; updateRequest(request.id, { name: updateName, year: updateYear, comment: updateComment })">
                                 <Icon name="ic:outline-check" />
                             </button>
-                            <button class="admin-btn" @click="deleteRequest(request.id)">
+                            <button class="admin-btn"
+                                    @click="deleteRequest(request.id)">
                                 <Icon name="material-symbols:delete" />
                             </button>
                         </td>
@@ -237,7 +263,8 @@ const deleteRequest = (id) => {
             <div v-show="inputName !== ''">
                 <h2>Already available <span style="font-weight: 200; margin-left: 5px;">{{ filteredAllMedia.length }}</span>
                 </h2>
-                <div ref="filterAllMediaCountBarElement" class="filter-count-bar"></div>
+                <div ref="filterAllMediaCountBarElement"
+                     class="filter-count-bar"></div>
                 <table>
                     <thead>
                         <tr>
@@ -248,7 +275,8 @@ const deleteRequest = (id) => {
                         </tr>
                     </thead>
                     <tbody style="height: 100px; overflow-y: scroll;">
-                        <tr style="height:30px;" v-for="media in filteredAllMedia">
+                        <tr style="height:30px;"
+                            v-for="media in filteredAllMedia">
                             <td>{{ media.name }}</td>
                             <td>{{ media.year }}</td>
                             <td>{{ new Date(media.createdAt).toLocaleDateString() }}</td>
@@ -369,5 +397,4 @@ select option {
     background-color: var(--background-color-200);
     color: var(--primary-color-100);
 
-}
-</style>
+}</style>

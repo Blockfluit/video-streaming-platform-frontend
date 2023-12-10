@@ -41,21 +41,17 @@ function getLastVideo(mediaId) {
 function navigationHandler(mediaId, showLastVideo) {
     if (showLastVideo) {
         const lastWatched = getLastVideo(mediaId)
-        navigateTo({
-            path: "/watch",
-            query: {
-                mid: mediaId,
-                vid: lastWatched.videoId
-            }
-        })
+        // navigateTo({
+        //     name: "/media/:mediaId/videoId/:videoId",
+        //     params: {
+        //         mediaId: mediaId,
+        //         videoId: lastWatched.videoId
+        //     }
+        // })
+        navigateTo(`/media/${mediaId}/watch/${lastWatched.videoId}`)
         return
     }
-    navigateTo({
-        path: "/media",
-        query: {
-            id: mediaId,
-        }
-    })
+    navigateTo(`/media/${mediaId}`)
 }
 </script>
 

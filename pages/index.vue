@@ -14,7 +14,7 @@ const currentTrailerIndex = ref()
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 const filteredMedia = ref(new Set())
-const lazyAllMedia = ref([...allMedia.value.slice(0, 50)])
+const lazyAllMedia = ref()
 const recentWatched = ref([])
 
 const iframe = ref()
@@ -24,25 +24,36 @@ definePageMeta({
 });
 
 onBeforeMount(() => {
-    mainStore.setAllMedia()
-    mainStore.setWatched()
-    mainStore.setAllGenres()
-    mainStore.setLastWatchedUsers()
-    setRecentWatched()
+    if (process.client) {
+        mainStore.setAllMedia()
+        mainStore.setWatched()
+        mainStore.setAllGenres()
+        mainStore.setLastWatchedUsers()
+    }
+
 })
 
 onMounted(() => {
-    setTrailerTimeout(0)
-    window.addEventListener("scroll", addMediaOnScroll)
+    if (process.client) {
+        setRecentWatched()
+        lazyAllMedia.value = [...allMedia.value.slice(0, 50)]
+
+        setTrailerTimeout(0)
+        window.addEventListener("scroll", addMediaOnScroll)
+    }
 })
 
 onBeforeUnmount(() => {
-    clearTimeout(timeoutId)
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    if (process.client) {
+        clearTimeout(timeoutId)
+        window.scrollTo({ top: 0, behavior: 'instant' })
+    }
 })
 
 onUnmounted(() => {
-    window.removeEventListener("scroll", addMediaOnScroll)
+    if (process.client) {
+        window.removeEventListener("scroll", addMediaOnScroll)
+    }
 })
 
 watch(allMedia, () => {
@@ -107,12 +118,7 @@ const nextTrailer = (index) => {
 }
 
 const navigateToMedia = (mediaId) => {
-    navigateTo({
-        path: "/media",
-        query: {
-            id: mediaId,
-        }
-    })
+    navigateTo(`/media/${mediaId}`)
 }
 
 // Needs refactoring
