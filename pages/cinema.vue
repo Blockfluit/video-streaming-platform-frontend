@@ -51,7 +51,7 @@ function openFullscreen() {
 }
 
 function clearChat() {
-    fetch('http://localhost:3010/' + 'clear-chat')
+    fetch(config.public.cinemaURL + 'clear-chat')
         .then()
         .catch((err) => console.log(err))
     chatMessages.value = []
@@ -67,7 +67,7 @@ function sendChat() {
 
 onBeforeMount(() => {
     // config.public.cinemaURL
-    socket = io('http://localhost:3010/', {
+    socket = io(config.public.cinemaURL, {
         query: {
             name: `${jwtStore.getSubject}`
         }
