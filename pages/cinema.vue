@@ -20,7 +20,6 @@ definePageMeta({
 });
 
 let hb;
-let intervalId;
 let socket
 
 async function setSession() {
@@ -51,6 +50,13 @@ function openFullscreen() {
     }
 }
 
+function clearChat() {
+    fetch('http://localhost:3010/' + 'clear-chat')
+        .then()
+        .catch((err) => console.log(err))
+    chatMessages.value = []
+}
+
 function sendChat() {
     if (chatInput.value === "") {
         return
@@ -60,7 +66,8 @@ function sendChat() {
 }
 
 onBeforeMount(() => {
-    socket = io(config.public.cinemaURL, {
+    // config.public.cinemaURL
+    socket = io('http://localhost:3010/', {
         query: {
             name: `${jwtStore.getSubject}`
         }
@@ -78,7 +85,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
     hb.destroy()
-    clearInterval(intervalId)
 })
 </script>
 <template>
@@ -124,6 +130,8 @@ onUnmounted(() => {
 
         <!-- Dellekes Chat -->
         <div class="chat-container">
+            <span v-if="jwtStore.isAdmin" @click="clearChat()" class="clear-btn">Clear
+                chat</span>
             <ul class="message-list" ref="chatBox">
                 <template v-for="chat in chatMessages.slice().reverse()">
                     <li><span class="msg-time">{{ chat.timestamp
@@ -164,6 +172,20 @@ onUnmounted(() => {
     overflow: hidden;
     background-color: var(--background-color-100);
     margin-bottom: 50px;
+}
+
+.clear-btn {
+    padding: 5px 10px;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    user-select: none;
+}
+
+.clear-btn:hover {
+    color: var(--primary-color-100);
+    cursor: pointer;
 }
 
 .message-list {
