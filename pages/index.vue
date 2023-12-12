@@ -30,7 +30,6 @@ onBeforeMount(() => {
         mainStore.setAllGenres()
         mainStore.setLastWatchedUsers()
     }
-
 })
 
 onMounted(() => {
