@@ -51,10 +51,8 @@ function openFullscreen() {
 }
 
 function clearChat() {
-    fetch(config.public.cinemaURL + 'clear-chat')
-        .then()
-        .catch((err) => console.log(err))
-    chatMessages.value = []
+    const emptyArray = []
+    socket.emit("clear-chat", emptyArray)
 }
 
 function sendChat() {
@@ -67,20 +65,19 @@ function sendChat() {
 
 onBeforeMount(() => {
     // config.public.cinemaURL
-    socket = io(config.public.cinemaURL, {
+    socket = io("http://localhost:3010", {
         query: {
             name: `${jwtStore.getSubject}`
         }
     });
     socket.on('connection', (users) => activeUsers.value = users)
-    socket.on("chat-message", (messages) => {
-        chatMessages.value = messages
-
-    })
+    socket.on("chat-message", (messages) => chatMessages.value = messages)
+    socket.on("clear-chat", (messages) => chatMessages.value = messages)
 })
 
 onMounted(async () => {
     await setSession()
+    console.log(activeUsers.value)
 })
 
 onUnmounted(() => {
@@ -94,9 +91,11 @@ onUnmounted(() => {
             <div ref="HbCloudComputer" class="hyperbeam"></div>
             <div class="controls">
                 <div class="users">
-                    <div class="avatars" v-for="user in activeUsers">
-                        {{ user }}
-                    </div>
+                    <template v-for="user in new Set(activeUsers)">
+                        <div class="avatars">
+                            {{ user }}
+                        </div>
+                    </template>
                 </div>
                 <div class="control-buttons">
                     <button v-if="jwtStore.isAdmin" class="take-cursor" :class="cursorDisabledAdmin ? '' : 'active'"
