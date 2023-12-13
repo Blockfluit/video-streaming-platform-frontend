@@ -42,7 +42,6 @@ onBeforeMount(() => {
     }
 })
 
-
 watch(lastVideo, (n, o) => {
     const intervalId = setInterval(() => {
         if (scrollAttempts < 0) {

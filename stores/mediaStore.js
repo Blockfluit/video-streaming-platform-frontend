@@ -7,7 +7,14 @@ export const useMediaStore = defineStore("mediaStore", {
         config: useRuntimeConfig(),
         jwtStore: useJwtStore(),
         watchStore: useWatchStore(),
-        media: useLocalStorage("media", { name: "", videos: [], genre: [], actors: [], seasons: [] }),
+        media: useLocalStorage("media", { 
+            name: "", 
+            videos: [], 
+            genre: [], 
+            actors: [], 
+            seasons: [], 
+            ratings: [] 
+        }),
     }),
     actions: {
         async setMedia(id) {

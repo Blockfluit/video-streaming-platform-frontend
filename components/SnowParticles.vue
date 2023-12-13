@@ -13,8 +13,9 @@ const img = getImage()
 onMounted(() => {
     init()
 
-    img.onload = () => {
+    img.onload = async () => {
         animate()
+        console.log("Particles started.")
     }
 
     window.addEventListener("resize", init)
@@ -34,7 +35,7 @@ function init() {
     ctx = canvas.value.getContext("2d")
     width = window.innerWidth
     height = window.innerHeight
-    sizeMod = height / 1080
+    sizeMod = width / 1920
 
     ctx.canvas.width = width
     ctx.canvas.height = height
@@ -51,10 +52,10 @@ function getImage() {
 function addParticle(posY) {
     const speedFactor = (0.15 + (Math.random() * 0.3))
     const rotationFactor = speedFactor * (-0.3 + (Math.random() * 0.6))
-    const sizeFactor = (-0.1 + (Math.random() * 0.2)) + 1.5
+    const sizeFactor = (-0.1 + (Math.random() * 0.2)) + 2
 
     const particle = {
-        posX: Math.random() * width,
+        posX: Math.random() * width - (img.height * sizeFactor * sizeMod),
         posY: posY ?? -(img.height * sizeFactor * sizeMod),
         speedY: speedFactor,
         rotation: 0,
@@ -112,8 +113,7 @@ function animate() {
 </script>
 
 <template>
-    <canvas :key="canvasKey"
-            ref="canvas"></canvas>
+    <canvas ref="canvas"></canvas>
 </template>
 
 <style scoped>

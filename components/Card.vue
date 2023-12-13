@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia';
 import { useMainStore } from '~/stores/mainStore';
 import { useJwtStore } from '~/stores/jwtStore';
+import { useWatchlistStore } from "~/stores/watchlistStore";
 
 const props = defineProps({
     shownMedia: {},
@@ -10,6 +11,7 @@ const props = defineProps({
 
 const mainStore = useMainStore()
 const jwtStore = useJwtStore()
+const watchlistStore = useWatchlistStore()
 
 const { watched } = storeToRefs(mainStore)
 
@@ -41,13 +43,6 @@ function getLastVideo(mediaId) {
 function navigationHandler(mediaId, showLastVideo) {
     if (showLastVideo) {
         const lastWatched = getLastVideo(mediaId)
-        // navigateTo({
-        //     name: "/media/:mediaId/videoId/:videoId",
-        //     params: {
-        //         mediaId: mediaId,
-        //         videoId: lastWatched.videoId
-        //     }
-        // })
         navigateTo(`/media/${mediaId}/watch/${lastWatched.videoId}`)
         return
     }
@@ -75,6 +70,7 @@ function navigationHandler(mediaId, showLastVideo) {
                  @mouseleave="showExtraInformation = false"
                  v-if="showExtraInformation"
                  class="show-rating">
+                <p @click="watchlistStore.addWatchlist(shownMedia.id)">test</p>
                 <div v-if="shownMedia.rating >= 1">
                     <template v-for="star in 5">
                         <Icon class="star"

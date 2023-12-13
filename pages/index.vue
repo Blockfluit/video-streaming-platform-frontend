@@ -14,7 +14,7 @@ const currentTrailerIndex = ref()
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 const filteredMedia = ref(new Set())
-const lazyAllMedia = ref()
+const lazyAllMedia = ref([])
 const recentWatched = ref([])
 
 const iframe = ref()
