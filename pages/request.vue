@@ -2,10 +2,6 @@
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMainStore } from '~/stores/mainStore';
 
-definePageMeta({
-    layout: "main",
-});
-
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 const mainStore = useMainStore()
@@ -73,7 +69,7 @@ const getRequests = () => {
             return response.json()
         }
     }).then((data) => {
-        allRequests.value = data
+        allRequests.value = data.allMediaRequests
     }).catch(e => {
         console.log(e)
         alert(e)
@@ -355,7 +351,7 @@ table {
     width: 100%;
     height: fit-content;
     border-radius: 5px;
-    background-color: #282828;
+    background-color: #282828c7;
     border-collapse: collapse;
     border-width: 0px;
     border-color: #FFFFFF;
@@ -397,4 +393,5 @@ select option {
     background-color: var(--background-color-200);
     color: var(--primary-color-100);
 
-}</style>
+}
+</style>

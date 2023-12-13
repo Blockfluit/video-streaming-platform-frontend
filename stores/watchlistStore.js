@@ -19,10 +19,9 @@ export const useWatchlistStore = defineStore("watchlistStore", {
                 if (response.status >= 200 && response.status < 300) {
                     return response.json()
                 }
-            }).then((data)=> {
-                this.watchlist = data
-            })
-            .catch(e => {
+            }).then((data) => {
+                this.watchlist = data.watchlist
+            }).catch(e => {
                 console.log(e)
                 alert(e)
             })

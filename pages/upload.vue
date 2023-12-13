@@ -4,10 +4,6 @@ import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
 import { storeToRefs } from 'pinia';
 
-definePageMeta({
-    layout: "main",
-});
-
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
@@ -371,4 +367,5 @@ const addMedia = () => {
     object-fit: cover;
     width: 300px;
     height: 450px;
-}</style>
+}
+</style>

@@ -14,17 +14,20 @@ const jwtStore = useJwtStore()
 const watchlistStore = useWatchlistStore()
 
 const { watched } = storeToRefs(mainStore)
+const { watchlist } = storeToRefs(watchlistStore)
 
 const config = useRuntimeConfig()
 const showExtraInformation = ref(false)
 const timePercentage = ref(0)
-
+const onWatchlist = ref(false)
 
 onBeforeMount(() => {
     const lastWatched = getLastVideo(props.shownMedia.id)
     if (timePercentage.value !== undefined) {
         timePercentage.value = lastWatched.timestamp / lastWatched.duration * 100
     }
+
+    setOnWatchlist()
 })
 
 watch(watched, (o, n) => {
@@ -35,18 +38,45 @@ watch(watched, (o, n) => {
 },
     { deep: true })
 
+watch(watchlist, (n, o) => {
+    setOnWatchlist()
+})
+
+function setOnWatchlist() {
+    onWatchlist.value = watchlist.value.find(media => props.shownMedia.id === media.id) !== undefined
+}
+
 function getLastVideo(mediaId) {
     return watched.value.filter(entry => entry.mediaId === mediaId)
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0] ?? {}
 }
 
-function navigationHandler(mediaId, showLastVideo) {
+function navigationHandler(mediaId, showLastVideo, e) {
+    if (e !== undefined &&
+        (e.target.parentNode.id === "ignore-navigation")) {
+        return
+    }
+
     if (showLastVideo) {
         const lastWatched = getLastVideo(mediaId)
         navigateTo(`/media/${mediaId}/watch/${lastWatched.videoId}`)
         return
     }
     navigateTo(`/media/${mediaId}`)
+}
+
+async function addToWatchlist(mediaId) {
+    onWatchlist.value = true
+
+    await watchlistStore.addWatchlist(mediaId)
+    watchlistStore.setWatchlist()
+}
+
+async function removeFromWatchlist(mediaId) {
+    onWatchlist.value = false
+
+    await watchlistStore.deleteWatchlist(mediaId)
+    watchlistStore.setWatchlist()
 }
 </script>
 
@@ -66,11 +96,19 @@ function navigationHandler(mediaId, showLastVideo) {
                 </div>
                 <span class="last-video-name">{{ getLastVideo(shownMedia.id).name }}</span>
             </div>
-            <div @click="navigationHandler(shownMedia.id, showLastVideo)"
+            <div @click="(e) => navigationHandler(shownMedia.id, showLastVideo, e)"
                  @mouseleave="showExtraInformation = false"
                  v-if="showExtraInformation"
                  class="show-rating">
-                <p @click="watchlistStore.addWatchlist(shownMedia.id)">test</p>
+                <button @click="onWatchlist ? removeFromWatchlist(shownMedia.id) : addToWatchlist(shownMedia.id)"
+                        id="ignore-navigation"
+                        class="watchlist-button">
+                    <Icon name="fa-solid:heart"
+                          id="ignore-navigation"
+                          class="watchlist-icon"
+                          :style="{ color: onWatchlist ? 'var(--primary-color-100)' : 'var(--text-color-2)' }" />
+                </button>
+                <div style="flex-grow: 1;"></div>
                 <div v-if="shownMedia.rating >= 1">
                     <template v-for="star in 5">
                         <Icon class="star"
@@ -82,6 +120,7 @@ function navigationHandler(mediaId, showLastVideo) {
                     <h3>No Rating</h3>
                 </div>
                 <span v-if="jwtStore.isAdmin">{{ shownMedia.views }} unique views</span>
+                <div style="flex-grow: 1;"></div>
             </div>
         </div>
         <div @click="navigationHandler(shownMedia.id)"
@@ -106,6 +145,27 @@ img {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.watchlist-button {
+    z-index: 4;
+    align-self: flex-end;
+    padding: 0;
+    margin: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.watchlist-icon {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
+    margin: 0;
+}
+
+.watchlist-icon:hover {
+    color: var(--primary-color-500) !important;
 }
 
 .star {

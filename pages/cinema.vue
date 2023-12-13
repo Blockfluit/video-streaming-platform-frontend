@@ -15,10 +15,6 @@ const chatInput = ref("")
 const chatBox = ref()
 const config = useRuntimeConfig()
 
-definePageMeta({
-    layout: "main",
-});
-
 let hb;
 let socket
 
@@ -470,4 +466,5 @@ input[type="range"]:focus::-moz-range-thumb {
         margin: 0;
         margin-bottom: 25px;
     }
-}</style>
+}
+</style>

@@ -3,7 +3,8 @@
 
 <template>
     <div>
-        <Navbar/>
+        <SnowParticles />
+        <Navbar />
         <div>
             <slot />
         </div>

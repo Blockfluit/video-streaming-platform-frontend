@@ -1,4 +1,8 @@
 <script setup>
+definePageMeta({
+    layout: false,
+});
+
 const config = useRuntimeConfig()
 
 const isReset = ref(false)
@@ -63,21 +67,35 @@ const reset = () => {
 
 <template>
     <div class="container">
-        <form v-if="!isReset" @submit.prevent="sendMail">
+        <form v-if="!isReset"
+              @submit.prevent="sendMail">
             <div class="container-mail">
                 <header>RESET PASSWORD</header>
                 <section>A mail will be send to the email you provide with a reset token.</section>
-                <input v-model="email" type="email" placeholder="email">
+                <input v-model="email"
+                       type="email"
+                       placeholder="email">
                 <button type="submit">Send Mail</button>
             </div>
         </form>
-        <form v-if="isReset" @submit.prevent="reset">
+        <form v-if="isReset"
+              @submit.prevent="reset">
             <div class="container-mail">
                 <header>RESET PASSWORD</header>
                 <section>Please provide a new password.</section>
-                <input v-model="password" type="password" placeholder="new password" required>
-                <input v-model="passwordConfirm" type="password" placeholder="confirm password" required>
-                <input v-if="hideToken" v-model="token" type="text" placeholder="token" required>
+                <input v-model="password"
+                       type="password"
+                       placeholder="new password"
+                       required>
+                <input v-model="passwordConfirm"
+                       type="password"
+                       placeholder="confirm password"
+                       required>
+                <input v-if="hideToken"
+                       v-model="token"
+                       type="text"
+                       placeholder="token"
+                       required>
                 <button type="submit">Change Password</button>
             </div>
         </form>
@@ -104,6 +122,7 @@ input {
     margin: 4px;
     width: 80%;
 }
+
 input::placeholder {
     text-align: center;
 }
@@ -120,6 +139,7 @@ button {
     height: 40px;
     margin: 20px;
 }
+
 button:hover {
     cursor: pointer;
     background-color: var(--primary-color-100);

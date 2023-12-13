@@ -203,17 +203,16 @@ function navigateToMedia(mediaId) {
 
 <style scoped>
 .container {
-    position: fixed;
-    top: 0;
+    position: absolute;
     width: 100%;
-    height: 100%;
+    height: calc(100% - var(--navbar-height));
     z-index: 100;
-    left: 0;
     background-color: rgb(0, 0, 0);
 }
 
 .container video {
     position: absolute;
+    top: 0;
     width: 100%;
     height: 100%;
 }

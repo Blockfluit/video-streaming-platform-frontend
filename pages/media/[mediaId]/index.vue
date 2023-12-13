@@ -4,10 +4,6 @@ import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
 import { useJwtStore } from "~/stores/jwtStore";
 
-definePageMeta({
-    layout: "main",
-});
-
 const config = useRuntimeConfig()
 
 const mainStore = useMainStore()

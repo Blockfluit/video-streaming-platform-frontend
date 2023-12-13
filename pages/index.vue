@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 
 const mainStore = useMainStore()
 
-const { allMedia, watched, searchbox, lastWatchedUsers } = storeToRefs(mainStore)
+const { allMedia, watched, searchbox, lastWatched } = storeToRefs(mainStore)
 
 const recentMedia = ref([{ name: "" }])
 let timeoutId
@@ -19,16 +19,12 @@ const recentWatched = ref([])
 
 const iframe = ref()
 
-definePageMeta({
-    layout: "main",
-});
-
 onBeforeMount(() => {
     if (process.client) {
         mainStore.setAllMedia()
         mainStore.setWatched()
         mainStore.setAllGenres()
-        mainStore.setLastWatchedUsers()
+        mainStore.setLastWatched()
     }
 })
 
@@ -203,7 +199,7 @@ const doFilter = async () => {
             </div>
             <div>
                 <h2 class="carousel-title">What others are watching</h2>
-                <CardRow :allMedia="lastWatchedUsers" />
+                <CardRow :allMedia="lastWatched" />
             </div>
             <div>
                 <h2 class="carousel-title">25 Most Viewed</h2>
