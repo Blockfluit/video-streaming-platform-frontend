@@ -1,7 +1,6 @@
 <template>
     <VitePwaManifest />
     <NuxtLayout>
-        <SnowParticles />
         <NuxtPage />
     </NuxtLayout>
 </template>

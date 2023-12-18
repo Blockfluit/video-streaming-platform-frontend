@@ -2,10 +2,6 @@
 import { storeToRefs } from "pinia";
 import { useMainStore } from "~/stores/mainStore";
 
-definePageMeta({
-    layout: "main",
-});
-
 const mainStore = useMainStore()
 
 const { allMedia, searchbox, allGenres, watched, allMovies } = storeToRefs(mainStore)

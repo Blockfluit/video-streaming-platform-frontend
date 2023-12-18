@@ -2,10 +2,6 @@
 import { storeToRefs } from 'pinia';
 import { useAdminStore } from '~/stores/adminStore';
 
-definePageMeta({
-    layout: "main",
-});
-
 const adminStore = useAdminStore()
 
 const { users, tokens } = storeToRefs(adminStore)
@@ -230,7 +226,7 @@ form {
 table {
     width: 100%;
     height: fit-content;
-    background-color: #282828;
+    background-color: #282828c7;
     border-collapse: collapse;
     border-width: 0px;
     border-color: #FFFFFF;

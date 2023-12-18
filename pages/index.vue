@@ -2,9 +2,10 @@
 import { useMainStore } from "~/stores/mainStore";
 import { storeToRefs } from 'pinia'
 
+const config = useRuntimeConfig()
 const mainStore = useMainStore()
 
-const { allMedia, watched, searchbox, lastWatchedUsers } = storeToRefs(mainStore)
+const { allMedia, watched, searchbox, lastWatched } = storeToRefs(mainStore)
 
 const recentMedia = ref([{ name: "" }])
 let timeoutId
@@ -14,21 +15,17 @@ const currentTrailerIndex = ref()
 const trailerMediaId = ref(0)
 const trailerMedia = ref(recentMedia.value[trailerMediaId.value])
 const filteredMedia = ref(new Set())
-const lazyAllMedia = ref()
+const lazyAllMedia = ref([])
 const recentWatched = ref([])
 
 const iframe = ref()
-
-definePageMeta({
-    layout: "main",
-});
 
 onBeforeMount(() => {
     if (process.client) {
         mainStore.setAllMedia()
         mainStore.setWatched()
         mainStore.setAllGenres()
-        mainStore.setLastWatchedUsers()
+        mainStore.setLastWatched()
     }
 })
 
@@ -156,6 +153,8 @@ const doFilter = async () => {
 
 <template>
     <div class="container">
+        <span style="position: fixed; top: calc(var(--navbar-height) + 8px); color: var(--background-color-400);">Build: {{
+            config.public.build }}</span>
         <div v-if="searchbox === ''"
              class="container-trailer">
             <div class="container-information">
@@ -203,7 +202,7 @@ const doFilter = async () => {
             </div>
             <div>
                 <h2 class="carousel-title">What others are watching</h2>
-                <CardRow :allMedia="lastWatchedUsers" />
+                <CardRow :allMedia="lastWatched" />
             </div>
             <div>
                 <h2 class="carousel-title">25 Most Viewed</h2>

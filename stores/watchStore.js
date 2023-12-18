@@ -12,15 +12,16 @@ export const useWatchStore = defineStore("watchStore", {
         mediaStore: useMediaStore(),
         startTime: 0,
         volume: useLocalStorage("watch-volume", 0.5),
-        video: useLocalStorage("video", {}),
-        nextVideo: useLocalStorage("next-video", {}),
-        previousVideo: useLocalStorage("previous-video", {}),
+        video: {},
+        nextVideo: {},
+        previousVideo: {},
     }),
     actions: {
         async setVideo(mediaId, videoId) {
             const promise1 = this.mainStore.setWatched()
                 .then(() => {
-                    this.startTime = this.mainStore.watched.find(entry => entry.videoId === videoId).timestamp
+                    const video = this.mainStore.watched.find(entry => entry.videoId === videoId)
+                    this.startTime = video === undefined ? 0 : video.timestamp
                 })
             const promise2 = this.mediaStore.setMedia(mediaId)
                 .then(() => {

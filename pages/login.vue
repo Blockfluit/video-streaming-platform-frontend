@@ -1,6 +1,11 @@
 <script setup>
 import { storeToRefs } from "pinia";
 import { useJwtStore } from "~/stores/jwtStore"
+
+definePageMeta({
+    layout: false,
+});
+
 const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
 
@@ -41,14 +46,22 @@ const login = (username, password) => {
 <template>
     <div class="container">
         <a href="https://dellekes.nl">
-            <img src="/icons/dellekes_logo.png" alt="logo" class="logo">
+            <img src="/icons/dellekes_logo.png"
+                 alt="logo"
+                 class="logo">
         </a>
         <form @submit.prevent="login(username, password)">
             <div class="container-login">
                 <!-- <header>Login</header> -->
                 <span style="text-align: center; margin-bottom: 10px;">Please enter your username and password</span>
-                <input v-model="username" type="text" placeholder="Username" required>
-                <input v-model="password" type="password" placeholder="Password" required>
+                <input v-model="username"
+                       type="text"
+                       placeholder="Username"
+                       required>
+                <input v-model="password"
+                       type="password"
+                       placeholder="Password"
+                       required>
                 <!-- <div style="display: flex; justify-content: center;">
                     <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
                     </span>

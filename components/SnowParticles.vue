@@ -1,43 +1,49 @@
 <script setup>
 const canvas = ref()
 
-const particleCount = 5
+const fps = 60
+const deltaFps = 1000 / fps
+const maxParticles = 15
+const avgParticles = 5
 
-let ctx
 let particles = new Set()
-let width, height, sizeMod
-let canvasKey = ref(0)
+let ctx, width, height, sizeMod
+let startT = performance.now()
 
 const img = getImage()
 
 onMounted(() => {
     init()
 
-    img.onload = () => {
+    img.onload = async () => {
         animate()
     }
 
     window.addEventListener("resize", init)
-    window.addEventListener("mouseup", () => addParticle())
-
-    for (let i = 0; i < particleCount; i++) {
-        addParticle(Math.random() * height)
-    }
+    window.addEventListener("mouseup", clickAddParticle)
 })
 
 onBeforeUnmount(() => {
     window.removeEventListener("resize", init)
-    window.removeEventListener("mouseup", () => addParticle())
+    window.removeEventListener("mouseup", clickAddParticle)
 })
 
 function init() {
     ctx = canvas.value.getContext("2d")
     width = window.innerWidth
     height = window.innerHeight
-    sizeMod = height / 1080
+    sizeMod = 1.1 - ((1920 / width) * 0.09)
 
     ctx.canvas.width = width
     ctx.canvas.height = height
+
+    particles.clear()
+
+    for (let i = 0; i < avgParticles; i++) {
+        addParticle({
+            posY: (Math.random() * height)
+        })
+    }
 }
 
 function getImage() {
@@ -48,17 +54,29 @@ function getImage() {
     return img
 }
 
-function addParticle(posY) {
-    const speedFactor = (0.15 + (Math.random() * 0.3))
+function clickAddParticle() {
+    if (particles.size > maxParticles) {
+        return
+    }
+
+    addParticle({
+        speedY: Math.random() + 2
+    })
+}
+
+function addParticle(options) {
+    if (options === undefined) options = {}
+
+    const speedFactor = options.speedY ?? (0.2 + (Math.random() * 0.4))
     const rotationFactor = speedFactor * (-0.3 + (Math.random() * 0.6))
-    const sizeFactor = (-0.1 + (Math.random() * 0.2)) + 1.5
+    const sizeFactor = (-0.1 + (Math.random() * 0.2)) + 2
 
     const particle = {
-        posX: Math.random() * width,
-        posY: posY ?? -(img.height * sizeFactor * sizeMod),
-        speedY: speedFactor,
+        posX: Math.random() * width - (img.height * sizeFactor * sizeMod),
+        posY: options.posY ?? -(img.height * sizeFactor * sizeMod),
+        speedY: speedFactor * 2,
         rotation: 0,
-        rotationSpeed: rotationFactor,
+        rotationSpeed: rotationFactor * 2,
         size: sizeFactor
     }
 
@@ -67,7 +85,8 @@ function addParticle(posY) {
 
 function killParticles() {
     particles.forEach(particle => {
-        if (particle.posY > height) {
+        if (particle.posY > height ||
+            particle.posX > width) {
             particles.delete(particle)
         }
     })
@@ -90,7 +109,7 @@ function drawParticles() {
         ctx.translate(particle.posX + particleCenterX, particle.posY + particleCenterY)
         ctx.rotate(particle.rotation * Math.PI / 180);
         ctx.translate(-(particle.posX + particleCenterX), -(particle.posY + particleCenterY))
-        ctx.globalAlpha = (0.2 - (particle.posY / height * 0.1))
+        ctx.globalAlpha = (0.2 - (particle.posY / height * 0.18))
         ctx.drawImage(img, particle.posX, particle.posY, img.width * particle.size * sizeMod, img.height * particle.size * sizeMod)
         ctx.globalAlpha = 1
 
@@ -100,20 +119,29 @@ function drawParticles() {
 
 function animate() {
     requestAnimationFrame(animate)
+
+    const endT = performance.now()
+    const deltaT = endT - startT;
+
+    if (deltaT < deltaFps) return
+
     ctx.clearRect(0, 0, width, height);
 
-    if (particles.size < particleCount) {
+    if (particles.size < avgParticles) {
         addParticle()
     }
     killParticles()
     moveParticles()
     drawParticles()
+
+    startT = endT
 }
 </script>
 
 <template>
-    <canvas :key="canvasKey"
-            ref="canvas"></canvas>
+    <div>
+        <canvas ref="canvas"></canvas>
+    </div>
 </template>
 
 <style scoped>

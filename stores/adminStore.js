@@ -21,7 +21,7 @@ export const useAdminStore = defineStore("adminStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.users = data
+                this.users = data.allUsers
             }).catch(e => {
                 console.log(e)
             })

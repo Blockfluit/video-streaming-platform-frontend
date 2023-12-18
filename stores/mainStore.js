@@ -13,7 +13,7 @@ export const useMainStore = defineStore("mainStore", {
         allSeries: useLocalStorage("all-series", []),
         allGenres: useLocalStorage("all-genres", []),
         allActors: useLocalStorage("all-actors", []),
-        lastWatchedUsers: useLocalStorage("last-watched-users", []),
+        lastWatched: useLocalStorage("last-watched", []),
         watched: useLocalStorage("watched", []),
         searchbox: "",
     }),
@@ -31,9 +31,9 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.allMedia = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-                this.allMovies = data.filter(media => media["type"] === "MOVIE")
-                this.allSeries = data.filter(media => media["type"] === "SERIES")
+                this.allMedia = data.allMedia.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                this.allMovies = data.allMedia.filter(media => media["type"] === "MOVIE")
+                this.allSeries = data.allMedia.filter(media => media["type"] === "SERIES")
             }).catch(e => {
                 console.log(e)
             })
@@ -51,7 +51,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.watched = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                this.watched = data.allWatched.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
             }).catch(e => {
                 console.log(e)
             })
@@ -69,7 +69,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.allGenres = data.map(a => a.name)
+                this.allGenres = data.allGenres.map(a => a.name)
                     .sort()
             }).catch(e => {
                 console.log(e)
@@ -88,12 +88,12 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.allActors = data
+                this.allActors = data.allActors
             }).catch(e => {
                 console.log(e)
             })
         },
-        async setLastWatchedUsers() {
+        async setLastWatched() {
             return fetch(this.config.public.baseURL + "/media/last-watched", {
                 method: "GET",
                 headers: {
@@ -106,7 +106,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.lastWatchedUsers = data.slice(0, 50)
+                this.lastWatched = data.lastWatched.slice(0, 50)
             }).catch(e => {
                 console.log(e)
             })

@@ -5,10 +5,6 @@ import { useEditStore } from '~/stores/editStore'
 import { storeToRefs } from 'pinia';
 import { useMediaStore } from '~/stores/mediaStore';
 
-definePageMeta({
-    layout: "main",
-});
-
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
