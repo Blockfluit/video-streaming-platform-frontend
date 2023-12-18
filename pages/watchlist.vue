@@ -43,6 +43,7 @@ ul {
     width: 100%;
     justify-content: center;
     flex-wrap: wrap;
+    padding: 0;
 }
 
 li {

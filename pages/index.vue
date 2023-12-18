@@ -2,6 +2,7 @@
 import { useMainStore } from "~/stores/mainStore";
 import { storeToRefs } from 'pinia'
 
+const config = useRuntimeConfig()
 const mainStore = useMainStore()
 
 const { allMedia, watched, searchbox, lastWatched } = storeToRefs(mainStore)
@@ -152,6 +153,8 @@ const doFilter = async () => {
 
 <template>
     <div class="container">
+        <span style="position: fixed; top: calc(var(--navbar-height) + 8px); color: var(--background-color-400);">Build: {{
+            config.public.build }}</span>
         <div v-if="searchbox === ''"
              class="container-trailer">
             <div class="container-information">

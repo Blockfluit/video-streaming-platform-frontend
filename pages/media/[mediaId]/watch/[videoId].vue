@@ -41,15 +41,12 @@ onMounted(() => {
 
         setTimeout(() => { showOverlay.value = false }, 3000)
         clearInterval(updateIntervalId)
-        updateIntervalId = setInterval(() => {
-            watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
-        }, 5000)
+        updateIntervalId = setInterval(() => updateWatched(), 5000)
     }
 })
 
 onBeforeUnmount(() => {
     if (process.client) {
-        watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
         volume.value = videoElement.value.volume
 
         window.removeEventListener("mousemove", resetOverlay)
@@ -75,6 +72,11 @@ function resetOverlay() {
     timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
 }
 
+function updateWatched() {
+    if (videoElement.value === undefined) return
+    watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
+}
+
 async function playVideo(videoId, time) {
     if (videoId === undefined) {
         clearInterval(intervalId)
@@ -86,7 +88,13 @@ async function playVideo(videoId, time) {
         await watchStore.setVideo(currentMediaId, videoId)
         videoElement.value.load()
         videoElement.value.currentTime = time !== undefined ? time : getStartTime()
-        videoElement.value.play()
+        videoElement.value.addEventListener("loadeddata", () => {
+            if (videoElement.value === null) return
+
+            videoElement.value.play()
+                .catch(e => e)
+        })
+        videoElement.value.addEventListener("seeking", updateWatched)
 
         useRouter()
             .push(`/media/${currentMediaId}/watch/${videoId}`)
@@ -98,7 +106,7 @@ function playVideoWithCountdown(videoId) {
     const countdownInSec = 5
     countdownTimer.value = countdownInSec
 
-    watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
+    updateWatched()
 
     intervalId = setInterval(() => {
         countdownTimer.value--

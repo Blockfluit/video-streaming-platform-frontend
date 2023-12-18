@@ -1,12 +1,14 @@
 <script setup>
 const canvas = ref()
 
+const fps = 60
+const deltaFps = 1000 / fps
 const maxParticles = 15
 const avgParticles = 5
 
-let ctx
 let particles = new Set()
-let width, height, sizeMod
+let ctx, width, height, sizeMod
+let startT = performance.now()
 
 const img = getImage()
 
@@ -72,9 +74,9 @@ function addParticle(options) {
     const particle = {
         posX: Math.random() * width - (img.height * sizeFactor * sizeMod),
         posY: options.posY ?? -(img.height * sizeFactor * sizeMod),
-        speedY: speedFactor,
+        speedY: speedFactor * 2,
         rotation: 0,
-        rotationSpeed: rotationFactor,
+        rotationSpeed: rotationFactor * 2,
         size: sizeFactor
     }
 
@@ -117,6 +119,12 @@ function drawParticles() {
 
 function animate() {
     requestAnimationFrame(animate)
+
+    const endT = performance.now()
+    const deltaT = endT - startT;
+
+    if (deltaT < deltaFps) return
+
     ctx.clearRect(0, 0, width, height);
 
     if (particles.size < avgParticles) {
@@ -125,6 +133,8 @@ function animate() {
     killParticles()
     moveParticles()
     drawParticles()
+
+    startT = endT
 }
 </script>
 
