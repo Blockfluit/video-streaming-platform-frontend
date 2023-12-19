@@ -52,7 +52,7 @@ export default defineNuxtConfig({
         public: {
             baseURL: process.env.BASE_URL || 'https://api.yourdomain.nl/api/v1',
             cinemaURL: "https://cinema.yourapi.com/"
-            build: Math.floor(1000000 + Math.random() * 999999).toFixed(0),
+            build: Math.floor(100000 + Math.random() * 900000).toString(),
         },
     },
     css: [

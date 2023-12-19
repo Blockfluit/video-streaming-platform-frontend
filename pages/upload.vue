@@ -34,6 +34,10 @@ onMounted(() => {
     }
 })
 
+watch(allActors, (n, o) => {
+    filterActors(searchActors.value)
+})
+
 const thumbnailHandler = (e) => {
     if (!acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
         alert("Invalid File extension")
@@ -165,6 +169,7 @@ const addMedia = () => {
                 <div>
                     <label>Search actor:</label>
                     <input class="input-field"
+                           @keyup="filterActors(searchActors)"
                            v-model="searchActors"
                            placeholder="Search actor"
                            type="search">

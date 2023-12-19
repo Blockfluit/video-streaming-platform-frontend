@@ -14,6 +14,7 @@ export const useMainStore = defineStore("mainStore", {
         allGenres: useLocalStorage("all-genres", []),
         allActors: useLocalStorage("all-actors", []),
         lastWatched: useLocalStorage("last-watched", []),
+        recommendations: useLocalStorage("recommendations", []),
         watched: useLocalStorage("watched", []),
         searchbox: "",
     }),
@@ -24,7 +25,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${this.jwtStore.jwt}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -44,7 +45,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${this.jwtStore.jwt}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -62,7 +63,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${this.jwtStore.jwt}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -81,7 +82,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${this.jwtStore.jwt}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -99,7 +100,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${this.jwtStore.jwt}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -107,6 +108,24 @@ export const useMainStore = defineStore("mainStore", {
                 }
             }).then((data) => {
                 this.lastWatched = data.lastWatched.slice(0, 50)
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+        async setRecommendations() {
+            return fetch(this.config.public.baseURL + "/recommendations", {
+                method: "GET",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+            }).then((data) => {
+                this.recommendations = data.recommendations.slice(0, 50)
             }).catch(e => {
                 console.log(e)
             })

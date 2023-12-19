@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 
-const { allMedia, watched, searchbox, lastWatched } = storeToRefs(mainStore)
+const { allMedia, watched, searchbox, lastWatched, recommendations } = storeToRefs(mainStore)
 
 const recentMedia = ref([{ name: "" }])
 let timeoutId
@@ -26,6 +26,7 @@ onBeforeMount(() => {
         mainStore.setWatched()
         mainStore.setAllGenres()
         mainStore.setLastWatched()
+        mainStore.setRecommendations()
     }
 })
 
@@ -153,8 +154,9 @@ const doFilter = async () => {
 
 <template>
     <div class="container">
-        <span style="position: fixed; top: calc(var(--navbar-height) + 8px); color: var(--background-color-400);">Build: {{
-            config.public.build }}</span>
+        <span style="position: absolute; top: calc(var(--navbar-height) + 8px); color: var(--background-color-400);">Build:
+            {{
+                config.public.build }}</span>
         <div v-if="searchbox === ''"
              class="container-trailer">
             <div class="container-information">
@@ -196,22 +198,41 @@ const doFilter = async () => {
         </div>
         <div v-if="searchbox === ''">
             <div v-if="recentWatched.length > 0">
-                <h2 class="carousel-title">Continue Watching</h2>
+                <div class="container-title">
+                    <h2 class="carousel-title">Continue Watching</h2>
+                    <span class="carousel-title-count">{{ recentWatched.length }}</span>
+                </div>
                 <CardRow :allMedia="recentWatched"
                          :showLastVideo=true />
             </div>
-            <div>
-                <h2 class="carousel-title">What others are watching</h2>
+            <div v-if="recommendations.length > 0">
+                <div class="container-title">
+                    <h2 class="carousel-title">Tailored specifically to you</h2>
+                    <span class="carousel-title-count">{{ recommendations.length }}</span>
+                </div>
+                <CardRow :allMedia="recommendations" />
+            </div>
+            <div v-if="lastWatched.length > 0">
+                <div class="container-title">
+                    <h2 class="carousel-title">What others are watching</h2>
+                    <span class="carousel-title-count">{{ lastWatched.length }}</span>
+                </div>
                 <CardRow :allMedia="lastWatched" />
             </div>
             <div>
-                <h2 class="carousel-title">25 Most Viewed</h2>
+                <div class="container-title">
+                    <h2 class="carousel-title">Most Viewed</h2>
+                    <span class="carousel-title-count">25</span>
+                </div>
                 <CardRow :allMedia="[...allMedia]
                     .sort((a, b) => b.views - a.views)
                     .slice(0, 25)" />
             </div>
             <div>
-                <h2 class="carousel-title">25 Best Rated</h2>
+                <div class="container-title">
+                    <h2 class="carousel-title">Best Rated</h2>
+                    <span class="carousel-title-count">25</span>
+                </div>
                 <CardRow :allMedia="[...allMedia]
                     .sort((a, b) => {
                         if (a.rating < b.rating) return 1
@@ -318,10 +339,21 @@ h2 {
     margin-bottom: -15px;
 }
 
-.carousel-title {
+.container-title {
     margin: 40px 0 10px 0px;
-    font-weight: 800;
+    display: flex;
     user-select: none;
+    align-items: center;
+}
+
+.carousel-title {
+    margin-right: 8px;
+    font-weight: 800;
+}
+
+.carousel-title-count {
+    font-weight: 400;
+    color: var(--text-color-2);
 }
 
 .container-filtered-cards {

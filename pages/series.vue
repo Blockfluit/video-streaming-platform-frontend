@@ -130,16 +130,25 @@ async function doFilter() {
         </div>
         <div v-if="filters.length === 0 && searchbox === ''">
             <div v-if="recentWatched.length > 0">
-                <h2 class="carousel-title">Continue Watching</h2>
+                <div class="container-title">
+                    <h2 class="carousel-title">Continue Watching</h2>
+                    <span class="carousel-title-count">{{ recentWatched.length }}</span>
+                </div>
                 <CardRow :allMedia="recentWatched"
                          :showLastVideo=true />
             </div>
             <div v-if="recentUploaded.length > 0">
-                <h2 class="carousel-title">Recently uploaded</h2>
+                <div class="container-title">
+                    <h2 class="carousel-title">Recently uploaded</h2>
+                    <span class="carousel-title-count">{{ recentUploaded.length }}</span>
+                </div>
                 <CardRow :allMedia="recentUploaded" />
             </div>
             <div>
-                <h2 class="carousel-title">25 Most Viewed</h2>
+                <div class="container-title">
+                    <h2 class="carousel-title">Most Viewed</h2>
+                    <span class="carousel-title-count">25</span>
+                </div>
                 <CardRow :allMedia="[...allSeries].sort((a, b) => b.views - a.views).slice(0, 25)" />
             </div>
             <div>
@@ -178,6 +187,7 @@ async function doFilter() {
 
 <style scoped>
 h2 {
+    margin: 0;
     font-weight: 600;
 }
 
@@ -210,10 +220,21 @@ h2 {
     top: -100%;
 }
 
-.carousel-title {
+.container-title {
     margin: 40px 0 10px 0px;
-    font-weight: 800;
+    display: flex;
     user-select: none;
+    align-items: center;
+}
+
+.carousel-title {
+    margin-right: 8px;
+    font-weight: 800;
+}
+
+.carousel-title-count {
+    font-weight: 400;
+    color: var(--text-color-2);
 }
 
 .container {
