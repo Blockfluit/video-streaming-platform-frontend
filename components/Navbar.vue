@@ -21,6 +21,7 @@ const logout = () => {
 
 <template>
     <nav>
+
         <transition name="fadedown">
             <div v-if="showDropdown" @click="showDropdown = false" class="container-dropdown">
                 <NuxtLink @click="showDropdown = false" to="/" style="margin-top: 50px;">HOME</NuxtLink>
@@ -34,6 +35,7 @@ const logout = () => {
                 <span class="logout" @click="logout(); showDropdown = false">LOGOUT</span>
             </div>
         </transition>
+
         <div class="mobile-menu">
             <div style="display:flex; align-items: center;">
                 <NuxtLink class="logo-mobile" to="/">
@@ -52,6 +54,7 @@ const logout = () => {
             <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="solar:hamburger-menu-outline"
                 size="35px" />
         </div>
+
         <div class="desktop-nav">
             <div class="menu-left">
                 <NuxtLink class="logo-center" to="/">
@@ -76,8 +79,8 @@ const logout = () => {
                 </div>
             </div>
         </div>
+
     </nav>
-    <div class="placeholder"></div>
 </template>
 
 <style scoped>
@@ -147,6 +150,7 @@ svg {
     border-radius: 5px;
     padding-left: 20px;
     width: 100%;
+    max-width: 300px;
 }
 
 .logo-center {
@@ -212,12 +216,6 @@ span:hover {
     cursor: pointer;
 }
 
-.placeholder {
-    position: relative;
-    width: 100%;
-    height: var(--navbar-height);
-}
-
 .container-dropdown {
     display: flex;
     align-items: center;
@@ -250,6 +248,16 @@ span:hover {
     display: flex;
     align-items: center;
     padding: 0px 30px;
+    width: 50%;
+}
+
+.menu-left {
+    padding-right: 60px;
+}
+
+.menu-right {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .fade-enter-active,
@@ -277,10 +285,6 @@ span:hover {
 @media screen and (max-width: 992px) {
     .mobile-menu {
         display: flex;
-    }
-
-    nav {
-        justify-content: end;
     }
 
     .container-dropdown {
