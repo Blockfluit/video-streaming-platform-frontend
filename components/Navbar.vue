@@ -46,9 +46,9 @@ const logout = () => {
                         style="margin-left: 20px;">
                 </transition>
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="showSearchBox = true;"
-                    name="ph:magnifying-glass" size="25" class="search-icon-mobile" />
+                    name="ph:magnifying-glass" size="25px" class="search-icon-mobile" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="20"
+                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="25px"
                     class="search-icon" />
             </div>
             <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="solar:hamburger-menu-outline"
@@ -67,9 +67,9 @@ const logout = () => {
                         v-model="searchbox" type="text">
                 </transition>
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="showSearchBox = true"
-                    name="ph:magnifying-glass" size="25" />
+                    name="ph:magnifying-glass" size="25px" class="search-icon" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="20"
+                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="25px"
                     class="search-icon" />
             </div>
             <div class="menu-right">
@@ -100,7 +100,8 @@ nav {
 }
 
 svg {
-    min-width: fit-content;
+    min-width: 25px;
+    max-width: 35px;
 }
 
 .search-icon {
