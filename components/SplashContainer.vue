@@ -86,40 +86,29 @@ const parseTrailer = (trailer) => {
     <div class="container-trailer">
         <div class="container-information">
             <h2 class="now-available">Now available:</h2>
-            <div @click="navigateToMedia(trailerMedia.id)"
-                 class="container-information-title">
+            <div @click="navigateToMedia(trailerMedia.id)" class="container-information-title">
                 <span class="trailer-name">{{ trailerMedia?.name }}</span>
                 <span class="watch-now">| WATCH NOW</span>
             </div>
             <div class="trailer-bullets">
-                <Icon name="material-symbols:chevron-left-rounded"
-                      @click="setTrailerTimeout(currentTrailerIndex - 1)"
-                      class="trailer-chevron" />
+                <Icon name="material-symbols:chevron-left-rounded" @click="setTrailerTimeout(currentTrailerIndex - 1)"
+                    class="trailer-chevron" />
                 <template v-for="(media, index) in recentMedia.length">
-                    <span @click="setTrailerTimeout(index)"
-                          style="cursor: pointer;"
-                          :style="index === trailerMediaId ? 'color: var(--primary-color-100)' : ''">•</span>
+                    <span @click="setTrailerTimeout(index)" style="cursor: pointer;"
+                        :style="index === trailerMediaId ? 'color: var(--primary-color-100)' : ''">•</span>
                 </template>
-                <Icon name="material-symbols:chevron-right-rounded"
-                      @click="setTrailerTimeout(currentTrailerIndex + 1)"
-                      class="trailer-chevron" />
+                <Icon name="material-symbols:chevron-right-rounded" @click="setTrailerTimeout(currentTrailerIndex + 1)"
+                    class="trailer-chevron" />
             </div>
         </div>
-        <div @mouseover="showPlayIcon = true"
-             @mouseleave="showPlayIcon = false"
-             class="overlay"
-             @click="navigateToMedia(trailerMedia.id)">
+        <div @mouseover="showPlayIcon = true" @mouseleave="showPlayIcon = false" class="overlay"
+            @click="navigateToMedia(trailerMedia.id)">
             <transition name="fade">
-                <Icon v-if="showPlayIcon"
-                      name="material-symbols:play-arrow-rounded"
-                      class="play-icon"
-                      size="128px" />
+                <Icon v-if="showPlayIcon" name="material-symbols:play-arrow-rounded" class="play-icon" size="128px" />
             </transition>
         </div>
-        <iframe ref="iframe"
-                :src="parseTrailer(trailerMedia?.trailer)"
-                name="Trailer"
-                allow="autoplay; encrypted-media;"></iframe>
+        <iframe ref="iframe" :src="parseTrailer(trailerMedia?.trailer)" name="Trailer"
+            allow="autoplay; encrypted-media;"></iframe>
     </div>
 </template>
 
@@ -231,5 +220,20 @@ iframe {
 
 .overlay:hover {
     cursor: pointer;
+}
+
+@media screen and (max-width: 700px) {
+    .now-available {
+        font-size: 16px;
+    }
+
+    .container-information-title span {
+        font-size: 16px;
+    }
+
+    .trailer-bullets {
+        transform-origin: center;
+        transform: scale(0.75);
+    }
 }
 </style>

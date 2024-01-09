@@ -16,106 +16,71 @@ const filter = ref(['/movies', '/series', '/'])
 const logout = () => {
     jwtStore.destroyToken()
     navigateTo("/login")
-}
+} 
 </script>
 
 <template>
     <nav>
+
         <transition name="fadedown">
-            <div v-if="showDropdown"
-                 @click="showDropdown = false"
-                 class="container-dropdown">
-                <NuxtLink @click="showDropdown = false"
-                          to="/"
-                          style="margin-top: 50px;">HOME</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/movies">MOVIES</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/series">SERIES</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/watchlist">WATCHLIST</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/request">REQUEST</NuxtLink>
+            <div v-if="showDropdown" @click="showDropdown = false" class="container-dropdown">
+                <NuxtLink @click="showDropdown = false" to="/" style="margin-top: 50px;">HOME</NuxtLink>
+                <NuxtLink @click="showDropdown = false" to="/movies">MOVIES</NuxtLink>
+                <NuxtLink @click="showDropdown = false" to="/series">SERIES</NuxtLink>
+                <NuxtLink @click="showDropdown = false" to="/watchlist">WATCHLIST</NuxtLink>
+                <NuxtLink @click="showDropdown = false" to="/request">REQUEST</NuxtLink>
                 <NuxtLink to="/cinema">CINEMA</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          v-if="jwtStore.isAdmin"
-                          to="/upload">UPLOAD</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          v-if="jwtStore.isAdmin"
-                          to="/admin">ADMIN</NuxtLink>
-                <span class="logout"
-                      @click="logout(); showDropdown = false">LOGOUT</span>
+                <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
+                <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
+                <span class="logout" @click="logout(); showDropdown = false">LOGOUT</span>
             </div>
         </transition>
+
         <div class="mobile-menu">
             <div style="display:flex; align-items: center;">
-                <NuxtLink class="logo-mobile"
-                          to="/">
-                    <img src="/icons/dellekes_logo.png"
-                         class="home-icon" />
+                <NuxtLink class="logo-mobile" to="/">
+                    <img src="/icons/dellekes_logo.png" class="home-icon" />
                 </NuxtLink>
                 <transition name="fade">
-                    <input ref="searchBar"
-                           key="1"
-                           class="search-bar"
-                           v-if="showSearchBox"
-                           v-model="searchbox"
-                           type="text"
-                           style="margin-left: 20px;">
+                    <input ref="searchBar" key="1" class="search-bar" v-if="showSearchBox" v-model="searchbox" type="text"
+                        style="margin-left: 20px;">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
-                      @click="showSearchBox = true;"
-                      name="ph:magnifying-glass"
-                      size="25"
-                      class="search-icon-mobile" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="showSearchBox = true;"
+                    name="ph:magnifying-glass" size="25" class="search-icon-mobile" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                      @click="showSearchBox = false; searchbox = ''"
-                      name="radix-icons:cross-2"
-                      size="20"
-                      class="search-icon" />
+                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="20"
+                    class="search-icon" />
             </div>
-            <Icon class="hamburger-menu"
-                  @click="showDropdown = !showDropdown"
-                  name="solar:hamburger-menu-outline"
-                  size="35px" />
+            <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="solar:hamburger-menu-outline"
+                size="35px" />
         </div>
+
         <div class="desktop-nav">
             <div class="menu-left">
-                <NuxtLink class="logo-center"
-                          to="/">
-                    <img src="/icons/dellekes_logo.png"
-                         class="home-icon" />
+                <NuxtLink class="logo-center" to="/">
+                    <img src="/icons/dellekes_logo.png" class="home-icon" />
                 </NuxtLink>
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
                 <transition name="fade">
-                    <input key="1"
-                           class="search-bar"
-                           v-if="filter.includes(currentRoute.path) && showSearchBox"
-                           v-model="searchbox"
-                           type="text">
+                    <input key="1" class="search-bar" v-if="filter.includes(currentRoute.path) && showSearchBox"
+                        v-model="searchbox" type="text">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
-                      @click="showSearchBox = true"
-                      name="ph:magnifying-glass"
-                      size="25" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="showSearchBox = true"
+                    name="ph:magnifying-glass" size="25" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                      @click="showSearchBox = false; searchbox = ''"
-                      name="radix-icons:cross-2"
-                      size="20"
-                      class="search-icon" />
+                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="20"
+                    class="search-icon" />
             </div>
             <div class="menu-right">
                 <div>
-                    <Icon class="hamburger-menu-desktop"
-                          @click="showDropdown = !showDropdown"
-                          name="solar:hamburger-menu-outline"
-                          size="35px" />
+                    <Icon class="hamburger-menu-desktop" @click="showDropdown = !showDropdown"
+                        name="solar:hamburger-menu-outline" size="35px" />
                 </div>
             </div>
         </div>
+
     </nav>
-    <div class="placeholder"></div>
 </template>
 
 <style scoped>
@@ -124,8 +89,8 @@ nav {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: var(--navbar-height);
+    width: 100vw;
+    min-height: var(--navbar-height);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -153,10 +118,12 @@ svg {
 }
 
 .mobile-menu {
-    display: flex;
+    display: none;
     align-items: center;
-    width: 100%;
+    width: 100vw;
     justify-content: space-between;
+    padding-left: 5px;
+    padding-right: 15px;
 }
 
 .profile {
@@ -183,6 +150,7 @@ svg {
     border-radius: 5px;
     padding-left: 20px;
     width: 100%;
+    max-width: 300px;
 }
 
 .logo-center {
@@ -248,12 +216,6 @@ span:hover {
     cursor: pointer;
 }
 
-.placeholder {
-    position: relative;
-    width: 100%;
-    height: var(--navbar-height);
-}
-
 .container-dropdown {
     display: flex;
     align-items: center;
@@ -274,10 +236,6 @@ span:hover {
     font-weight: 600;
 }
 
-.mobile-menu {
-    display: none;
-}
-
 .desktop-nav {
     display: flex;
     justify-content: space-between;
@@ -290,6 +248,16 @@ span:hover {
     display: flex;
     align-items: center;
     padding: 0px 30px;
+    width: 50%;
+}
+
+.menu-left {
+    padding-right: 60px;
+}
+
+.menu-right {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .fade-enter-active,
@@ -317,10 +285,6 @@ span:hover {
 @media screen and (max-width: 992px) {
     .mobile-menu {
         display: flex;
-    }
-
-    nav {
-        justify-content: end;
     }
 
     .container-dropdown {

@@ -117,89 +117,66 @@ async function deleteRequest(id) {
         <form @submit.prevent="addRequest(inputName, inputYear, inputComment)">
             <div class="container-add-request">
                 <span style="font-size: 2rem; font-weight: 600;">Request movie/series</span>
-                <input v-model="inputName"
-                       placeholder="Name"
-                       type="text"
-                       required>
-                <input v-model="inputYear"
-                       placeholder="Release year"
-                       type="number"
-                       required>
-                <input v-model="inputComment"
-                       placeholder="Comment"
-                       type="text">
+                <input v-model="inputName" placeholder="Name" type="text" required>
+                <input v-model="inputYear" placeholder="Release year" type="number" required>
+                <input v-model="inputComment" placeholder="Comment" type="text">
                 <button type="submit">Add Request</button>
             </div>
         </form>
         <div v-show="!(totalElementsRequest === 0 &&
             allMedia.length === 0)">
             <span style="font-size: 2rem; font-weight: 600; margin-bottom: 20px;">Requests <span
-                      style="font-weight: 200; margin-left: 5px;">{{
-                          totalElementsRequest }}</span></span>
+                    style="font-weight: 200; margin-left: 5px;">{{
+                        totalElementsRequest }}</span></span>
             <table>
                 <thead>
                     <tr>
                         <td>Name</td>
-                        <td>Year</td>
-                        <td>Comment</td>
+                        <td class="year">Year</td>
+                        <td class="comment">Comment</td>
                         <td>Requested on</td>
-                        <td>Requester</td>
+                        <td class="requester">Requester</td>
                         <td>Status</td>
                         <td></td>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="height:30px;"
-                        v-for="(request, index) in allRequests">
+                    <tr style="height:30px;" v-for="(request, index) in allRequests">
                         <template v-if="toggleEdit !== index">
                             <td>{{ request.name }}</td>
-                            <td>{{ request.year }}</td>
-                            <td>{{ request.comment }}</td>
+                            <td class="year">{{ request.year }}</td>
+                            <td class="comment">{{ request.comment }}</td>
                         </template>
                         <template v-else>
-                            <td><input style="max-width: 100px;"
-                                       type="text"
-                                       v-model="updateName"></td>
-                            <td><input style="max-width: 100px;"
-                                       type="number"
-                                       v-model="updateYear"></td>
-                            <td><input style="max-width: 100px;"
-                                       type="text"
-                                       v-model="updateComment"></td>
+                            <td><input style="max-width: 100px;" type="text" v-model="updateName"></td>
+                            <td><input style="max-width: 100px;" type="number" v-model="updateYear"></td>
+                            <td><input style="max-width: 100px;" type="text" v-model="updateComment"></td>
                         </template>
                         <td>{{ new Date(request.createdAt).toLocaleDateString() }}</td>
-                        <td style="text-transform: capitalize;">{{ request.createdBy }}</td>
+                        <td class="requester" style="text-transform: capitalize;">{{ request.createdBy }}</td>
                         <td v-if="!jwtStore.isAdmin">{{ request.status }}</td>
                         <td v-else>
                             <select @change="e => requestStore.updateRequest(request.id, { status: e.target.value })">
-                                <option :selected="request.status === 'NEW'"
-                                        value="NEW">New</option>
-                                <option :selected="request.status === 'PROCESSING'"
-                                        value="PROCESSING">Processing
+                                <option :selected="request.status === 'NEW'" value="NEW">New</option>
+                                <option :selected="request.status === 'PROCESSING'" value="PROCESSING">Processing
                                 </option>
-                                <option :selected="request.status === 'NOT_AVAILABLE'"
-                                        value="NOT_AVAILABLE">Not available
+                                <option :selected="request.status === 'NOT_AVAILABLE'" value="NOT_AVAILABLE">Not available
                                 </option>
-                                <option :selected="request.status === 'ADDED'"
-                                        value="ADDED">Added</option>
+                                <option :selected="request.status === 'ADDED'" value="ADDED">Added</option>
                             </select>
                         </td>
                         <td v-if="showRequestButtons(request)">
-                            <button v-if="toggleEdit !== index"
-                                    @click="toggleEdit = index;
-                                    updateName = request.name;
-                                    updateYear = request.year;
-                                    updateComment = request.comment"
-                                    class="admin-btn">
+                            <button v-if="toggleEdit !== index" @click="toggleEdit = index;
+                            updateName = request.name;
+                            updateYear = request.year;
+                            updateComment = request.comment" class="admin-btn">
                                 <Icon name="mdi:pencil" />
                             </button>
-                            <button v-else
-                                    class="admin-btn"
-                                    @click="toggleEdit = -1; requestStore.updateRequest(request.id, { name: updateName, year: updateYear, comment: updateComment })">
+                            <button v-else class="admin-btn"
+                                @click="toggleEdit = -1; requestStore.updateRequest(request.id, { name: updateName, year: updateYear, comment: updateComment })">
                                 <Icon name="ic:outline-check" />
                             </button>
-                            <button class="admin-btn"
-                                    @click="deleteRequest(request.id)">
+                            <button class="admin-btn" @click="deleteRequest(request.id)">
                                 <Icon name="material-symbols:delete" />
                             </button>
                         </td>
@@ -220,8 +197,7 @@ async function deleteRequest(id) {
                         </tr>
                     </thead>
                     <tbody style="height: 100px; overflow-y: scroll;">
-                        <tr style="height:30px;"
-                            v-for="media in allMedia">
+                        <tr style="height:30px;" v-for="media in allMedia">
                             <td>{{ media.name }}</td>
                             <td>{{ media.year }}</td>
                             <td>{{ new Date(media.createdAt).toLocaleDateString() }}</td>
@@ -347,6 +323,21 @@ select option {
 @media screen and (max-width: 993px) {
     .container {
         flex-direction: column;
+    }
+
+    form {
+        margin: 0;
+        margin-bottom: 50px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    .year,
+    .comment,
+    .requester {
+        display: none;
     }
 }
 </style>
