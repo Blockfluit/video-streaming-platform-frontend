@@ -31,9 +31,6 @@ onBeforeUnmount(() => {
     }
 })
 
-}
-
-    }
 function fetchMedia() {
     props.supplier(0, 20).then(data => {
         let filteredMedia = data.content.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
