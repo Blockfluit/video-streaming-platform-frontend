@@ -14,6 +14,7 @@ const videoElement = ref({})
 const showOverlay = ref(true)
 const countdownTimer = ref(0)
 const isPlaying = ref(false)
+const videoUrl = ref("")
 
 let intervalId
 let timeoutId
@@ -56,6 +57,10 @@ onBeforeUnmount(() => {
     }
 })
 
+watch(video, (n, o) => {
+    videoUrl.value = `${config.public.baseURL}/stream/video/${n.id}`
+})
+
 function getStartTime() {
     if (timestamp !== undefined) {
         return timestamp
@@ -96,8 +101,8 @@ async function playVideo(videoId, time) {
         })
         videoElement.value.addEventListener("seeking", updateWatched)
 
-        useRouter()
-            .push(`/media/${currentMediaId}/watch/${videoId}`)
+        //Changes url without reloading
+        useRouter().push(`/media/${currentMediaId}/watch/${videoId}`)
         return
     }
 }
@@ -177,12 +182,14 @@ function navigateToMedia(mediaId) {
         </div>
         <video @play="isPlaying = true"
                @pause="isPlaying = false"
-               @ended="playVideoWithCountdown(nextVideo === undefined ? unedefined : nextVideo.id)"
+               @ended="playVideoWithCountdown(nextVideo?.id)"
                ref="videoElement"
-               crossorigin="anonymous"
                controls
+               playsinline
+               poster="/dellekesHub-poster.png"
+               preload="metadata"
                autoplay>
-            <source :src="`${config.public.baseURL}/stream/video/${video.id}`"
+            <source :src="videoUrl"
                     type="video/mp4" />
             <track v-for="subtitle in video.subtitles"
                    :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"

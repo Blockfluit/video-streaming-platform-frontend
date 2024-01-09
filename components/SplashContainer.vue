@@ -6,21 +6,17 @@ const props = defineProps({
     },
 })
 
-const allMedia = []
 const recentMedia = ref([])
 const trailerMediaId = ref(0)
 const trailerMedia = ref({})
 const showPlayIcon = ref(false)
 const currentTrailerIndex = ref()
 const iframe = ref()
-
-let fetching = false
-let totalPages = 0
-let nextPage = 0
 let timeoutId
 
 onBeforeMount(() => {
-    fetchNextPage()
+    fetchMedia()
+
 })
 
 onMounted(() => {
@@ -35,23 +31,15 @@ onBeforeUnmount(() => {
     }
 })
 
-function fetchNextPage() {
-    props.supplier(nextPage, 20).then(data => {
-        allMedia.push(...data.content)
-        totalPages = data.totalPages
-        nextPage++
-        fetching = false
-        setRecentMedia()
+function fetchMedia() {
+    props.supplier(0, 20).then(data => {
+        let filteredMedia = data.content.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
+        if (filteredMedia.length < 5) {
+            filteredMedia = data.content.slice(0, 5)
+        }
+        recentMedia.value.push(...filteredMedia)
+        setTrailerTimeout(0)
     })
-}
-
-function setRecentMedia() {
-    let filteredMedia = allMedia.filter(media => new Date().setDate(new Date(media.updatedAt).getDate() + 7) > new Date())
-    if (filteredMedia.length < 5) {
-        filteredMedia = allMedia.slice(0, 5)
-    }
-    recentMedia.value.push(...filteredMedia)
-    setTrailerTimeout(0)
 }
 
 const setTrailerTimeout = (index) => {
@@ -83,14 +71,14 @@ const navigateToMedia = (mediaId) => {
 // Needs refactoring
 const parseTrailer = (trailer) => {
     if (trailer === undefined) {
-        return "https://www.youtube.com/watch?v=J---aiyznGQ"
+        return ""
     }
-    const trailerLongId = trailer.includes("watch?v=") ? trailer.split("watch?v=")[1] : "J---aiyznGQ"
-    if (trailerLongId === "J---aiyznGQ") trailer = "https://www.youtube.com/watch?v=J---aiyznGQ"
+    const trailerLongId = trailer.includes("watch?v=") ? trailer.split("watch?v=")[1] : ""
     const trailerId = trailerLongId.split("&t=")[0]
     const time = trailerLongId.includes("&t=") ? trailerLongId.split("&t=")[1].replace("s", "") : ""
+    const fullTrailerUrl = trailer.replace("watch?v=", "embed/") + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0${time !== "" ? "&start=" + time : ""}`
 
-    return trailer.replace("watch?v=", "embed/") + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=0&disablekb&fs=0&loop=1&mute=1&rel=0${time !== "" ? "&start=" + time : ""}`
+    return fullTrailerUrl
 }
 </script>
 
