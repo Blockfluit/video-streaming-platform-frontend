@@ -3,9 +3,14 @@ import { useMainStore } from "~/stores/mainStore";
 import { storeToRefs } from "pinia";
 
 const mainStore = useMainStore()
+const filterElement = ref()
 
 const { searchbox, showSearchBox, allGenres, selectedGenres } = storeToRefs(mainStore)
 
+function scrollHorizontal(e) {
+    e.preventDefault();
+    filterElement.value.scrollLeft += e.deltaY;
+}
 
 onBeforeMount(() => {
     if (process.client) {
@@ -25,36 +30,29 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="container">
-        <div @wheel="scrollHorizontal"
-             class="container-filter">
+        <div @wheel="scrollHorizontal" class="container-filter" ref="filterElement">
             <template v-for="(genre, index) in allGenres">
-                <input type="checkbox"
-                       :id="index"
-                       :value="genre"
-                       v-model="selectedGenres"
-                       style="display: none;">
+                <input type="checkbox" :id="index" :value="genre" v-model="selectedGenres" style="display: none;">
                 <label :for="index"
-                       :style="selectedGenres.includes(genre) ? 'color: var(--primary-color-200)' : 'color: white'"
-                       class="filter">{{ genre
-                       }}</label>
+                    :style="selectedGenres.includes(genre) ? 'color: var(--primary-color-200)' : 'color: white'"
+                    class="filter">{{ genre
+                    }}</label>
             </template>
         </div>
         <div v-show="selectedGenres.length === 0 && searchbox === ''">
             <CardRow :supplier="(number, size) => mainStore.getMedia('recent-watched', number, size, { type: 'SERIES' })"
-                     :showLastVideo=true
-                     title="Continue Watching" />
+                :showLastVideo=true title="Continue Watching" />
             <CardRow :supplier="(number, size) => mainStore.getMedia('best-rated', number, size, { type: 'SERIES' })"
-                     :showLastVideo=false
-                     title="Best Rated" />
+                :showLastVideo=false title="Best Rated" />
             <CardContainer :supplier="(number, size) => mainStore.getMedia('', number, size, { type: 'SERIES' })"
-                           title="All Series" />
+                title="All Series" />
         </div>
 
         <transition name="slide-down">
-            <div v-if="searchbox !== '' || selectedGenres.length > 0"
-                 class="search-results">
-                <CardContainer :supplier="(number, size, genres, search) => mainStore.getMedia('', number, size, { type: '', genres: genres, search: search })"
-                               title="Search results" />
+            <div v-if="searchbox !== '' || selectedGenres.length > 0" class="search-results">
+                <CardContainer
+                    :supplier="(number, size, genres, search) => mainStore.getMedia('', number, size, { type: '', genres: genres, search: search })"
+                    title="Search results" />
             </div>
         </transition>
     </div>
@@ -103,6 +101,10 @@ h2 {
     overflow-X: scroll;
 }
 
+.container-filter::-webkit-scrollbar {
+    display: none;
+}
+
 .container-filter span {
     margin: 10px;
 }
@@ -120,11 +122,5 @@ h2 {
 .filter:hover {
     cursor: pointer;
     color: var(--primary-color-100);
-}
-
-@media screen and (max-width: 700px) {
-    .container-filter::-webkit-scrollbar {
-        display: none;
-    }
 }
 </style>
