@@ -230,10 +230,5 @@ iframe {
     .container-information-title span {
         font-size: 16px;
     }
-
-    .trailer-bullets {
-        transform-origin: center;
-        transform: scale(0.75);
-    }
 }
 </style>

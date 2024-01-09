@@ -84,8 +84,7 @@ onUnmounted(() => {
     <div class="container">
         <!-- Hyperbeam Cloud Computer -->
         <div class="hb-container">
-            <div ref="HbCloudComputer"
-                 class="hyperbeam"></div>
+            <div ref="HbCloudComputer" class="hyperbeam"></div>
             <div class="controls">
                 <div class="users">
                     <template v-for="user in new Set(activeUsers)">
@@ -95,45 +94,30 @@ onUnmounted(() => {
                     </template>
                 </div>
                 <div class="control-buttons">
-                    <button v-if="jwtStore.isAdmin"
-                            class="take-cursor"
-                            :class="cursorDisabledAdmin ? '' : 'active'"
-                            @click="cursorDisabledAdmin = !cursorDisabledAdmin; setPermissionsAdmin(hb.userId)">
-                        <Icon name="mdi:cursor-default"
-                              size="20px" /> Take Cursor
+                    <button v-if="jwtStore.isAdmin" class="take-cursor" :class="cursorDisabledAdmin ? '' : 'active'"
+                        @click="cursorDisabledAdmin = !cursorDisabledAdmin; setPermissionsAdmin(hb.userId)">
+                        <Icon name="mdi:cursor-default" size="20px" /> Take Cursor
                     </button>
-                    <button class="take-cursor"
-                            :class="cursorDisabled ? '' : 'active'"
-                            @click="cursorDisabled = !cursorDisabled; setPermissions(hb.userId)">
-                        <Icon name="mdi:cursor-default"
-                              size="20px" />
+                    <button class="take-cursor" :class="cursorDisabled ? '' : 'active'"
+                        @click="cursorDisabled = !cursorDisabled; setPermissions(hb.userId)">
+                        <Icon name="mdi:cursor-default" size="20px" />
                     </button>
-                    <button class="take-cursor"
-                            @click="openFullscreen">
-                        <Icon name="material-symbols:fullscreen"
-                              size="20px" />
+                    <button class="take-cursor" @click="openFullscreen">
+                        <Icon name="material-symbols:fullscreen" size="20px" />
                     </button>
                     <div style="display:flex; align-items: center; margin-left: 15px;">
                         <div style="display: flex; align-items: center;">
                             <div v-show="volumeInput > 50">
-                                <Icon name="material-symbols:volume-up"
-                                      class="volume-icon"
-                                      size="30px" />
+                                <Icon name="material-symbols:volume-up" class="volume-icon" size="30px" />
                             </div>
                             <div v-show="(volumeInput > 0 && volumeInput <= 50)">
-                                <Icon name="material-symbols:volume-down"
-                                      class="volume-icon"
-                                      size="30px" />
+                                <Icon name="material-symbols:volume-down" class="volume-icon" size="30px" />
                             </div>
                             <div v-show="volumeInput < 1">
-                                <Icon name="material-symbols:volume-mute"
-                                      class="volume-icon"
-                                      size="30px" />
+                                <Icon name="material-symbols:volume-mute" class="volume-icon" size="30px" />
                             </div>
                         </div>
-                        <input @input="hb.volume = volumeInput / 100;"
-                               v-model="volumeInput"
-                               type="range">
+                        <input @input="hb.volume = volumeInput / 100;" v-model="volumeInput" type="range">
                     </div>
                 </div>
             </div>
@@ -141,12 +125,9 @@ onUnmounted(() => {
 
         <!-- Dellekes Chat -->
         <div class="chat-container">
-            <span v-if="jwtStore.isAdmin"
-                  @click="clearChat()"
-                  class="clear-btn">Clear
+            <span v-if="jwtStore.isAdmin" @click="clearChat()" class="clear-btn">Clear
                 chat</span>
-            <ul class="message-list"
-                ref="chatBox">
+            <ul class="message-list" ref="chatBox">
                 <template v-for="chat in chatMessages.slice().reverse()">
                     <li><span class="msg-time">{{ chat.timestamp
                     }}</span><span class="username">{{
@@ -156,15 +137,9 @@ onUnmounted(() => {
                 </template>
             </ul>
             <div class="input-container">
-                <input @keyup.enter="sendChat()"
-                       v-model="chatInput"
-                       type="text"
-                       placeholder="Type a message...">
-                <button @click="sendChat()"
-                        class="send-btn">
-                    <Icon name="material-symbols-light:send-rounded"
-                          size="24px"
-                          class="send-icon" />
+                <input @keyup.enter="sendChat()" v-model="chatInput" type="text" placeholder="Type a message...">
+                <button @click="sendChat()" class="send-btn">
+                    <Icon name="material-symbols-light:send-rounded" size="24px" class="send-icon" />
                 </button>
             </div>
         </div>
@@ -380,6 +355,7 @@ li {
     height: 85vh;
     margin-top: 50px;
     margin-bottom: 50px;
+    padding-top: 30px;
 }
 
 

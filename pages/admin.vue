@@ -152,6 +152,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .container {
     margin: 50px;
+    padding-top: 20px;
 }
 
 .watch-indicator {

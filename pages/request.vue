@@ -219,6 +219,7 @@ async function deleteRequest(id) {
     margin: 50px;
     display: flex;
     flex-direction: row;
+    padding-top: 30px;
 }
 
 
