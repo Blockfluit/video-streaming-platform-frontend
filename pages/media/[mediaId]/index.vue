@@ -141,7 +141,7 @@ const calcTimePercentage = (video) => {
                     </div>
                     <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
                         formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
-        media.genre.join(", ") }}</span>
+        media.genres.join(", ") }}</span>
                     <p class="plot-text hide-on-phone">{{ media.plot }}</p>
                     <div class="container-cast hide-on-phone"
                          style="display: flex;">
@@ -154,10 +154,14 @@ const calcTimePercentage = (video) => {
                     <div style="display: flex; align-items: center;">
                         <Rating :media="media"
                                 :average="true" />
-                        <span>• {{ media.ratings.length === 0 ? 0 : (media.ratings
-                            .map(rating => rating.score)
-                            .reduce((a, b) => a + b, 0) /
-                            media.ratings.length / 2).toFixed(1) }}/5</span>
+                        <span>• {{ media.avgRating < 0
+                            ?
+                            0
+                            :
+                            (media.avgRating
+                                /
+                                2).toFixed(1)
+                        }}/5</span>
                     </div>
 
                     <div class="button-container">
@@ -668,5 +672,4 @@ img {
         width: 95vw;
         height: 40vh;
     }
-}
-</style>
+}</style>

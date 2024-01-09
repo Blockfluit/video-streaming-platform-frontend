@@ -7,12 +7,9 @@ const jwtStore = useJwtStore()
 const mainStore = useMainStore()
 const { currentRoute } = useRouter();
 
-const { searchbox } = storeToRefs(mainStore)
-const { jwt } = storeToRefs(jwtStore)
-const showSearchField = ref(false)
+const { searchbox, showSearchBox } = storeToRefs(mainStore)
 const searchBar = ref()
 
-const inputValue = ref()
 const showDropdown = ref(false)
 const filter = ref(['/movies', '/series', '/'])
 
@@ -20,10 +17,6 @@ const logout = () => {
     jwtStore.destroyToken()
     navigateTo("/login")
 }
-
-watch(inputValue, (o, n) => {
-    searchbox.value = inputValue.value
-})
 </script>
 
 <template>
@@ -65,18 +58,18 @@ watch(inputValue, (o, n) => {
                     <input ref="searchBar"
                            key="1"
                            class="search-bar"
-                           v-if="showSearchField"
-                           v-model="inputValue"
+                           v-if="showSearchBox"
+                           v-model="searchbox"
                            type="text"
                            style="margin-left: 20px;">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === false"
-                      @click="showSearchField = true;"
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
+                      @click="showSearchBox = true;"
                       name="ph:magnifying-glass"
                       size="25"
                       class="search-icon-mobile" />
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === true"
-                      @click="showSearchField = false; inputValue = ''"
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
+                      @click="showSearchBox = false; searchbox = ''"
                       name="radix-icons:cross-2"
                       size="20"
                       class="search-icon" />
@@ -98,16 +91,16 @@ watch(inputValue, (o, n) => {
                 <transition name="fade">
                     <input key="1"
                            class="search-bar"
-                           v-if="filter.includes(currentRoute.path) && showSearchField"
-                           v-model="inputValue"
+                           v-if="filter.includes(currentRoute.path) && showSearchBox"
+                           v-model="searchbox"
                            type="text">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === false"
-                      @click="showSearchField = true"
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
+                      @click="showSearchBox = true"
                       name="ph:magnifying-glass"
                       size="25" />
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchField === true"
-                      @click="showSearchField = false; inputValue = ''"
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
+                      @click="showSearchBox = false; searchbox = ''"
                       name="radix-icons:cross-2"
                       size="20"
                       class="search-icon" />

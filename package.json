@@ -1,30 +1,30 @@
 {
-  "name": "nuxt-app",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "devDependencies": {
-    "@nuxt/devtools": "latest",
-    "@vueuse/core": "^10.4.1",
-    "@vueuse/nuxt": "^10.4.1",
-    "nuxt": "^3.7.3",
-    "nuxt-icon": "^0.5.0"
-  },
-  "overrides": {
-    "vue": "latest"
-  },
-  "dependencies": {
-    "@hyperbeam/web": "^0.0.34",
-    "@nuxt/image": "^1.1.0",
-    "@pinia/nuxt": "^0.4.11",
-    "@vite-pwa/nuxt": "^0.1.1",
-    "pinia": "^2.1.6",
-    "socket.io-client": "^4.7.2"
-  }
+    "name": "nuxt-app",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "nuxt dev",
+        "generate": "nuxt generate",
+        "preview": "nuxt preview",
+        "postinstall": "nuxt prepare"
+    },
+    "devDependencies": {
+        "@nuxt/devtools": "latest",
+        "@vueuse/core": "^10.4.1",
+        "@vueuse/nuxt": "^10.4.1",
+        "nuxt": "^3.7.3",
+        "nuxt-icon": "^0.5.0"
+    },
+    "overrides": {
+        "vue": "latest"
+    },
+    "dependencies": {
+        "@hyperbeam/web": "^0.0.34",
+        "@nuxt/image": "^1.1.0",
+        "@pinia/nuxt": "^0.4.11",
+        "@vite-pwa/nuxt": "^0.1.1",
+        "pinia": "^2.1.6",
+        "socket.io-client": "^4.7.2"
+    }
 }

@@ -1,13 +1,54 @@
 <script setup>
 const props = defineProps({
-    allMedia: {},
-    showLastVideo: false
+    supplier: {
+        default: () => Promise.resolve({ content: [] }),
+        type: Function
+    },
+    title: {
+        default: "Title undefined",
+        type: String
+    },
+    showLastVideo: {
+        default: false,
+        type: Boolean
+    }
 })
 
 const cardsElement = ref({})
 const showButtons = ref(false)
 const showLeftButton = ref(false)
 const showRightButton = ref(false)
+const allMedia = ref([])
+const totalElements = ref(0)
+let fetching = false
+let totalPages = 0
+let nextPage = 0
+
+onBeforeMount(() => {
+    fetchNextPage()
+})
+
+function fetchNextPage() {
+    props.supplier(nextPage, 20).then(data => {
+        allMedia.value.push(...data.content)
+        totalElements.value = data.totalElements
+        totalPages = data.totalPages
+        nextPage++
+        fetching = false
+    })
+}
+
+function scrollHandler() {
+    const cards = cardsElement.value.children
+    const carouselRight = cardsElement.value.getBoundingClientRect().right
+
+    if (cards[cards.length / 2].getBoundingClientRect().left < (carouselRight * 2) &&
+        !fetching &&
+        nextPage < totalPages) {
+        fetching = true
+        fetchNextPage()
+    }
+}
 
 const nextCards = () => {
     const cards = cardsElement.value.children
@@ -17,7 +58,7 @@ const nextCards = () => {
     for (let i = 0; i < cards.length; i++) {
         if (cards[i].getBoundingClientRect().right > carouselRight) {
             cardsElement.value.scrollLeft += cards[i].getBoundingClientRect().left - carouselLeft
-            return
+            break
         }
     }
 }
@@ -51,31 +92,38 @@ const hoverButtonHandler = (showButton) => {
 </script>
 
 <template>
-    <div @mouseover="hoverButtonHandler(true)"
-         @mouseleave="hoverButtonHandler(false)"
-         class="container-cards">
-        <div v-if="showButtons && showLeftButton"
-             @click="previousCards()"
-             class="button left">
-            <div class="background">
-                <Icon name="fa-solid:chevron-left"
-                      class="icon" />
-            </div>
+    <div v-if="totalElements !== 0">
+        <div class="container-title">
+            <h2 class="carousel-title">{{ title }}</h2>
+            <span class="carousel-title-count">{{ totalElements ?? allMedia.length }}</span>
         </div>
-        <div ref="cardsElement"
-             class="carousel">
-            <div class="media-card"
-                 v-for="(media) of allMedia">
-                <Card :shownMedia="media"
-                      :showLastVideo="showLastVideo ?? false" />
+        <div @mouseover="hoverButtonHandler(true)"
+             @mouseleave="hoverButtonHandler(false)"
+             class="container-cards">
+            <div v-if="showButtons && showLeftButton"
+                 @click="previousCards()"
+                 class="button left">
+                <div class="background">
+                    <Icon name="fa-solid:chevron-left"
+                          class="icon" />
+                </div>
             </div>
-        </div>
-        <div v-if="showButtons && showRightButton"
-             @click="nextCards(1)"
-             class="button right">
-            <div class="background">
-                <Icon name="fa-solid:chevron-right"
-                      class="icon" />
+            <div ref="cardsElement"
+                 class="carousel"
+                 @scroll="scrollHandler()">
+                <div class="media-card"
+                     v-for="(media) of allMedia">
+                    <Card :shownMedia="media"
+                          :showLastVideo="showLastVideo ?? false" />
+                </div>
+            </div>
+            <div v-if="showButtons && showRightButton"
+                 @click="nextCards(1)"
+                 class="button right">
+                <div class="background">
+                    <Icon name="fa-solid:chevron-right"
+                          class="icon" />
+                </div>
             </div>
         </div>
     </div>
@@ -88,6 +136,23 @@ const hoverButtonHandler = (showButton) => {
 
 .media-card:last-child {
     margin-right: 0px;
+}
+
+.container-title {
+    margin: 40px 0 10px 0px;
+    display: flex;
+    user-select: none;
+    align-items: center;
+}
+
+.carousel-title {
+    margin: 0 8px 0 0;
+    font-weight: 800;
+}
+
+.carousel-title-count {
+    font-weight: 400;
+    color: var(--text-color-2);
 }
 
 .container-cards {

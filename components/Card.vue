@@ -109,10 +109,10 @@ async function removeFromWatchlist(mediaId) {
                           :style="{ color: onWatchlist ? 'var(--primary-color-100)' : 'var(--text-color-2)' }" />
                 </button>
                 <div style="flex-grow: 1;"></div>
-                <div v-if="shownMedia.rating >= 1">
+                <div v-if="shownMedia.avgRating >= 1">
                     <template v-for="star in 5">
                         <Icon class="star"
-                              :style="{ color: shownMedia.rating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
+                              :style="{ color: shownMedia.avgRating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
                               name="mdi:star" />
                     </template>
                 </div>

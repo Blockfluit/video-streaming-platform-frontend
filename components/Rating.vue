@@ -52,11 +52,12 @@ const hoverHandler = (e) => {
 }
 
 const resetRating = () => {
-    const userRating = media.value.ratings.find(entry => entry.username === jwtStore.getSubject) ?? { score: 0 }
+    const user = media.value.ratings.find(entry => entry.username === jwtStore.getSubject)
+    const userRating = user === undefined ? 0 : user.score
 
     const rating = props.average ?
-        Math.floor(media.value.ratings.reduce((acc, rating) => acc + rating.score, 0) / media.value.ratings.length / 2) :
-        userRating.score / 2
+        Math.floor(media.value.avgRating / 2) :
+        userRating / 2
 
     for (const element of ratingElement.value.children) {
         if (element.id < rating) element.style.color = "var(--primary-color-100)"

@@ -4,111 +4,22 @@ import { useMainStore } from "~/stores/mainStore";
 
 const mainStore = useMainStore()
 
-const { allMedia, searchbox, allGenres, watched, allMovies } = storeToRefs(mainStore)
-
-const filteredMedia = ref(new Set())
-const filters = ref([])
-const filterElement = ref({})
-const lazyAllMovies = ref([])
-const recentWatched = ref([])
-const recentUploaded = ref([])
+const { searchbox, showSearchBox, allGenres, selectedGenres } = storeToRefs(mainStore)
 
 onBeforeMount(() => {
     if (process.client) {
-        mainStore.setAllMedia()
         mainStore.setWatched()
         mainStore.setAllGenres()
     }
 })
 
-onMounted(() => {
-    if (process.client) {
-        setRecentWatched()
-        setRecentUploaded()
-        lazyAllMovies.value = [...allMovies.value.slice(0, 100)]
-
-        window.addEventListener("scroll", addMediaOnScroll)
-    }
-})
-
 onBeforeUnmount(() => {
     if (process.client) {
-        window.scrollTo({ top: 0, behavior: 'instant' })
+        allGenres.value.splice(0, allGenres.value.length)
+        searchbox.value = ""
+        showSearchBox.value = false
     }
 })
-
-onUnmounted(() => {
-    if (process.client) {
-        window.removeEventListener("scroll", addMediaOnScroll)
-    }
-})
-
-watch(allMedia, () => {
-    doFilter()
-})
-
-watch(filters, () => {
-    doFilter()
-})
-
-watch(searchbox, () => {
-    doFilter()
-})
-
-function scrollHorizontal(e) {
-    e.preventDefault();
-    filterElement.value.scrollLeft += e.deltaY;
-}
-
-function addMediaOnScroll() {
-    const showAmount = ((document.body.getBoundingClientRect().top * -1) + document.body.clientHeight) / document.body.scrollHeight * allMovies.value.length
-    if (showAmount > lazyAllMovies.value.length) {
-        lazyAllMovies.value.push(...allMovies.value.slice(lazyAllMovies.value.length, showAmount))
-    }
-}
-
-async function setRecentWatched() {
-    recentWatched.value = allMovies.value
-        .filter(media => watched.value.map(entry => entry.mediaId).includes(media.id))
-        .filter(media => {
-            const a = watched.value.find(entry => entry.mediaId === media.id)
-            return (a.timestamp / a.duration) < 0.99
-        })
-        .sort((a, b) => new Date(watched.value.filter(entry => entry.mediaId === b.id).sort((a, b) => new Date(b.updatedAt) -
-            new Date(a.updatedAt))[0].updatedAt) - new Date(watched.value.filter(entry => entry.mediaId === a.id).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].updatedAt))
-}
-
-async function setRecentUploaded() {
-    recentUploaded.value = allMovies.value.filter(media => new Date(media.updatedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-}
-
-// Needs refactoring (Maybe split up in multiple async functions). Probably the cause of lag when searching for an entry. 
-async function doFilter() {
-    filteredMedia.value.clear()
-
-    for (const entry of filters.value) {
-        allMovies.value.filter(media => media.genre.includes(entry))
-            .forEach(media => filteredMedia.value.add(media))
-    }
-
-    if (searchbox.value !== "") {
-        if (filteredMedia.value.size === 0) {
-            allMovies.value.filter(media => media.name.toLowerCase().includes(searchbox.value.toLowerCase()))
-                .forEach(media => filteredMedia.value.add(media))
-        } else {
-            const tempFiltered = [...filteredMedia.value].filter(media => media.name.toLowerCase().includes(searchbox.value.toLowerCase()))
-            filteredMedia.value.clear()
-            tempFiltered.forEach(media => filteredMedia.value.add(media))
-        }
-    }
-
-    if (searchbox.value === "" &&
-        filters.value.length === 0) {
-        [...allMovies.value].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-            .forEach(media => filteredMedia.value.add(media))
-    }
-}
 </script>
 
 <template>
@@ -120,66 +31,30 @@ async function doFilter() {
                 <input type="checkbox"
                        :id="index"
                        :value="genre"
-                       v-model="filters"
+                       v-model="selectedGenres"
                        style="display: none;">
                 <label :for="index"
-                       :style="filters.includes(genre) ? 'color: var(--primary-color-200)' : 'color: white'"
+                       :style="selectedGenres.includes(genre) ? 'color: var(--primary-color-200)' : 'color: white'"
                        class="filter">{{ genre }}</label>
             </template>
         </div>
-        <div v-if="filters.length === 0 && searchbox === ''">
-            <h1>{{ searchbox }}</h1>
-            <div v-if="recentWatched.length > 0">
-                <div class="container-title">
-                    <h2 class="carousel-title">Continue Watching</h2>
-                    <span class="carousel-title-count">{{ recentWatched.length }}</span>
-                </div>
-                <CardRow :allMedia="recentWatched"
-                         :showLastVideo=true />
-            </div>
-            <div v-if="recentUploaded.length > 0">
-                <div class="container-title">
-                    <h2 class="carousel-title">Recently uploaded</h2>
-                    <span class="carousel-title-count">{{ recentUploaded.length }}</span>
-                </div>
-                <CardRow :allMedia="recentUploaded" />
-            </div>
-            <div>
-                <div class="container-title">
-                    <h2 class="carousel-title">Most Viewed</h2>
-                    <span class="carousel-title-count">25</span>
-                </div>
-                <CardRow :allMedia="[...allMovies].sort((a, b) => b.views - a.views).slice(0, 25)" />
-            </div>
-            <div>
-                <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
-                    <span style="font-size: 3rem; font-weight: 800;">All movies</span>
-                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ allMovies.length
-                    }}</span>
-                </div>
-                <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;"
-                         v-for="media of lazyAllMovies">
-                        <Card :shownMedia="media" />
-                    </div>
-                </div>
-            </div>
+        <div v-show="selectedGenres.length === 0 && searchbox === ''">
+            <CardRow :supplier="(number, size) => mainStore.getMedia('recent-watched', number, size, { type: 'MOVIE' })"
+                     :showLastVideo=true
+                     title="Continue Watching" />
+            <CardRow :supplier="(number, size) => mainStore.getMedia('best-rated', number, size, { type: 'MOVIE' })"
+                     :showLastVideo=false
+                     title="Best Rated" />
+            <CardContainer style="margin-top: 50px;"
+                           :supplier="(number, size) => mainStore.getMedia('', number, size, { type: 'MOVIE' })"
+                           title="All Movies" />
         </div>
 
         <transition name="slide-down">
-            <div v-if="searchbox !== '' || filters.length > 0"
+            <div v-if="searchbox !== '' || selectedGenres.length > 0"
                  class="search-results">
-                <div style="display: flex; justify-content: center; align-items: center; margin-top: 75px;">
-                    <span style="font-size: 3rem; font-weight: 800;">Movie results</span>
-                    <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{
-                        filteredMedia.size }}</span>
-                </div>
-                <div class="container-filtered-cards">
-                    <div style="margin: 5px !important;"
-                         v-for="media of filteredMedia">
-                        <Card :shownMedia="media" />
-                    </div>
-                </div>
+                <CardContainer :supplier="(number, size, genres, search) => mainStore.getMedia('', number, size, { type: '', genres: genres, search: search })"
+                               title="Search results" />
             </div>
         </transition>
     </div>
@@ -195,14 +70,10 @@ h2 {
     height: 85vh;
     width: 100%;
     position: absolute;
-    top: 55px;
+    top: var(--navbar-height * 1);
     left: 0px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    margin-top: 60px;
-    background-color: var(--background-color-200);
-    z-index: 5;
-    transition: top .5 ease;
+    margin-top: 30px;
+    /* transition: top .5 ease; */
 }
 
 .search-results::-webkit-scrollbar {
@@ -211,7 +82,7 @@ h2 {
 
 .slide-down-enter-active,
 .slide-down-leave-active {
-    transition: all 0.5s ease-in-out;
+    /* transition: all 0.5s ease-in-out; */
 }
 
 .slide-down-enter-from,
@@ -224,11 +95,6 @@ h2 {
     padding: 2vh 2vw;
 }
 
-.filter-wrapper {
-    display: flex;
-    flex-direction: column;
-}
-
 .container-filter {
     width: 100%;
     display: flex;
@@ -236,32 +102,6 @@ h2 {
     overflow-y: hidden;
     overflow-X: scroll;
 }
-
-.container-title {
-    margin: 40px 0 10px 0px;
-    display: flex;
-    user-select: none;
-    align-items: center;
-}
-
-.carousel-title {
-    margin-right: 8px;
-    font-weight: 800;
-}
-
-.carousel-title-count {
-    font-weight: 400;
-    color: var(--text-color-2);
-}
-
-.container-filtered-cards {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-
 
 .filter {
     text-transform: capitalize;
@@ -277,8 +117,6 @@ h2 {
     cursor: pointer;
     color: var(--primary-color-100);
 }
-
-
 
 @media screen and (max-width: 700px) {
     .container-filter::-webkit-scrollbar {

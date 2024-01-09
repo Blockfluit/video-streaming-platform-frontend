@@ -38,6 +38,10 @@ onMounted(() => {
         }, 1000);
     }
 })
+
+onBeforeUnmount(() => {
+    clearInterval(updateInterval)
+})
 </script>
 
 <template>
