@@ -1,23 +1,14 @@
 import { useJwtStore } from "./jwtStore"
 import { useWatchStore } from "./watchStore"
-import { useLocalStorage } from "@vueuse/core"
 
 export const useMediaStore = defineStore("mediaStore", {
     state: () => ({
         config: useRuntimeConfig(),
         jwtStore: useJwtStore(),
         watchStore: useWatchStore(),
-        media: useLocalStorage("media", {
-            name: "",
-            videos: [],
-            genre: [],
-            actors: [],
-            seasons: [],
-            ratings: []
-        }),
     }),
     actions: {
-        async setMedia(id) {
+        async getMedia(id) {
             return fetch(this.config.public.baseURL + "/media/" + id, {
                 method: "GET",
                 headers: {
@@ -30,9 +21,8 @@ export const useMediaStore = defineStore("mediaStore", {
                     return response.json()
                 }
             }).then((data) => {
-                const newData = data.media
-                newData.seasons = [...new Set(data.media.videos.map(video => video.season))]
-                this.media = newData
+                data.media.seasons = [...new Set(data.media.videos.map(video => video.season))]
+                return data.media
             }).catch(e => {
                 console.log(e)
             })

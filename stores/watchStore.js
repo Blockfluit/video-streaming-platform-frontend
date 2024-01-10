@@ -21,14 +21,13 @@ export const useWatchStore = defineStore("watchStore", {
             const promise1 = this.mainStore.setWatched()
                 .then(() => {
                     const video = this.mainStore.watched.find(entry => entry.videoId === videoId)
-                    this.startTime = video === undefined ? 0 : video.timestamp
+                    this.startTime = video?.timestamp ?? 0
                 })
-            const promise2 = this.mediaStore.setMedia(mediaId)
-                .then(() => {
-                    const { media } = storeToRefs(this.mediaStore)
-                    this.video = media.value.videos.find(entry => entry.id === videoId)
-                    this.nextVideo = media.value.videos.find(entry => entry.index === this.video.index + 1)
-                    this.previousVideo = media.value.videos.find(entry => entry.index === this.video.index - 1)
+            const promise2 = this.mediaStore.getMedia(mediaId)
+                .then((media) => {
+                    this.video = media.videos.find(entry => entry.id === videoId)
+                    this.nextVideo = media.videos.find(entry => entry.index === this.video.index + 1)
+                    this.previousVideo = media.videos.find(entry => entry.index === this.video.index - 1)
                 })
             return Promise.all([promise1, promise2])
         },

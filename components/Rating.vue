@@ -4,20 +4,23 @@ import { useJwtStore } from '~/stores/jwtStore';
 import { useMediaStore } from '~/stores/mediaStore';
 
 const props = defineProps({
-    media: {},
-    average: true
+    media: {
+        type: Object
+    },
+    average: {
+        default: true,
+        type: Boolean
+    }
 })
 
 const jwtStore = useJwtStore()
 const mediaStore = useMediaStore()
 
-const { media } = storeToRefs(mediaStore)
-
 const ratingElement = ref()
 const config = useRuntimeConfig()
 
 onMounted(() => {
-    resetRating()
+    if(props.media !== undefined) resetRating()
 })
 
 const addRating = (rating) => {
@@ -52,11 +55,11 @@ const hoverHandler = (e) => {
 }
 
 const resetRating = () => {
-    const user = media.value.ratings.find(entry => entry.username === jwtStore.getSubject)
+    const user = props.media.ratings.find(entry => entry.username === jwtStore.getSubject)
     const userRating = user === undefined ? 0 : user.score
 
     const rating = props.average ?
-        Math.floor(media.value.avgRating / 2) :
+        Math.floor(props.media.avgRating / 2) :
         userRating / 2
 
     for (const element of ratingElement.value.children) {
