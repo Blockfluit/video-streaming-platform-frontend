@@ -23,7 +23,7 @@ export const useWatchStore = defineStore("watchStore", {
                     const video = this.mainStore.watched.find(entry => entry.videoId === videoId)
                     this.startTime = video?.timestamp ?? 0
                 })
-            const promise2 = this.mediaStore.getMedia(mediaId)
+            const promise2 = this.mediaStore.setMedia(mediaId)
                 .then((media) => {
                     this.video = media.videos.find(entry => entry.id === videoId)
                     this.nextVideo = media.videos.find(entry => entry.index === this.video.index + 1)

@@ -1,5 +1,4 @@
 <script setup>
-import { storeToRefs } from 'pinia';
 import { useJwtStore } from '~/stores/jwtStore';
 import { useMediaStore } from '~/stores/mediaStore';
 
@@ -19,12 +18,12 @@ const mediaStore = useMediaStore()
 const ratingElement = ref()
 const config = useRuntimeConfig()
 
-onMounted(() => {
-    if(props.media !== undefined) resetRating()
+watch(props, (n, o) => {
+    resetRating()
 })
 
 const addRating = (rating) => {
-    fetch(`${config.public.baseURL}/media/${props.media.id}/rate`, {
+    fetch(`${config.public.baseURL}/media/${props.media?.id}/rate`, {
         method: "POST",
         headers: {
             Accept: 'application/json',
@@ -36,7 +35,7 @@ const addRating = (rating) => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media.id)
+            mediaStore.setMedia(props.media?.id)
             return
         }
     }).catch(e => {
@@ -54,12 +53,12 @@ const hoverHandler = (e) => {
     }
 }
 
-const resetRating = () => {
-    const user = props.media.ratings.find(entry => entry.username === jwtStore.getSubject)
-    const userRating = user === undefined ? 0 : user.score
+function resetRating() {
+    const user = props.media?.ratings.find(entry => entry.username === jwtStore.getSubject)
+    const userRating = user?.score ?? 0
 
     const rating = props.average ?
-        Math.floor(props.media.avgRating / 2) :
+        Math.floor(props.media?.avgRating / 2) :
         userRating / 2
 
     for (const element of ratingElement.value.children) {

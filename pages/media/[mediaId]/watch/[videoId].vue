@@ -36,8 +36,6 @@ onMounted(() => {
         window.addEventListener("mousemove", resetOverlay)
         window.addEventListener("touchend", resetOverlay)
         videoElement.value.addEventListener("seeking", updateWatched)
-        videoElement.value.addEventListener("loadeddata", () => videoElement.value.play())
-        videoElement.value.volume = volume.value
         clearInterval(updateIntervalId)
 
         playVideo(currentVideoId)
@@ -74,20 +72,21 @@ function updateWatched() {
 
 async function playVideo(videoId, time) {
     clearInterval(intervalId)
-    
+
     if (videoId === undefined) {
         navigateToMedia(currentMediaId)
         return
     }
     if (videoId !== undefined) {
         watchStore.setVideo(currentMediaId, videoId)
-        .then(() => {
-            videoElement.value.src = `${config.public.baseURL}/stream/video/${videoId}`
-            videoElement.value.currentTime = time ?? getStartTime()
-            videoElement.value.load()
-            //Changes url without reloading
-            useRouter().push(`/media/${currentMediaId}/watch/${videoId}`)
-        })
+            .then(() => {
+                videoElement.value.src = `${config.public.baseURL}/stream/video/${videoId}`
+                videoElement.value.currentTime = time ?? getStartTime()
+                videoElement.value.volume = volume.value
+                videoElement.value.load()
+                //Changes url without reloading
+                useRouter().push(`/media/${currentMediaId}/watch/${videoId}`)
+            })
     }
 }
 
@@ -167,9 +166,8 @@ function navigateToMedia(mediaId) {
                controls
                playsinline
                poster="/dellekesHub-poster.png"
-               preload="metadata"
-               autoplay>
-            <source type="video/mp4" />
+               autoplay
+               crossorigin="anonymous">
             <track v-for="subtitle in video.subtitles"
                    :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
                    :label="subtitle.label"
