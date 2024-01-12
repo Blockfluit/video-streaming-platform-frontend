@@ -39,6 +39,7 @@ onBeforeUnmount(() => {
                      title="What others are watching" />
             <CardRow :supplier="() => mainStore.getRecommendations()"
                      :showLastVideo=false
+                     :recommendations="true"
                      title="Tailored specifically to you" />
             <CardRow :supplier="(number, size) => mainStore.getMedia('most-watched', number, size)"
                      :showLastVideo=false

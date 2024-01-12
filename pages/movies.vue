@@ -30,28 +30,40 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="container">
-        <div @wheel="scrollHorizontal" class="container-filter" ref="filterElement">
+        <div @wheel="scrollHorizontal"
+             class="container-filter"
+             ref="filterElement">
             <template v-for="(genre, index) in allGenres">
-                <input type="checkbox" :id="index" :value="genre" v-model="selectedGenres" style="display: none;">
+                <input type="checkbox"
+                       :id="index"
+                       :value="genre"
+                       v-model="selectedGenres"
+                       style="display: none;">
                 <label :for="index"
-                    :style="selectedGenres.includes(genre) ? 'color: var(--primary-color-200)' : 'color: white'"
-                    class="filter">{{ genre }}</label>
+                       :style="selectedGenres.includes(genre) ? 'color: var(--primary-color-200)' : 'color: white'"
+                       class="filter">{{ genre }}</label>
             </template>
         </div>
         <div v-show="selectedGenres.length === 0 && searchbox === ''">
             <CardRow :supplier="(number, size) => mainStore.getMedia('recent-watched', number, size, { type: 'MOVIE' })"
-                :showLastVideo=true title="Continue Watching" />
+                     :showLastVideo=true
+                     title="Continue Watching" />
+            <CardRow :supplier="(number, size) => mainStore.getMedia('recent-uploaded', number, size, { type: 'MOVIE' })"
+                     :showLastVideo=false
+                     title="Recently Uploaded" />
             <CardRow :supplier="(number, size) => mainStore.getMedia('best-rated', number, size, { type: 'MOVIE' })"
-                :showLastVideo=false title="Best Rated" />
+                     :showLastVideo=false
+                     title="Best Rated" />
             <CardContainer style="margin-top: 50px;"
-                :supplier="(number, size) => mainStore.getMedia('', number, size, { type: 'MOVIE' })" title="All Movies" />
+                           :supplier="(number, size) => mainStore.getMedia('', number, size, { type: 'MOVIE' })"
+                           title="All Movies" />
         </div>
 
         <transition name="slide-down">
-            <div v-if="searchbox !== '' || selectedGenres.length > 0" class="search-results">
-                <CardContainer
-                    :supplier="(number, size, genres, search) => mainStore.getMedia('', number, size, { type: '', genres: genres, search: search })"
-                    title="Search results" />
+            <div v-if="searchbox !== '' || selectedGenres.length > 0"
+                 class="search-results">
+                <CardContainer :supplier="(number, size, genres, search) => mainStore.getMedia('', number, size, { type: '', genres: genres, search: search })"
+                               title="Search results" />
             </div>
         </transition>
     </div>

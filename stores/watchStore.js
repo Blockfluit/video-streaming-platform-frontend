@@ -2,7 +2,6 @@ import { useJwtStore } from "./jwtStore"
 import { useLocalStorage } from "@vueuse/core"
 import { useMainStore } from "./mainStore"
 import { useMediaStore } from "./mediaStore"
-import { storeToRefs } from "pinia"
 
 export const useWatchStore = defineStore("watchStore", {
     state: () => ({

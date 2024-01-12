@@ -11,6 +11,10 @@ const props = defineProps({
     showLastVideo: {
         default: false,
         type: Boolean
+    },
+    recommendations: {
+        default: false,
+        type: Boolean
     }
 })
 
@@ -19,6 +23,8 @@ const showButtons = ref(false)
 const showLeftButton = ref(false)
 const showRightButton = ref(false)
 const allMedia = ref([])
+const recommendationsInput = ref([])
+const showRecommendationsInput = ref(false)
 const totalElements = ref(0)
 let fetching = false
 let totalPages = 0
@@ -31,6 +37,7 @@ onBeforeMount(() => {
 function fetchNextPage() {
     props.supplier(nextPage, 20).then(data => {
         allMedia.value.push(...data.content)
+        if (props.recommendations) recommendationsInput.value.push(...data.input)
         totalElements.value = data.totalElements
         totalPages = data.totalPages
         nextPage++
@@ -96,6 +103,22 @@ const hoverButtonHandler = (showButton) => {
         <div class="container-title">
             <h2 class="carousel-title">{{ title }}</h2>
             <span class="carousel-title-count">{{ totalElements ?? allMedia.length }}</span>
+            <div v-if="props.recommendations"
+                 style="display: flex; margin-left: 5px;">
+                <Icon @mouseover="showRecommendationsInput = true"
+                      @mouseleave="showRecommendationsInput = false"
+                      name="mdi:information-slab-circle-outline"
+                      width="25px"
+                      height="25px" />
+                <div v-if="showRecommendationsInput"
+                     style="position: absolute; z-index: 1; background-color: rgba(28, 28, 28, 0.95); margin-left: 40px; padding: 10px; border-radius: var(--border-radius-1); border: 1px solid var(--background-color-100);">
+                    <h2 style="margin-top: 0;">Based on:</h2>
+                    <ul style="margin: 0; padding: 0; list-style: none;">
+                        <li v-for="input in recommendationsInput"><span style="font-weight: bold;">{{ input.name }} |</span>
+                            {{ input.genres.join(", ") }}</li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div @mouseover="hoverButtonHandler(true)"
              @mouseleave="hoverButtonHandler(false)"
