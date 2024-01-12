@@ -1,6 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 import { useAdminStore } from '~/stores/adminStore';
+import { useJwtStore } from '~/stores/jwtStore';
 
 const adminStore = useAdminStore()
 
@@ -16,6 +17,7 @@ const masterToken = ref(false)
 const updateRoleElement = ref()
 const intervalCounter = ref(0)
 
+
 let updateInterval
 
 onBeforeMount(() => {
@@ -23,6 +25,9 @@ onBeforeMount(() => {
         adminStore.getAllUsers()
         adminStore.getAllTokens()
     }
+
+
+
 })
 
 onMounted(() => {
@@ -42,6 +47,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     clearInterval(updateInterval)
 })
+
 </script>
 
 <template>
@@ -52,17 +58,10 @@ onBeforeUnmount(() => {
                 <form @submit.prevent="adminStore.addUser(username, email, password, role)">
                     <div class="container-add-user">
                         <span style="font-size: 2rem; font-weight: 600;">Add User</span>
-                        <input v-model="username"
-                               placeholder="Username*"
-                               type="text"
-                               required>
+                        <input v-model="username" placeholder="Username*" type="text" required>
                         <!-- <input v-model="email" placeholder="Email" type="email"> -->
-                        <input v-model="password"
-                               placeholder="Password*"
-                               type="text"
-                               required>
-                        <select style="margin-bottom: 10px;"
-                                v-model="role">
+                        <input v-model="password" placeholder="Password*" type="text" required>
+                        <select style="margin-bottom: 10px;" v-model="role">
                             <option value="USER">User</option>
                             <option value="CRITIC">Critic</option>
                             <option value="ADMIN">Admin</option>
@@ -71,9 +70,8 @@ onBeforeUnmount(() => {
                     </div>
                 </form>
             </div>
-            <div class="container-vertical"
-                 style="width: 100%;">
-                <h1>test</h1>
+            <div class="container-vertical" style="width: 100%;">
+                <UserActivityChart />
                 <table class="container-users">
                     <thead>
                         <tr>
@@ -91,58 +89,43 @@ onBeforeUnmount(() => {
                             v-for="(user, index) in [...users].sort((a, b) => new Date(b.lastActiveAt) - new Date(a.lastActiveAt))">
                             <td class="username">{{ user.username }}</td>
                             <!-- <td class="email">{{ user.email }}</td> -->
-                            <td ref="updateRoleElement"
-                                class="role">
+                            <td ref="updateRoleElement" class="role">
                                 <select @change="e => adminStore.updateUser(user.username, null, e.target.value)">
-                                    <option :selected="user.role === 'USER'"
-                                            value="USER">User</option>
-                                    <option :selected="user.role === 'CRITIC'"
-                                            value="CRITIC">Critic</option>
-                                    <option :selected="user.role === 'ADMIN'"
-                                            value="ADMIN">Admin</option>
+                                    <option :selected="user.role === 'USER'" value="USER">User</option>
+                                    <option :selected="user.role === 'CRITIC'" value="CRITIC">Critic</option>
+                                    <option :selected="user.role === 'ADMIN'" value="ADMIN">Admin</option>
                                 </select>
                             </td>
                             <td>
-                                <div v-if="user.lastWatched.length > 0"
-                                     style="display: flex; align-items: center;">
+                                <div v-if="user.lastWatched.length > 0" style="display: flex; align-items: center;">
                                     {{ user.lastWatched[0].name }}
                                     <div v-if="new Date(user.lastWatched[0].updatedAt) > new Date(Date.now() - 15000)"
-                                         class="watch-indicator"></div>
+                                        class="watch-indicator"></div>
                                 </div>
                             </td>
                             <td class="last-active">{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
                             <td class="email">{{ new Date(user.lastLoginAt).toLocaleString() }}</td>
-                            <td class="delete"
-                                @click="adminStore.deleteUser(user.username)">
-                                <Icon class="icon"
-                                      name="material-symbols:delete"></Icon>
+                            <td class="delete" @click="adminStore.deleteUser(user.username)">
+                                <Icon class="icon" name="material-symbols:delete"></Icon>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div style="margin-top: 50px;"
-             class="container-horizontal">
+        <div style="margin-top: 50px;" class="container-horizontal">
             <form @submit.prevent="adminStore.addToken(expiration, roleToken, masterToken)">
                 <div class="container-add-token">
                     <span style="font-size: 2rem; font-weight: 600;">Add Token</span>
-                    <input v-model="expiration"
-                           type="date"
-                           required>
-                    <select style="margin-bottom: 10px;"
-                            v-model="roleToken"
-                            required>
+                    <input v-model="expiration" type="date" required>
+                    <select style="margin-bottom: 10px;" v-model="roleToken" required>
                         <option value="USER">User</option>
                         <option value="CRITIC">Critic</option>
                         <option value="ADMIN">Admin</option>
                     </select>
                     <div style="display: flex; align-items: center;">
                         <label for="isMasterToken">Master</label>
-                        <input style="margin: 10px;"
-                               id="isMasterToken"
-                               v-model="masterToken"
-                               type="checkbox">
+                        <input style="margin: 10px;" id="isMasterToken" v-model="masterToken" type="checkbox">
                     </div>
                     <button type="submit">Add Token</button>
                 </div>
@@ -168,8 +151,7 @@ onBeforeUnmount(() => {
                         <td>{{ new Date(token.expiration).toLocaleString() }}</td>
                         <td>{{ token.createdBy }}</td>
                         <td @click="adminStore.deleteToken(token.token)">
-                            <Icon class="icon"
-                                  name="material-symbols:delete"></Icon>
+                            <Icon class="icon" name="material-symbols:delete"></Icon>
                         </td>
                     </tr>
                 </tbody>

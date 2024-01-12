@@ -24,7 +24,9 @@
         "@nuxt/image": "^1.1.0",
         "@pinia/nuxt": "^0.4.11",
         "@vite-pwa/nuxt": "^0.1.1",
+        "apexcharts": "^3.45.1",
         "pinia": "^2.1.6",
-        "socket.io-client": "^4.7.2"
+        "socket.io-client": "^4.7.2",
+        "vue3-apexcharts": "^1.4.4"
     }
 }
