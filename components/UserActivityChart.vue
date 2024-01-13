@@ -6,7 +6,36 @@ const userActivityData = ref([])
 const config = useRuntimeConfig()
 
 onBeforeMount(() => {
-    fetch(config.public.baseURL + '/users/activity', {
+    fetchUserActivityData()
+        .then((data) => {
+            userActivityData.value.push(createUserActivityData(data.content))
+        })
+})
+
+function createUserActivityData(array) {
+    //interval in minutes
+    const interval = 60
+    const data = []
+
+    for (let i = 0; i < array.length - 1; i++) {
+        const difference = ((new Date(array[i].timestamp) - new Date(array[i + 1].timestamp)) / 1000 / 60).toFixed(0)
+        if (difference <= interval) {
+            data.push([new Date(array[i].timestamp), array[i].userCount])
+        }
+
+        if (difference > interval) {
+            const insertions = difference / 60
+            for (let j = 0; j < insertions; j++) {
+                data.push([new Date(new Date(array[i].timestamp) - (60 * 60 * 1000) * j), 0])
+            }
+        }
+    }
+
+    return { data: data }
+}
+
+async function fetchUserActivityData() {
+    return fetch(config.public.baseURL + '/users/activity', {
         method: "GET",
         headers: {
             Accept: 'application/json',
@@ -15,11 +44,7 @@ onBeforeMount(() => {
         }
     })
         .then((data) => data.json())
-        .then((data) => {
-            userActivityData.value.push({ data: data.content.map((data) => [new Date(data.timestamp).getTime(), data.userCount]) })
-            console.log(userActivityData.value)
-        })
-})
+}
 
 const chartOptions = {
     chart: {
@@ -111,7 +136,11 @@ const chartOptions = {
 
 <template>
     <div>
-        <apexchart :key="userActivityData" height="250px" width="100%" :options="chartOptions" :series="userActivityData">
+        <apexchart :key="userActivityData"
+                   height="250px"
+                   width="100%"
+                   :options="chartOptions"
+                   :series="userActivityData">
         </apexchart>
     </div>
 </template>

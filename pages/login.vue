@@ -1,46 +1,20 @@
 <script setup>
-import { storeToRefs } from "pinia";
 import { useJwtStore } from "~/stores/jwtStore"
 
 definePageMeta({
     layout: false,
 });
 
-const config = useRuntimeConfig()
 const jwtStore = useJwtStore()
-
-const { jwt } = storeToRefs(jwtStore)
 
 const username = ref()
 const password = ref()
 
-const login = (username, password) => {
-    fetch(config.public.baseURL + "/auth/authenticate", {
-        method: "POST",
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            username: username,
-            password: password,
-        }),
-    }).then((response) => {
-        if (response.status >= 200 && response.status < 300) {
-            return response.json()
-        }
-        throw new Error("Username or password is wrong")
-    }).then((data) => {
-        if (data !== undefined) {
-            jwt.value = data["token"]
-            navigateTo("/")
-        }
-    }).catch(e => {
-        alert(e)
+function login(username, password) {
+    jwtStore.setJwt(username, password).then(() => {
+        navigateTo("/")
     })
 }
-
-
 </script>
 
 <template>

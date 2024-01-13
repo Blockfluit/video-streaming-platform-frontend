@@ -86,8 +86,6 @@ export const useMainStore = defineStore("mainStore", {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json()
                     }
-                }).then((data) => {
-                    return data
                 }).catch(e => {
                     console.log(e)
                 })
@@ -104,8 +102,6 @@ export const useMainStore = defineStore("mainStore", {
                 if (response.status >= 200 && response.status < 300) {
                     return response.json()
                 }
-            }).then((data) => {
-                return data
             }).catch(e => {
                 console.log(e)
             })

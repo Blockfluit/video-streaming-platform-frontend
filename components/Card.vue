@@ -126,8 +126,11 @@ async function removeFromWatchlist(mediaId) {
         <div @click="navigationHandler(shownMedia.id)"
              class="title">
             <span class="name">{{ shownMedia.name }}</span>
-            <span v-if="shownMedia.videos > 1"
-                  class="total-videos">{{ shownMedia.videos }}</span>
+            <span v-if="shownMedia.videoCount > 1"
+                  class="total-videos">{{ shownMedia.videoCount }}</span>
+            <span v-else
+                  class="total-videos">{{ new Date(shownMedia.videos[0].duration * 1000).toISOString().slice(12, 16)
+                  }}</span>
         </div>
     </div>
 </template>
@@ -212,7 +215,7 @@ img {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 25px;
+    min-width: 30px;
 }
 
 .container-img {

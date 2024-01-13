@@ -8,6 +8,7 @@ const extractClaim = (jwt, claim) => {
 
 export const useJwtStore = defineStore("jwtStore", {
     state: () => ({
+        config: useRuntimeConfig(),
         jwt: useLocalStorage("token", "")
     }),
     getters: {
@@ -20,6 +21,31 @@ export const useJwtStore = defineStore("jwtStore", {
         isValid: (state) => (state.jwt !== "" && ((extractClaim(state.jwt, "exp") * 1000) > Date.now()))
     },
     actions: {
+        async setJwt(username, password) {
+            fetch(this.config.public.baseURL + "/auth/authenticate", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+                throw new Error("Username or password is wrong")
+            }).then((data) => {
+                if (data !== undefined) {
+                    this.jwt = data["token"]
+                    navigateTo("/")
+                }
+            }).catch(e => {
+                alert(e)
+            })
+        },
         destroyToken() {
             this.jwt = null
         }
