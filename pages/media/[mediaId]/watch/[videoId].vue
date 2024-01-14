@@ -35,12 +35,12 @@ onMounted(() => {
     if (process.client) {
         window.addEventListener("mousemove", resetOverlay)
         window.addEventListener("touchend", resetOverlay)
-        videoElement.value.addEventListener("seeking", updateWatched)
+        videoElement.value.addEventListener("seeking", updateWatched(currentVideoId, videoElement.value.currentTime))
         clearInterval(updateIntervalId)
 
         playVideo(currentVideoId)
         setTimeout(() => { showOverlay.value = false }, 3000)
-        updateIntervalId = setInterval(() => updateWatched, 5000)
+        updateIntervalId = setInterval(() => updateWatched(currentVideoId, videoElement.value.currentTime), 5000)
     }
 })
 
@@ -65,9 +65,9 @@ function resetOverlay() {
     timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
 }
 
-function updateWatched() {
+function updateWatched(videoId, timestamp) {
     if (videoElement.value === undefined) return
-    watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
+    watchStore.updateWatched(videoId, timestamp)
 }
 
 async function playVideo(videoId, time) {
@@ -93,7 +93,7 @@ async function playVideo(videoId, time) {
 function playVideoWithCountdown(videoId) {
     const countdownInSec = 5
     countdownTimer.value = countdownInSec
-    updateWatched()
+    updateWatched(videoId, videoElement.value.currentTime)
 
     intervalId = setInterval(() => {
         countdownTimer.value--
