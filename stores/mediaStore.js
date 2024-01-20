@@ -1,10 +1,9 @@
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports"
 import { useWatchStore } from "./watchStore"
 
 export const useMediaStore = defineStore("mediaStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
         watchStore: useWatchStore(),
         media: {}
     }),
@@ -15,7 +14,7 @@ export const useMediaStore = defineStore("mediaStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {

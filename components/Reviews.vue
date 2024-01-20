@@ -1,5 +1,5 @@
 <script setup>
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken, isAdmin, getSubject, getRole } from '#imports';
 import { useMediaStore } from '~/stores/mediaStore';
 
 const props = defineProps({
@@ -9,7 +9,6 @@ const props = defineProps({
 })
 
 const config = useRuntimeConfig()
-const jwtStore = useJwtStore()
 const mediaStore = useMediaStore()
 
 const title = ref()
@@ -17,9 +16,10 @@ const comment = ref()
 const editTitle = ref()
 const editComment = ref()
 const toggleEdit = ref()
+const role = ref(getRole)
 
 const showReviewButtons = (username) => {
-    return username === jwtStore.getSubject || jwtStore.getRole == "ADMIN"
+    return username === getSubject() || isAdmin()
 }
 
 const addReview = (title, comment) => {
@@ -28,7 +28,7 @@ const addReview = (title, comment) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            Authorization: `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             title: title,
@@ -50,7 +50,7 @@ const updateReview = (id, title, comment) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            "Authorization": `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             id: id,
@@ -75,7 +75,7 @@ const deleteReview = (id) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            "Authorization": `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             id: id,
@@ -100,7 +100,7 @@ const deleteReview = (id) => {
             <span style="font-size: 1.4rem; margin-left: 10px;">• {{ media.ratings?.length === 0 ? 0 : media.ratings?.length
             }}</span>
         </div>
-        <form v-if="jwtStore.getRole !== 'USER'"
+        <form v-if="role !== 'USER'"
               @submit.prevent="addReview(title, comment)">
             <div style="width: 100%;">
                 <input v-model="title"

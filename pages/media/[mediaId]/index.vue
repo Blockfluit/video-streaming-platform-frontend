@@ -2,12 +2,11 @@
 import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
-import { useJwtStore } from "~/stores/jwtStore";
+import { isAdmin } from '#imports'
 
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
-const jwtStore = useJwtStore()
 
 const { watched } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
@@ -23,6 +22,8 @@ const episodeContainer = ref()
 const episodeElements = ref()
 const showTrailer = ref(false)
 const showExtraInformation = ref(false)
+const admin = ref(isAdmin())
+let intervalId
 
 onBeforeMount(() => {
     if (process.client) {
@@ -45,7 +46,9 @@ const playVideo = (videoId) => {
 }
 
 function attemptScroll() {
-    const intervalId = setInterval(() => {
+    intervalId = setInterval(() => {
+        scrollAttempts--
+
         if (scrollAttempts < 0) {
             clearInterval(intervalId)
             return
@@ -55,7 +58,6 @@ function attemptScroll() {
             clearInterval(intervalId)
             return
         }
-        scrollAttempts--
     }, 100)
 }
 
@@ -70,7 +72,7 @@ function setLastVideo() {
 
 function scrollToLastVideo(elementList) {
     for (let child of elementList) {
-        if (parseInt(child.id) === lastVideo.value.videoId) {
+        if (parseInt(child.id) === lastVideo.value?.videoId) {
             episodeContainer.value.scrollTo({
                 left: (child.getBoundingClientRect().left - episodeContainer.value.getBoundingClientRect().left),
                 behavior: "smooth"
@@ -165,7 +167,7 @@ const calcTimePercentage = (video) => {
                         </div>
                         <div style="flex-grow: 1;"></div>
                         <div @click="editMedia(currentMediaId)"
-                             v-if="jwtStore.isAdmin"
+                             v-if="admin"
                              class="trailer-button">
                             <Icon name="mdi:pencil"
                                   width="25px"

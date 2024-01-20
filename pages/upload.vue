@@ -1,5 +1,5 @@
 <script setup>
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken } from '#imports';
 import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
 import { storeToRefs } from 'pinia';
@@ -7,7 +7,6 @@ import { storeToRefs } from 'pinia';
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
-const jwtStore = useJwtStore()
 
 const { allGenres, allActors } = storeToRefs(mainStore)
 const { name, type, plot, trailer, year, genres, actors } = storeToRefs(uploadStore)
@@ -85,7 +84,7 @@ const addMedia = () => {
         method: "POST",
         headers: {
             Accept: 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            Authorization: `Bearer ${getAccesToken()}`
         },
         body: formData,
     }).then((response) => {

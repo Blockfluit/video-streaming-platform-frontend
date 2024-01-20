@@ -1,6 +1,7 @@
 <script setup>
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken } from '#imports';
 import { useMediaStore } from '~/stores/mediaStore';
+import { getSubject } from '#imports';
 
 const props = defineProps({
     media: {
@@ -12,7 +13,6 @@ const props = defineProps({
     }
 })
 
-const jwtStore = useJwtStore()
 const mediaStore = useMediaStore()
 
 const ratingElement = ref()
@@ -28,7 +28,7 @@ const addRating = (rating) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            Authorization: `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             rating: rating,
@@ -54,7 +54,7 @@ const hoverHandler = (e) => {
 }
 
 function resetRating() {
-    const user = props.media?.ratings.find(entry => entry.username === jwtStore.getSubject)
+    const user = props.media?.ratings.find(entry => entry.username === getSubject())
     const userRating = user?.score ?? 0
 
     const rating = props.average ?

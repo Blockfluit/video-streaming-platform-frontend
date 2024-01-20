@@ -1,7 +1,6 @@
 <script setup>
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken } from '#imports';
 
-const jwtStore = useJwtStore()
 const userActivityData = ref([])
 const config = useRuntimeConfig()
 
@@ -40,7 +39,7 @@ async function fetchUserActivityData() {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.jwt}`
+            "Authorization": `Bearer ${await getAccesToken()}`
         }
     })
         .then((data) => data.json())

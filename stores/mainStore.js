@@ -1,10 +1,9 @@
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports"
 import { useLocalStorage } from "@vueuse/core"
 
 export const useMainStore = defineStore("mainStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
         allGenres: useLocalStorage("all-genres", []),
         allActors: useLocalStorage("all-actors", []),
         watched: useLocalStorage("watched", []),
@@ -19,7 +18,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -37,7 +36,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -56,7 +55,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -80,7 +79,7 @@ export const useMainStore = defineStore("mainStore", {
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
-                        "Authorization": `Bearer ${this.jwtStore.jwt}`
+                        "Authorization": `Bearer ${await getAccesToken()}`
                     }
                 }).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -96,7 +95,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {

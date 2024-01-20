@@ -1,9 +1,8 @@
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports"
 
 export const useRequestStore = defineStore("requestStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
     }),
     actions: {
         async getRequests(pagenumber, pagesize, options) {
@@ -12,7 +11,7 @@ export const useRequestStore = defineStore("requestStore", {
                 headers: {
                     Accept: 'application/json',
                     "Content-Type": 'application/json',
-                    Authorization: `Bearer ${this.jwtStore.jwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -31,7 +30,7 @@ export const useRequestStore = defineStore("requestStore", {
                 headers: {
                     Accept: 'application/json',
                     "Content-Type": 'application/json',
-                    Authorization: `Bearer ${this.jwtStore.jwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     name: name,
@@ -53,7 +52,7 @@ export const useRequestStore = defineStore("requestStore", {
                 headers: {
                     Accept: 'application/json',
                     "Content-Type": 'application/json',
-                    Authorization: `Bearer ${this.jwtStore.jwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     name: options.name,
@@ -77,7 +76,7 @@ export const useRequestStore = defineStore("requestStore", {
                 headers: {
                     Accept: 'application/json',
                     "Content-Type": 'application/json',
-                    Authorization: `Bearer ${this.jwtStore.jwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {

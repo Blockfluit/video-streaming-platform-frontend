@@ -1,19 +1,18 @@
 <script setup>
-import { useJwtStore } from "~/stores/jwtStore"
+import { initTokens } from "#imports";
 
 definePageMeta({
     layout: false,
 });
 
-const jwtStore = useJwtStore()
-
 const username = ref()
 const password = ref()
 
 function login(username, password) {
-    jwtStore.setJwt(username, password).then(() => {
-        navigateTo("/")
-    })
+    initTokens(username, password)
+        .then(() => {
+            navigateTo("/")
+        })
 }
 </script>
 

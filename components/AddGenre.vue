@@ -1,11 +1,10 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken } from '#imports';
 import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
 
 const config = useRuntimeConfig()
-const jwtStore = useJwtStore()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
 
@@ -29,7 +28,7 @@ const addGenre = (genre) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${jwtStore.getJwt}`
+            Authorization: `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             genre: genre,
@@ -49,9 +48,16 @@ const addGenre = (genre) => {
 
 <template>
     <div class="container">
-        <Icon @click="showAddGenre = !showAddGenre" name="fa-solid:plus" size="1rem" class="icon" />
-        <form v-if="showAddGenre" @submit.prevent="addGenre(inputGenre.toLowerCase())">
-            <input v-model="inputGenre" type="text" placeholder="genre" required>
+        <Icon @click="showAddGenre = !showAddGenre"
+              name="fa-solid:plus"
+              size="1rem"
+              class="icon" />
+        <form v-if="showAddGenre"
+              @submit.prevent="addGenre(inputGenre.toLowerCase())">
+            <input v-model="inputGenre"
+                   type="text"
+                   placeholder="genre"
+                   required>
             <button type="submit">Add Genre</button>
         </form>
     </div>

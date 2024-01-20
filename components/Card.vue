@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 import { useMainStore } from '~/stores/mainStore';
-import { useJwtStore } from '~/stores/jwtStore';
+import { isAdmin } from '#imports';
 import { useWatchlistStore } from "~/stores/watchlistStore";
 
 const props = defineProps({
@@ -10,7 +10,6 @@ const props = defineProps({
 })
 
 const mainStore = useMainStore()
-const jwtStore = useJwtStore()
 const watchlistStore = useWatchlistStore()
 
 const { watched } = storeToRefs(mainStore)
@@ -20,6 +19,7 @@ const config = useRuntimeConfig()
 const showExtraInformation = ref(false)
 const timePercentage = ref(0)
 const onWatchlist = ref(false)
+const admin = ref(isAdmin())
 
 onBeforeMount(() => {
     const lastWatched = getLastVideo(props.shownMedia.id)
@@ -119,7 +119,7 @@ async function removeFromWatchlist(mediaId) {
                 <div v-else>
                     <h3>No Rating</h3>
                 </div>
-                <span v-if="jwtStore.isAdmin">{{ shownMedia.views }} unique views</span>
+                <span v-if="admin">{{ shownMedia.views }} unique views</span>
                 <div style="flex-grow: 1;"></div>
             </div>
         </div>

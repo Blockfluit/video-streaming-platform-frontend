@@ -1,9 +1,8 @@
 <script setup>
-import { useJwtStore } from "~/stores/jwtStore"
+import { isAdmin, destroyTokens } from "#imports"
 import { useMainStore } from "~/stores/mainStore";
 import { storeToRefs } from "pinia";
 
-const jwtStore = useJwtStore()
 const mainStore = useMainStore()
 const { currentRoute } = useRouter();
 
@@ -12,70 +11,109 @@ const searchBar = ref()
 
 const showDropdown = ref(false)
 const filter = ref(['/movies', '/series', '/'])
+const admin = ref(isAdmin())
 
 const logout = () => {
-    jwtStore.destroyToken()
+    destroyTokens()
     navigateTo("/login")
 } 
 </script>
 
 <template>
     <nav>
-
         <transition name="fadedown">
-            <div v-if="showDropdown" @click="showDropdown = false" class="container-dropdown">
-                <NuxtLink @click="showDropdown = false" to="/" style="margin-top: 50px;">HOME</NuxtLink>
-                <NuxtLink @click="showDropdown = false" to="/movies">MOVIES</NuxtLink>
-                <NuxtLink @click="showDropdown = false" to="/series">SERIES</NuxtLink>
-                <NuxtLink @click="showDropdown = false" to="/watchlist">WATCHLIST</NuxtLink>
-                <NuxtLink @click="showDropdown = false" to="/request">REQUEST</NuxtLink>
+            <div v-if="showDropdown"
+                 @click="showDropdown = false"
+                 class="container-dropdown">
+                <NuxtLink @click="showDropdown = false"
+                          to="/"
+                          style="margin-top: 50px;">HOME</NuxtLink>
+                <NuxtLink @click="showDropdown = false"
+                          to="/movies">MOVIES</NuxtLink>
+                <NuxtLink @click="showDropdown = false"
+                          to="/series">SERIES</NuxtLink>
+                <NuxtLink @click="showDropdown = false"
+                          to="/watchlist">WATCHLIST</NuxtLink>
+                <NuxtLink @click="showDropdown = false"
+                          to="/request">REQUEST</NuxtLink>
                 <NuxtLink to="/cinema">CINEMA</NuxtLink>
-                <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/upload">UPLOAD</NuxtLink>
-                <NuxtLink @click="showDropdown = false" v-if="jwtStore.isAdmin" to="/admin">ADMIN</NuxtLink>
-                <span class="logout" @click="logout(); showDropdown = false">LOGOUT</span>
+                <NuxtLink @click="showDropdown = false"
+                          v-if="admin"
+                          to="/upload">UPLOAD</NuxtLink>
+                <NuxtLink @click="showDropdown = false"
+                          v-if="admin"
+                          to="/admin">ADMIN</NuxtLink>
+                <span class="logout"
+                      @click="logout(); showDropdown = false">LOGOUT</span>
             </div>
         </transition>
 
         <div class="mobile-menu">
             <div style="display:flex; align-items: center;">
-                <NuxtLink class="logo-mobile" to="/">
-                    <img src="/icons/dellekes_logo.png" class="home-icon" />
+                <NuxtLink class="logo-mobile"
+                          to="/">
+                    <img src="/icons/dellekes_logo.png"
+                         class="home-icon" />
                 </NuxtLink>
                 <transition name="fade">
-                    <input ref="searchBar" key="1" class="search-bar" v-if="showSearchBox" v-model="searchbox" type="text"
-                        style="margin-left: 20px;">
+                    <input ref="searchBar"
+                           key="1"
+                           class="search-bar"
+                           v-if="showSearchBox"
+                           v-model="searchbox"
+                           type="text"
+                           style="margin-left: 20px;">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="showSearchBox = true;"
-                    name="ph:magnifying-glass" size="25px" class="search-icon-mobile" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
+                      @click="showSearchBox = true;"
+                      name="ph:magnifying-glass"
+                      size="25px"
+                      class="search-icon-mobile" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="25px"
-                    class="search-icon" />
+                      @click="showSearchBox = false; searchbox = ''"
+                      name="radix-icons:cross-2"
+                      size="25px"
+                      class="search-icon" />
             </div>
-            <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="solar:hamburger-menu-outline"
-                size="35px" />
+            <Icon class="hamburger-menu"
+                  @click="showDropdown = !showDropdown"
+                  name="solar:hamburger-menu-outline"
+                  size="35px" />
         </div>
 
         <div class="desktop-nav">
             <div class="menu-left">
-                <NuxtLink class="logo-center" to="/">
-                    <img src="/icons/dellekes_logo.png" class="home-icon" />
+                <NuxtLink class="logo-center"
+                          to="/">
+                    <img src="/icons/dellekes_logo.png"
+                         class="home-icon" />
                 </NuxtLink>
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
                 <transition name="fade">
-                    <input key="1" class="search-bar" v-if="filter.includes(currentRoute.path) && showSearchBox"
-                        v-model="searchbox" type="text">
+                    <input key="1"
+                           class="search-bar"
+                           v-if="filter.includes(currentRoute.path) && showSearchBox"
+                           v-model="searchbox"
+                           type="text">
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="showSearchBox = true"
-                    name="ph:magnifying-glass" size="25px" class="search-icon" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
+                      @click="showSearchBox = true"
+                      name="ph:magnifying-glass"
+                      size="25px"
+                      class="search-icon" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                    @click="showSearchBox = false; searchbox = ''" name="radix-icons:cross-2" size="25px"
-                    class="search-icon" />
+                      @click="showSearchBox = false; searchbox = ''"
+                      name="radix-icons:cross-2"
+                      size="25px"
+                      class="search-icon" />
             </div>
             <div class="menu-right">
                 <div>
-                    <Icon class="hamburger-menu-desktop" @click="showDropdown = !showDropdown"
-                        name="solar:hamburger-menu-outline" size="35px" />
+                    <Icon class="hamburger-menu-desktop"
+                          @click="showDropdown = !showDropdown"
+                          name="solar:hamburger-menu-outline"
+                          size="35px" />
                 </div>
             </div>
         </div>

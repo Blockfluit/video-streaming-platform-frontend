@@ -1,11 +1,9 @@
-import { useJwtStore } from "./jwtStore"
 import { useMainStore } from "./mainStore"
 import { useLocalStorage } from "@vueuse/core"
 
 export const useUploadStore = defineStore("uploadStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
         mainStore: useMainStore(),
         name: useLocalStorage("upload-name", ""),
         type: useLocalStorage("upload-type", "MOVIE"),
@@ -21,7 +19,7 @@ export const useUploadStore = defineStore("uploadStore", {
                 method: "DELETE",
                 headers: {
                     Accept: 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    Authorization: `Bearer ${getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -41,7 +39,7 @@ export const useUploadStore = defineStore("uploadStore", {
                 method: "DELETE",
                 headers: {
                     Accept: 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    Authorization: `Bearer ${getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {

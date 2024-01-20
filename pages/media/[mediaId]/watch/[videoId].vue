@@ -8,7 +8,7 @@ const watchStore = useWatchStore()
 const config = useRuntimeConfig()
 
 const { media } = storeToRefs(mediaStore)
-const { volume, video, nextVideo, previousVideo, startTime } = storeToRefs(watchStore)
+const { volume, video, nextVideo, previousVideo, startTime, videoToken } = storeToRefs(watchStore)
 
 const videoElement = ref()
 const showOverlay = ref(true)
@@ -35,7 +35,7 @@ onMounted(() => {
     if (process.client) {
         window.addEventListener("mousemove", resetOverlay)
         window.addEventListener("touchend", resetOverlay)
-        videoElement.value.addEventListener("seeking", updateWatched(currentVideoId, videoElement.value.currentTime))
+        videoElement.value.addEventListener("seeking", () => updateWatched(currentVideoId, videoElement.value.currentTime))
         clearInterval(updateIntervalId)
 
         playVideo(currentVideoId)
@@ -80,7 +80,7 @@ async function playVideo(videoId, time) {
     if (videoId !== undefined) {
         watchStore.setVideo(currentMediaId, videoId)
             .then(() => {
-                videoElement.value.src = `${config.public.baseURL}/stream/video/${videoId}`
+                videoElement.value.src = `${config.public.baseURL}/stream/video/${videoId}?token=${videoToken.value}`
                 videoElement.value.currentTime = time ?? getStartTime()
                 videoElement.value.volume = volume.value
                 videoElement.value.load()
