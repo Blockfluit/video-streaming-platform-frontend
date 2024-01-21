@@ -155,6 +155,23 @@ export const useAdminStore = defineStore("adminStore", {
             }).catch(e => {
                 console.log(e)
             })
+        },
+        async revokeRefreshToken(userId) {
+            if (!confirm("Are you sure you want to logout this user?")) return
+
+            fetch(this.config.public.baseURL + "/auth/refresh-token/" + userId, {
+                method: "DELETE",
+                headers: {
+                    Accept: 'application/json',
+                    "Authorization": `Bearer ${await getAccesToken()}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    getAllUsers()
+                }
+            }).catch(e => {
+                console.log(e)
+            })
         }
     }
 })

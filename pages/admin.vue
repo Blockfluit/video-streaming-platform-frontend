@@ -44,6 +44,10 @@ onBeforeUnmount(() => {
     clearInterval(updateInterval)
 })
 
+function logoutUser(userId) {
+    adminStore.revokeRefreshToken(userId)
+        .then(() => adminStore.getAllUsers())
+}
 </script>
 
 <template>
@@ -86,6 +90,7 @@ onBeforeUnmount(() => {
                             <td>Last Active</td>
                             <td class="email">Last Login</td>
                             <td></td>
+                            <td></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,6 +119,10 @@ onBeforeUnmount(() => {
                             </td>
                             <td class="last-active">{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
                             <td class="email">{{ new Date(user.lastLoginAt).toLocaleString() }}</td>
+                            <td>
+                                <button v-if="user.refreshTokens.length > 0 && new Date(user.refreshTokens[0].expiration) > Date.now()"
+                                        @click="logoutUser(user.id)">logout</button>
+                            </td>
                             <td class="delete"
                                 @click="adminStore.deleteUser(user.username)">
                                 <Icon class="icon"
@@ -353,4 +362,5 @@ button:hover {
     .role {
         max-width: 60px;
     }
-}</style>
+}
+</style>
