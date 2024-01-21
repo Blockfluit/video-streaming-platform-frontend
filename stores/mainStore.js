@@ -1,50 +1,24 @@
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports"
 import { useLocalStorage } from "@vueuse/core"
 
 export const useMainStore = defineStore("mainStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
-        allMedia: useLocalStorage("all-media", [{
-            name: "",
-            trailer: ""
-        }]),
-        allMovies: useLocalStorage("all-movies", []),
-        allSeries: useLocalStorage("all-series", []),
         allGenres: useLocalStorage("all-genres", []),
         allActors: useLocalStorage("all-actors", []),
-        lastWatched: useLocalStorage("last-watched", []),
         watched: useLocalStorage("watched", []),
+        showSearchBox: false,
         searchbox: "",
+        selectedGenres: []
     }),
     actions: {
-        async setAllMedia() {
-            return fetch(this.config.public.baseURL + "/media/", {
-                method: "GET",
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
-                }
-            }).then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    return response.json()
-                }
-            }).then((data) => {
-                this.allMedia = data.allMedia.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-                this.allMovies = data.allMedia.filter(media => media["type"] === "MOVIE")
-                this.allSeries = data.allMedia.filter(media => media["type"] === "SERIES")
-            }).catch(e => {
-                console.log(e)
-            })
-        },
         async setWatched() {
             return fetch(this.config.public.baseURL + "/watched", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -62,7 +36,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -81,7 +55,7 @@ export const useMainStore = defineStore("mainStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -93,20 +67,40 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        async setLastWatched() {
-            return fetch(this.config.public.baseURL + "/media/last-watched", {
+        async getMedia(endpoint, pagenumber, pagesize, options) {
+            return fetch(`${this.config.public.baseURL}/media/${endpoint ?? ""}` +
+                `?pagenumber=${pagenumber ?? 0}` +
+                `&pagesize=${pagesize ?? 30}` +
+                `&type=${options?.type ?? ""}` +
+                `&genres=${options?.genres ?? ""}` +
+                `&search=${options?.search ?? ""}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${await getAccesToken()}`
+                    }
+                }).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json()
+                    }
+                }).catch(e => {
+                    console.log(e)
+                })
+        },
+        async getRecommendations() {
+            return fetch(`${this.config.public.baseURL}/recommendations`, {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     return response.json()
                 }
-            }).then((data) => {
-                this.lastWatched = data.lastWatched.slice(0, 50)
             }).catch(e => {
                 console.log(e)
             })

@@ -1,7 +1,7 @@
 <script setup>
 import { storeToRefs } from 'pinia';
 import { useMainStore } from '~/stores/mainStore';
-import { useJwtStore } from '~/stores/jwtStore';
+import { isAdmin } from '#imports';
 import { useWatchlistStore } from "~/stores/watchlistStore";
 
 const props = defineProps({
@@ -10,7 +10,6 @@ const props = defineProps({
 })
 
 const mainStore = useMainStore()
-const jwtStore = useJwtStore()
 const watchlistStore = useWatchlistStore()
 
 const { watched } = storeToRefs(mainStore)
@@ -20,6 +19,7 @@ const config = useRuntimeConfig()
 const showExtraInformation = ref(false)
 const timePercentage = ref(0)
 const onWatchlist = ref(false)
+const admin = ref(isAdmin())
 
 onBeforeMount(() => {
     const lastWatched = getLastVideo(props.shownMedia.id)
@@ -109,25 +109,28 @@ async function removeFromWatchlist(mediaId) {
                           :style="{ color: onWatchlist ? 'var(--primary-color-100)' : 'var(--text-color-2)' }" />
                 </button>
                 <div style="flex-grow: 1;"></div>
-                <div v-if="shownMedia.rating >= 1">
+                <div v-if="shownMedia.avgRating >= 1">
                     <template v-for="star in 5">
                         <Icon class="star"
-                              :style="{ color: shownMedia.rating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
+                              :style="{ color: shownMedia.avgRating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
                               name="mdi:star" />
                     </template>
                 </div>
                 <div v-else>
                     <h3>No Rating</h3>
                 </div>
-                <span v-if="jwtStore.isAdmin">{{ shownMedia.views }} unique views</span>
+                <span v-if="admin">{{ shownMedia.views }} unique views</span>
                 <div style="flex-grow: 1;"></div>
             </div>
         </div>
         <div @click="navigationHandler(shownMedia.id)"
              class="title">
             <span class="name">{{ shownMedia.name }}</span>
-            <span v-if="shownMedia.videos > 1"
-                  class="total-videos">{{ shownMedia.videos }}</span>
+            <span v-if="shownMedia.videoCount > 1"
+                  class="total-videos">{{ shownMedia.videoCount }}</span>
+            <span v-else
+                  class="total-videos">{{ new Date(shownMedia.videos[0].duration * 1000).toISOString().slice(12, 16)
+                  }}</span>
         </div>
     </div>
 </template>
@@ -212,7 +215,7 @@ img {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 25px;
+    min-width: 30px;
 }
 
 .container-img {

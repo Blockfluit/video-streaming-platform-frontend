@@ -1,10 +1,9 @@
 import { useLocalStorage } from "@vueuse/core";
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports";
 
 export const useWatchlistStore = defineStore("watchlistStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
         watchlist: useLocalStorage("watchlist", [])
     }),
     actions: {
@@ -13,7 +12,7 @@ export const useWatchlistStore = defineStore("watchlistStore", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -32,7 +31,7 @@ export const useWatchlistStore = defineStore("watchlistStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     id: mediaId
@@ -48,7 +47,7 @@ export const useWatchlistStore = defineStore("watchlistStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.jwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     id: mediaId

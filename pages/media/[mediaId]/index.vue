@@ -2,13 +2,11 @@
 import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
-import { useJwtStore } from "~/stores/jwtStore";
+import { isAdmin } from '#imports'
 
 const config = useRuntimeConfig()
-
 const mainStore = useMainStore()
 const mediaStore = useMediaStore()
-const jwtStore = useJwtStore()
 
 const { watched } = storeToRefs(mainStore)
 const { media } = storeToRefs(mediaStore)
@@ -24,6 +22,8 @@ const episodeContainer = ref()
 const episodeElements = ref()
 const showTrailer = ref(false)
 const showExtraInformation = ref(false)
+const admin = ref(isAdmin())
+let intervalId
 
 onBeforeMount(() => {
     if (process.client) {
@@ -32,25 +32,8 @@ onBeforeMount(() => {
 
         mediaStore.setMedia(currentMediaId)
         mainStore.setWatched()
-            .then(() => {
-                setLastVideo()
-            })
+            .then(() => setLastVideo())
     }
-})
-
-watch(lastVideo, (n, o) => {
-    const intervalId = setInterval(() => {
-        if (scrollAttempts < 0) {
-            clearInterval(intervalId)
-            return
-        }
-        if (episodeElements.value !== undefined) {
-            scrollToLastVideo(episodeElements.value)
-            clearInterval(intervalId)
-            return
-        }
-        scrollAttempts--
-    }, 100)
 })
 
 function scrollHorizontal(e) {
@@ -62,9 +45,26 @@ const playVideo = (videoId) => {
     navigateTo(`/media/${currentMediaId}/watch/${videoId}`)
 }
 
+function attemptScroll() {
+    intervalId = setInterval(() => {
+        scrollAttempts--
+
+        if (scrollAttempts < 0) {
+            clearInterval(intervalId)
+            return
+        }
+        if (episodeElements.value !== undefined) {
+            scrollToLastVideo(episodeElements.value)
+            clearInterval(intervalId)
+            return
+        }
+    }, 100)
+}
+
 function setLastVideo() {
     lastVideo.value = watched.value.filter(entry => entry.mediaId === currentMediaId)
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+    attemptScroll()
     if (lastVideo.value !== undefined) {
         selectedSeason.value = lastVideo.value.season
     }
@@ -72,7 +72,7 @@ function setLastVideo() {
 
 function scrollToLastVideo(elementList) {
     for (let child of elementList) {
-        if (parseInt(child.id) === lastVideo.value.videoId) {
+        if (parseInt(child.id) === lastVideo.value?.videoId) {
             episodeContainer.value.scrollTo({
                 left: (child.getBoundingClientRect().left - episodeContainer.value.getBoundingClientRect().left),
                 behavior: "smooth"
@@ -99,18 +99,13 @@ const playLastVideo = () => {
 }
 
 const parseTrailer = (trailer, controls, mute) => {
-    if (trailer === undefined) {
-        return "https://www.youtube.com/watch?v=J---aiyznGQ"
-    }
-    const trailerLongId = trailer.includes("watch?v=") ? trailer.split("watch?v=")[1] : "J---aiyznGQ"
-    if (trailerLongId === "J---aiyznGQ") trailer = "https://www.youtube.com/watch?v=J---aiyznGQ"
+    if (trailer === undefined) return ""
+
+    const trailerLongId = trailer.split("watch?v=")[1]
     const trailerId = trailerLongId.split("&t=")[0]
     const time = trailerLongId.includes("&t=") ? trailerLongId.split("&t=")[1].replace("s", "") : ""
-
-    return trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0${controls ?
-        "&controls=1" : "&controls=0"}${mute ?
-            "&mute=0" : "&mute=1"}&disablekb&fs=0&loop=1&rel=0${time !== "" ?
-                "&start=" + time : ""}`
+    const trailerUrl = trailer.replace('watch?v=', 'embed/') + `?playlist=${trailerId}&autoplay=1&showinfo=0&controls=${controls ? 1 : 0}&mute=${mute ? 0 : 1}&disablekb&fs=0&loop=1&rel=0&start=${time ?? 0}`
+    return trailerUrl
 }
 
 function editMedia(mediaId) {
@@ -120,9 +115,7 @@ function editMedia(mediaId) {
 const calcTimePercentage = (video) => {
     const currentWatched = mainStore.watched.find(entry => entry.videoId === video.id)
 
-    if (currentWatched !== undefined) {
-        return currentWatched.timestamp / video.duration * 100
-    }
+    if (currentWatched !== undefined) return currentWatched.timestamp / video.duration * 100
     return 0
 }
 
@@ -139,25 +132,29 @@ const calcTimePercentage = (video) => {
                     <div style="display: flex; align-items: baseline;">
                         <h1 style=" text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                     </div>
-                    <span class="info">{{ media.year }} <span v-if="media.videos.length === 1">• {{
+                    <span class="info">{{ media?.year }} <span v-if="media.videos?.length === 1">• {{
                         formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
-        media.genre.join(", ") }}</span>
-                    <p class="plot-text hide-on-phone">{{ media.plot }}</p>
+        media.genres?.join(", ") }}</span>
+                    <p class="plot-text hide-on-phone">{{ media?.plot }}</p>
                     <div class="container-cast hide-on-phone"
                          style="display: flex;">
                         <span class="hide-on-phone">Cast:&nbsp;</span>
                         <span class="hide-on-phone"
                               v-for="(actor, index) in media.actors">{{ actor.firstname }}<span
                                   v-if="actor.lastname">&nbsp;{{
-                                      actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+                                      actor.lastname }}</span><span v-if="index < media.actors?.length - 1">,&nbsp;</span></span>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <Rating :media="media"
                                 :average="true" />
-                        <span>• {{ media.ratings.length === 0 ? 0 : (media.ratings
-                            .map(rating => rating.score)
-                            .reduce((a, b) => a + b, 0) /
-                            media.ratings.length / 2).toFixed(1) }}/5</span>
+                        <span>• {{ media.avgRating < 0
+                            ?
+                            0
+                            :
+                            (media.avgRating
+                                /
+                                2).toFixed(1)
+                        }}/5</span>
                     </div>
 
                     <div class="button-container">
@@ -170,7 +167,7 @@ const calcTimePercentage = (video) => {
                         </div>
                         <div style="flex-grow: 1;"></div>
                         <div @click="editMedia(currentMediaId)"
-                             v-if="jwtStore.isAdmin"
+                             v-if="admin"
                              class="trailer-button">
                             <Icon name="mdi:pencil"
                                   width="25px"
@@ -199,7 +196,7 @@ const calcTimePercentage = (video) => {
             </div>
 
             <!-- Show season button if it is season -->
-            <div v-if="!media.seasons.includes(-1)"
+            <div v-if="!media.seasons?.includes(-1)"
                  class="season-btn">
                 <span @click="showDropdown = !showDropdown"
                       style="padding-left: 6px">Season {{ selectedSeason }}
@@ -208,24 +205,24 @@ const calcTimePercentage = (video) => {
                 </span>
                 <ul v-if="showDropdown"
                     class="season-dropdown">
-                    <li v-for="season in media.seasons.sort((a, b) => a - b)"
+                    <li v-for="season in media.seasons?.sort((a, b) => a - b)"
                         @click="selectedSeason = season; showDropdown = false"
                         class="season">Season {{ season }}</li>
                 </ul>
             </div>
 
             <!-- Show season episodes based on choosen season -->
-            <div v-if="media.videos.length > 1"
+            <div v-if="media?.videos?.length > 1"
                  class="container-episodes">
                 <!-- Movie episode cards -->
-                <ul v-if="media.seasons.includes(-1)"
+                <ul v-if="media.seasons?.includes(-1)"
                     @wheel="scrollHorizontal"
                     ref="episodeContainer"
                     class="movie-content">
                     <li @click="playVideo(video.id)"
                         ref="episodeElements"
                         class="episode-card"
-                        v-for="(video) in  media.videos.sort((a, b) => a.index - b.index)"
+                        v-for="(video) in  media.videos?.sort((a, b) => a.index - b.index)"
                         :id="video.id">
                         <div class="darken"></div>
                         <span>{{ video.name }}</span>
@@ -247,7 +244,7 @@ const calcTimePercentage = (video) => {
                     <li @click="playVideo(video.id)"
                         ref="episodeElements"
                         class="episode-card"
-                        v-for="(video) in  media.videos.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
+                        v-for="(video) in  media.videos?.filter((video => video.season === selectedSeason)).sort((a, b) => a.index - b.index)"
                         :id="video.id">
                         <div class="darken"></div>
                         <span>{{ video.name }}</span>
@@ -260,13 +257,12 @@ const calcTimePercentage = (video) => {
                              :style="`width:${calcTimePercentage(video)}%`"></div>
                     </li>
                 </ul>
-                <div class="review-container">
-                    <Reviews :media1="media" />
-                </div>
+                <!-- <div class="review-container">
+                    <Reviews :media="media" />
+                </div> -->
             </div>
-            <div v-if="media.seasons.includes(-1) && media.videos.length === 1"
-                 class="review-container-movie">
-                <Reviews :media1="media" />
+            <div class="review-container-movie">
+                <Reviews :media="media" />
             </div>
         </div>
         <div @click="showTrailer = false"
@@ -281,12 +277,12 @@ const calcTimePercentage = (video) => {
              class="container-popup">
             <div class="container-popup-information">
                 <h1 style="text-transform: uppercase; margin-bottom: -10px; margin-top: 0;">{{ media.name }}</h1>
-                <span class="info">{{ media.year }} • {{ media.genre.join(", ") }}</span>
+                <span class="info">{{ media.year }} • {{ media.genres?.join(", ") }}</span>
                 <p class="plot-text">{{ media.plot }}</p>
                 <div class="container-cast">
                     <span>Cast:&nbsp;</span>
-                    <span v-for="(actor, index) in media.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
-                        actor.lastname }}</span><span v-if="index < media.actors.length - 1">,&nbsp;</span></span>
+                    <span v-for="(actor, index) in media?.actors">{{ actor.firstname }}<span v-if="actor.lastname">&nbsp;{{
+                        actor.lastname }}</span><span v-if="index < media.actors?.length - 1">,&nbsp;</span></span>
                 </div>
             </div>
         </div>

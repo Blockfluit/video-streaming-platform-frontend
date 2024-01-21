@@ -1,9 +1,8 @@
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports"
 
 export const useAdminStore = defineStore("adminStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
         users: [],
         tokens: [],
     }),
@@ -14,7 +13,7 @@ export const useAdminStore = defineStore("adminStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -32,7 +31,7 @@ export const useAdminStore = defineStore("adminStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     username: username,
@@ -64,7 +63,7 @@ export const useAdminStore = defineStore("adminStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     username: username,
@@ -87,7 +86,7 @@ export const useAdminStore = defineStore("adminStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     username: username,
@@ -106,7 +105,7 @@ export const useAdminStore = defineStore("adminStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -124,7 +123,7 @@ export const useAdminStore = defineStore("adminStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     expiration: new Date(expiration),
@@ -147,11 +146,28 @@ export const useAdminStore = defineStore("adminStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     getAllTokens()
+                }
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+        async revokeRefreshToken(userId) {
+            if (!confirm("Are you sure you want to logout this user?")) return
+
+            fetch(this.config.public.baseURL + "/auth/refresh-token/" + userId, {
+                method: "DELETE",
+                headers: {
+                    Accept: 'application/json',
+                    "Authorization": `Bearer ${await getAccesToken()}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    getAllUsers()
                 }
             }).catch(e => {
                 console.log(e)

@@ -1,17 +1,16 @@
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports"
 import { useLocalStorage } from "@vueuse/core"
 import { useMainStore } from "./mainStore"
 import { useMediaStore } from "./mediaStore"
-import { storeToRefs } from "pinia"
 
 export const useWatchStore = defineStore("watchStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
         mainStore: useMainStore(),
         mediaStore: useMediaStore(),
         startTime: 0,
         volume: useLocalStorage("watch-volume", 0.5),
+        videoToken: "",
         video: {},
         nextVideo: {},
         previousVideo: {},
@@ -21,16 +20,19 @@ export const useWatchStore = defineStore("watchStore", {
             const promise1 = this.mainStore.setWatched()
                 .then(() => {
                     const video = this.mainStore.watched.find(entry => entry.videoId === videoId)
-                    this.startTime = video === undefined ? 0 : video.timestamp
+                    this.startTime = video?.timestamp ?? 0
                 })
             const promise2 = this.mediaStore.setMedia(mediaId)
-                .then(() => {
-                    const { media } = storeToRefs(this.mediaStore)
-                    this.video = media.value.videos.find(entry => entry.id === videoId)
-                    this.nextVideo = media.value.videos.find(entry => entry.index === this.video.index + 1)
-                    this.previousVideo = media.value.videos.find(entry => entry.index === this.video.index - 1)
+                .then((media) => {
+                    this.video = media.videos.find(entry => entry.id === videoId)
+                    this.nextVideo = media.videos.find(entry => entry.index === this.video.index + 1)
+                    this.previousVideo = media.videos.find(entry => entry.index === this.video.index - 1)
                 })
-            return Promise.all([promise1, promise2])
+            const promise3 = this.getVideoToken(videoId)
+                .then(data => {
+                    this.videoToken = data.token
+                })
+            return Promise.all([promise1, promise2, promise3])
         },
         async updateWatched(id, time) {
             return fetch(this.config.public.baseURL + "/watched", {
@@ -38,7 +40,7 @@ export const useWatchStore = defineStore("watchStore", {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${this.jwtStore.getJwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 },
                 body: JSON.stringify({
                     id: id,
@@ -52,5 +54,20 @@ export const useWatchStore = defineStore("watchStore", {
                 console.log(e)
             })
         },
+        async getVideoToken(videoId) {
+            return fetch(`${this.config.public.baseURL}/stream/video-token/${videoId}`, {
+                method: "GET",
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${await getAccesToken()}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+            }).catch(e => {
+                console.log(e)
+            })
+        }
     }
 })

@@ -1,12 +1,11 @@
 <script setup>
-import { useJwtStore } from "~/stores/jwtStore"
+import { setTokens } from "#imports"
 
 definePageMeta({
     layout: false,
 });
 
 const config = useRuntimeConfig()
-const jwtStore = useJwtStore()
 
 const username = ref("")
 const password = ref("")
@@ -41,7 +40,7 @@ const register = () => {
         }
         throw new Error("Username or password is wrong.")
     }).then((data) => {
-        jwtStore.jwt = data["token"]
+        setTokens(data.accessToken, data.refreshToken)
         navigateTo("/")
     }).catch((e) => {
         alert(e)

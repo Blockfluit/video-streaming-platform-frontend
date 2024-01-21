@@ -1,4 +1,4 @@
-import { useJwtStore } from "./jwtStore"
+import { getAccesToken } from "#imports";
 import { useMainStore } from "./mainStore"
 import { useMediaStore } from "./mediaStore"
 import { storeToRefs } from 'pinia';
@@ -6,7 +6,6 @@ import { storeToRefs } from 'pinia';
 export const useEditStore = defineStore("editStore", {
     state: () => ({
         config: useRuntimeConfig(),
-        jwtStore: useJwtStore(),
         mainStore: useMainStore(),
         mediaStore: useMediaStore(),
     }),
@@ -23,8 +22,8 @@ export const useEditStore = defineStore("editStore", {
             const formData = new FormData()
             if (thumbnail !== undefined) formData.append("thumbnail", thumbnail)
             if (type !== media.value.type) formData.append("type", type)
-            if (genres !== media.value.genres) formData.append("genres", genres)
-            if (actors !== media.value.actors) formData.append("actors", actorIds)
+            formData.append("genres", genres)
+            formData.append("actors", actorIds)
             if (trailer !== media.value.trailer) formData.append("trailer", trailer)
             if (year !== media.value.year) formData.append("year", year)
             if (plot !== media.value.plot) formData.append("plot", plot)
@@ -40,7 +39,7 @@ export const useEditStore = defineStore("editStore", {
                 method: "PATCH",
                 headers: {
                     Accept: 'application/json',
-                    Authorization: `Bearer ${this.jwtStore.getJwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 },
                 body: formData,
             }).then((response) => {
@@ -61,7 +60,7 @@ export const useEditStore = defineStore("editStore", {
                 headers: {
                     Accept: 'application/json',
                     "Content-Type": 'application/json',
-                    Authorization: `Bearer ${this.jwtStore.getJwt}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {

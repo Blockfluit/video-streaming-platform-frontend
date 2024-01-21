@@ -35,11 +35,11 @@ onBeforeMount(() => {
         const route = useRoute()
         currentMediaId = route.params.mediaId
 
-        mediaStore.setMedia(currentMediaId)
+        mediaStore.setMedia(currentMediaId).then(() => {
+            resetInputFields()
+        })
         mainStore.setAllActors()
         mainStore.setAllGenres()
-
-        resetInputFields()
     }
 })
 
@@ -49,19 +49,15 @@ onMounted(() => {
     }
 })
 
-watch(media, (n, o) => {
-    resetInputFields()
-}, { deep: true })
-
 function resetInputFields() {
     type.value = media.value.type
     plot.value = media.value.plot
     trailer.value = media.value.trailer
     year.value = media.value.year
-    genres.value = media.value.genre
+    genres.value = media.value.genres
     actors.value = media.value.actors
     updateVideos.value = false
-    videosOrder.value = [...media.value.videos].sort((a, b) => a.index - b.index)
+    videosOrder.value = media.value.videos?.sort((a, b) => a.index - b.index)
     previewImageUrl.value = config.public.baseURL + "/stream/thumbnail/" + media.value.id
 }
 
@@ -168,7 +164,7 @@ async function filterActors(search) {
                             <label style="margin-right: 10px;">Actors:</label>
                             <AddActor />
                         </div>
-                        <span>Selected: {{ actors.length }}</span>
+                        <span>Selected: {{ actors?.length }}</span>
                     </div>
                     <div class="actor-list">
                         <template v-for="actor in filteredActors">

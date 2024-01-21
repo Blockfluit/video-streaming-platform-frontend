@@ -1,40 +1,34 @@
 <script setup>
-import { storeToRefs } from 'pinia';
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken, isAdmin, getSubject, getRole } from '#imports';
 import { useMediaStore } from '~/stores/mediaStore';
 
 const props = defineProps({
-    media1: {},
+    media: {
+        type: Object
+    }
 })
 
 const config = useRuntimeConfig()
-
-const jwtStore = useJwtStore()
 const mediaStore = useMediaStore()
 
-const { media } = storeToRefs(mediaStore)
-const reviews = ref(props.media1.reviews)
 const title = ref()
 const comment = ref()
 const editTitle = ref()
 const editComment = ref()
 const toggleEdit = ref()
-
-watch(media, (o, n) => {
-    reviews.value = [...media.value.reviews]
-})
+const role = ref(getRole)
 
 const showReviewButtons = (username) => {
-    return username === jwtStore.getSubject || jwtStore.getRole == "ADMIN"
+    return username === getSubject() || isAdmin()
 }
 
 const addReview = (title, comment) => {
-    fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
+    fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
         method: "POST",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            Authorization: `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             title: title,
@@ -42,7 +36,7 @@ const addReview = (title, comment) => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media1.id)
+            mediaStore.setMedia(props.media.id)
             return
         }
     }).catch(e => {
@@ -51,12 +45,12 @@ const addReview = (title, comment) => {
 }
 
 const updateReview = (id, title, comment) => {
-    fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
+    fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
         method: "PUT",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            "Authorization": `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             id: id,
@@ -65,7 +59,7 @@ const updateReview = (id, title, comment) => {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media1.id)
+            mediaStore.setMedia(props.media.id)
             return
         }
     }).catch(e => {
@@ -76,19 +70,19 @@ const updateReview = (id, title, comment) => {
 const deleteReview = (id) => {
     if (!confirm("Are you sure you want to delete this review?")) return
 
-    fetch(`${config.public.baseURL}/media/${props.media1.id}/review`, {
+    fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
         method: "DELETE",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            "Authorization": `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             id: id,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media1.id)
+            mediaStore.setMedia(props.media.id)
             return
         }
     }).catch(e => {
@@ -101,49 +95,69 @@ const deleteReview = (id) => {
     <div>
         <div style="display: flex; align-items:center;">
             <span style="margin-right: 15px;">Reviews</span>
-            <Rating :media="media1" :average="false" />
-            <span style="font-size: 1.4rem; margin-left: 10px;">• {{ media.ratings.length === 0 ? 0 : media.ratings.length
+            <Rating :media="media"
+                    :average=false />
+            <span style="font-size: 1.4rem; margin-left: 10px;">• {{ media.ratings?.length === 0 ? 0 : media.ratings?.length
             }}</span>
         </div>
-        <form v-if="jwtStore.getRole !== 'USER'" @submit.prevent="addReview(title, comment)">
+        <form v-if="role !== 'USER'"
+              @submit.prevent="addReview(title, comment)">
             <div style="width: 100%;">
-                <input v-model="title" placeholder="Title..." type="text" required>
-                <input v-model="comment" placeholder="Review..." type="text" required>
+                <input v-model="title"
+                       placeholder="Title..."
+                       type="text"
+                       required>
+                <input v-model="comment"
+                       placeholder="Review..."
+                       type="text"
+                       required>
             </div>
-            <button class="post-btn" type="submit">Post review</button>
+            <button class="post-btn"
+                    type="submit">Post review</button>
         </form>
         <div class="divider"></div>
         <ul class="scroll-container">
-            <div v-for="(review, index) in reviews.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))"
-                class="container-review">
+            <div v-for="(review, index) in media.reviews"
+                 class="container-review">
                 <div class="review-header">
                     <p style="font-weight: 700; display: flex; align-items: center;">{{ review.user.username }}
                     <p class="review-date">{{ new Date(review.updatedAt).toLocaleDateString() }}</p>
                     </p>
                     <div style="margin-left: 15px; display: flex;align-items: center;">
-                        <Icon class="review-star" name="mdi:star"
-                            v-for="star in (media.ratings.find(rating => rating.username === review.user.username).score / 2)" />
+                        <Icon class="review-star"
+                              name="mdi:star"
+                              v-for="star in (media.ratings?.find(rating => rating.username === review.user.username).score / 2)" />
                     </div>
                     <div style="flex-grow: 1;"></div>
                     <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit !== index"
-                            @click="toggleEdit = index">
-                            <Icon class="icon" name="mdi:pencil" />
+                        <button class="review-btn"
+                                v-if="showReviewButtons(review.user.username) && toggleEdit !== index"
+                                @click="toggleEdit = index">
+                            <Icon class="icon"
+                                  name="mdi:pencil" />
                         </button>
-                        <button class="review-btn" v-if="showReviewButtons(review.user.username) && toggleEdit === index"
-                            @click="updateReview(review.id, editTitle[index].innerText, editComment[index].innerText); toggleEdit = null;">
-                            <Icon class="icon" name="ic:outline-check" />
+                        <button class="review-btn"
+                                v-if="showReviewButtons(review.user.username) && toggleEdit === index"
+                                @click="updateReview(review.id, editTitle[index].innerText, editComment[index].innerText); toggleEdit = null;">
+                            <Icon class="icon"
+                                  name="ic:outline-check" />
                         </button>
-                        <button class="review-btn" v-if="showReviewButtons(review.user.username)"
-                            @click="deleteReview(review.id)">
-                            <Icon class="icon" name="material-symbols:delete"></Icon>
+                        <button class="review-btn"
+                                v-if="showReviewButtons(review.user.username)"
+                                @click="deleteReview(review.id)">
+                            <Icon class="icon"
+                                  name="material-symbols:delete"></Icon>
                         </button>
                     </div>
                 </div>
-                <div ref="editTitle" :class="toggleEdit === index ? 'focus' : ''" :contenteditable="toggleEdit === index">
+                <div ref="editTitle"
+                     :class="toggleEdit === index ? 'focus' : ''"
+                     :contenteditable="toggleEdit === index">
                     <h3 style="margin: 0;">{{ review.title }}</h3>
                 </div>
-                <div ref="editComment" :class="toggleEdit === index ? 'focus' : ''" :contenteditable="toggleEdit === index">
+                <div ref="editComment"
+                     :class="toggleEdit === index ? 'focus' : ''"
+                     :contenteditable="toggleEdit === index">
                     {{ review.comment }}</div>
             </div>
         </ul>

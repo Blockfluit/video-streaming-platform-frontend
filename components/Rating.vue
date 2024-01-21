@@ -1,39 +1,41 @@
 <script setup>
-import { storeToRefs } from 'pinia';
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken } from '#imports';
 import { useMediaStore } from '~/stores/mediaStore';
+import { getSubject } from '#imports';
 
 const props = defineProps({
-    media: {},
-    average: true
+    media: {
+        type: Object
+    },
+    average: {
+        default: true,
+        type: Boolean
+    }
 })
 
-const jwtStore = useJwtStore()
 const mediaStore = useMediaStore()
-
-const { media } = storeToRefs(mediaStore)
 
 const ratingElement = ref()
 const config = useRuntimeConfig()
 
-onMounted(() => {
+watch(props, (n, o) => {
     resetRating()
 })
 
 const addRating = (rating) => {
-    fetch(`${config.public.baseURL}/media/${props.media.id}/rate`, {
+    fetch(`${config.public.baseURL}/media/${props.media?.id}/rate`, {
         method: "POST",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtStore.getJwt}`
+            Authorization: `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             rating: rating,
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mediaStore.setMedia(props.media.id)
+            mediaStore.setMedia(props.media?.id)
             return
         }
     }).catch(e => {
@@ -51,12 +53,13 @@ const hoverHandler = (e) => {
     }
 }
 
-const resetRating = () => {
-    const userRating = media.value.ratings.find(entry => entry.username === jwtStore.getSubject) ?? { score: 0 }
+function resetRating() {
+    const user = props.media?.ratings.find(entry => entry.username === getSubject())
+    const userRating = user?.score ?? 0
 
     const rating = props.average ?
-        Math.floor(media.value.ratings.reduce((acc, rating) => acc + rating.score, 0) / media.value.ratings.length / 2) :
-        userRating.score / 2
+        Math.floor(props.media?.avgRating / 2) :
+        userRating / 2
 
     for (const element of ratingElement.value.children) {
         if (element.id < rating) element.style.color = "var(--primary-color-100)"

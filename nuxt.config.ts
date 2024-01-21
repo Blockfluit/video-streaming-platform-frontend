@@ -50,9 +50,9 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            baseURL: process.env.BASE_URL || 'https://api.yourdomain.nl/api/v1',
-            cinemaURL: "https://cinema.yourapi.com/"
-            build: Math.floor(1000000 + Math.random() * 999999).toFixed(0),
+            build: Math.floor(100000 + Math.random() * 900000).toString(),
+            baseURL: process.env.BASE_URL || 'https://yourdomain.com/api',
+            cinemaURL: "https://yourcinema.com/api"
         },
     },
     css: [
@@ -66,5 +66,5 @@ export default defineNuxtConfig({
     image: {
         inject: true,
         quality: 60,
-    }
+    },
 })

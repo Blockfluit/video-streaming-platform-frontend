@@ -1,10 +1,8 @@
 <script setup>
+import { getSubject, isAdmin } from "#imports"
 import Hyperbeam from '@hyperbeam/web';
-import { useJwtStore } from "~/stores/jwtStore";
 import { io } from "socket.io-client";
 
-
-const jwtStore = useJwtStore()
 const volumeInput = ref(50)
 const HbCloudComputer = ref()
 const chatMessages = ref([])
@@ -14,6 +12,7 @@ const activeUsers = ref()
 const chatInput = ref("")
 const chatBox = ref()
 const config = useRuntimeConfig()
+const admin = ref(isAdmin())
 
 let hb;
 let socket
@@ -21,7 +20,12 @@ let socket
 async function setSession() {
     // config.public.cinemaURL
     const session = await fetch(config.public.cinemaURL + "session")
-        .then(res => res.json()).catch(err => alert(err))
+        .then(response => {
+            if (response.status >= 200 && response.status < 300) {
+                return response.json()
+            }
+        })
+        .catch(err => alert(err))
     hb = await Hyperbeam(HbCloudComputer.value, session.embed_url, {
         adminToken: session.admin_token
     })
@@ -36,7 +40,6 @@ function setPermissions(id) {
 }
 
 function openFullscreen() {
-    console.log(HbCloudComputer.value.requestFullscreen)
     if (HbCloudComputer.value.requestFullscreen) {
         HbCloudComputer.value.requestFullscreen();
     } else if (HbCloudComputer.value.webkitRequestFullscreen) { /* Safari */
@@ -55,7 +58,7 @@ function sendChat() {
     if (chatInput.value === "") {
         return
     }
-    socket.emit("chat-message", { name: jwtStore.getSubject, message: chatInput.value, timestamp: new Date().toLocaleTimeString(undefined, { timeStyle: "short" }) })
+    socket.emit("chat-message", { name: getSubject(), message: chatInput.value, timestamp: new Date().toLocaleTimeString(undefined, { timeStyle: "short" }) })
     chatInput.value = ""
 }
 
@@ -63,7 +66,7 @@ onBeforeMount(() => {
     // config.public.cinemaURL
     socket = io(config.public.cinemaURL, {
         query: {
-            name: `${jwtStore.getSubject}`
+            name: `${getSubject()}`
         }
     });
     socket.on('connection', (users) => activeUsers.value = users)
@@ -73,7 +76,6 @@ onBeforeMount(() => {
 
 onMounted(async () => {
     await setSession()
-    console.log(activeUsers.value)
 })
 
 onUnmounted(() => {
@@ -95,7 +97,7 @@ onUnmounted(() => {
                     </template>
                 </div>
                 <div class="control-buttons">
-                    <button v-if="jwtStore.isAdmin"
+                    <button v-if="admin"
                             class="take-cursor"
                             :class="cursorDisabledAdmin ? '' : 'active'"
                             @click="cursorDisabledAdmin = !cursorDisabledAdmin; setPermissionsAdmin(hb.userId)">
@@ -141,7 +143,7 @@ onUnmounted(() => {
 
         <!-- Dellekes Chat -->
         <div class="chat-container">
-            <span v-if="jwtStore.isAdmin"
+            <span v-if="admin"
                   @click="clearChat()"
                   class="clear-btn">Clear
                 chat</span>
@@ -380,6 +382,7 @@ li {
     height: 85vh;
     margin-top: 50px;
     margin-bottom: 50px;
+    padding-top: 30px;
 }
 
 

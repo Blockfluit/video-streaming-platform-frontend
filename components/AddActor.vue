@@ -1,11 +1,10 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { useJwtStore } from '~/stores/jwtStore';
+import { getAccesToken } from '#imports';
 import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
 
 const config = useRuntimeConfig()
-const jwtStore = useJwtStore()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
 
@@ -40,7 +39,7 @@ const addActor = (firstname, lastname) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${jwtStore.getJwt}`
+            Authorization: `Bearer ${getAccesToken()}`
         },
         body: JSON.stringify({
             firstname: firstname,
@@ -63,10 +62,20 @@ const addActor = (firstname, lastname) => {
 
 <template>
     <div class="container">
-        <Icon @click="showAddActor = !showAddActor" name="fa-solid:plus" size="25" class="icon" />
-        <form v-if="showAddActor" @submit.prevent="addActor(inputFirstname, inputLastname)">
-            <input v-model="inputFirstname" ref="firstNameRef" type="text" placeholder="firstname" required>
-            <input v-model="inputLastname" type="text" placeholder="lastname">
+        <Icon @click="showAddActor = !showAddActor"
+              name="fa-solid:plus"
+              size="25"
+              class="icon" />
+        <form v-if="showAddActor"
+              @submit.prevent="addActor(inputFirstname, inputLastname)">
+            <input v-model="inputFirstname"
+                   ref="firstNameRef"
+                   type="text"
+                   placeholder="firstname"
+                   required>
+            <input v-model="inputLastname"
+                   type="text"
+                   placeholder="lastname">
             <button type="submit">Add Actor</button>
         </form>
     </div>
@@ -120,5 +129,4 @@ button:hover {
     cursor: pointer;
     color: var(--primary-color-100);
     border: 1px solid var(--primary-color-100);
-}
-</style>
+}</style>

@@ -8,9 +8,9 @@ const watchStore = useWatchStore()
 const config = useRuntimeConfig()
 
 const { media } = storeToRefs(mediaStore)
-const { volume, video, nextVideo, previousVideo, startTime } = storeToRefs(watchStore)
+const { volume, video, nextVideo, previousVideo, startTime, videoToken } = storeToRefs(watchStore)
 
-const videoElement = ref({})
+const videoElement = ref()
 const showOverlay = ref(true)
 const countdownTimer = ref(0)
 const isPlaying = ref(false)
@@ -27,42 +27,35 @@ onBeforeMount(() => {
         const route = useRoute()
         currentMediaId = parseInt(route.params.mediaId)
         currentVideoId = parseInt(route.params.videoId)
-        timestamp = route.query.t !== undefined ? parseInt(route.query.t) : undefined
+        timestamp = route.query.t
     }
 })
 
 onMounted(() => {
     if (process.client) {
-        videoElement.value.volume = volume.value
-        playVideo(currentVideoId)
-
         window.addEventListener("mousemove", resetOverlay)
         window.addEventListener("touchend", resetOverlay)
-
-        setTimeout(() => { showOverlay.value = false }, 3000)
+        videoElement.value.addEventListener("seeking", () => updateWatched(currentVideoId, videoElement.value.currentTime))
         clearInterval(updateIntervalId)
-        updateIntervalId = setInterval(() => updateWatched(), 5000)
+
+        playVideo(currentVideoId)
+        setTimeout(() => { showOverlay.value = false }, 3000)
+        updateIntervalId = setInterval(() => updateWatched(currentVideoId, videoElement.value.currentTime), 5000)
     }
 })
 
 onBeforeUnmount(() => {
     if (process.client) {
-        volume.value = videoElement.value.volume
-
         window.removeEventListener("mousemove", resetOverlay)
         window.removeEventListener("touchend", resetOverlay)
-
+        volume.value = videoElement.value.volume
         clearInterval(updateIntervalId)
     }
 })
 
 function getStartTime() {
-    if (timestamp !== undefined) {
-        return timestamp
-    }
-    if ((startTime.value / video.value.duration) > 0.995) {
-        return 0
-    }
+    if (timestamp !== undefined) return timestamp
+    if ((startTime.value / video.value.duration) > 0.995) return 0
     return startTime.value
 }
 
@@ -72,48 +65,39 @@ function resetOverlay() {
     timeoutId = setTimeout(() => { showOverlay.value = false }, 3000)
 }
 
-function updateWatched() {
+function updateWatched(videoId, timestamp) {
     if (videoElement.value === undefined) return
-    watchStore.updateWatched(video.value.id, videoElement.value.currentTime)
+    watchStore.updateWatched(videoId, timestamp)
 }
 
 async function playVideo(videoId, time) {
+    clearInterval(intervalId)
+
     if (videoId === undefined) {
-        clearInterval(intervalId)
         navigateToMedia(currentMediaId)
         return
     }
     if (videoId !== undefined) {
-        clearInterval(intervalId)
-        await watchStore.setVideo(currentMediaId, videoId)
-        videoElement.value.load()
-        videoElement.value.currentTime = time !== undefined ? time : getStartTime()
-        videoElement.value.addEventListener("loadeddata", () => {
-            if (videoElement.value === null) return
-
-            videoElement.value.play()
-                .catch(e => e)
-        })
-        videoElement.value.addEventListener("seeking", updateWatched)
-
-        useRouter()
-            .push(`/media/${currentMediaId}/watch/${videoId}`)
-        return
+        watchStore.setVideo(currentMediaId, videoId)
+            .then(() => {
+                videoElement.value.src = `${config.public.baseURL}/stream/video/${videoId}?token=${videoToken.value}`
+                videoElement.value.currentTime = time ?? getStartTime()
+                videoElement.value.volume = volume.value
+                videoElement.value.load()
+                //Changes url without reloading
+                useRouter().push(`/media/${currentMediaId}/watch/${videoId}`)
+            })
     }
 }
 
 function playVideoWithCountdown(videoId) {
     const countdownInSec = 5
     countdownTimer.value = countdownInSec
-
-    updateWatched()
+    updateWatched(videoId, videoElement.value.currentTime)
 
     intervalId = setInterval(() => {
         countdownTimer.value--
-        if (countdownTimer.value > 0) {
-            return
-        }
-
+        if (countdownTimer.value > 0) return
         playVideo(videoId)
     }, 1000)
 }
@@ -177,13 +161,13 @@ function navigateToMedia(mediaId) {
         </div>
         <video @play="isPlaying = true"
                @pause="isPlaying = false"
-               @ended="playVideoWithCountdown(nextVideo === undefined ? unedefined : nextVideo.id)"
+               @ended="playVideoWithCountdown(nextVideo?.id)"
                ref="videoElement"
-               crossorigin="anonymous"
                controls
-               autoplay>
-            <source :src="`${config.public.baseURL}/stream/video/${video.id}`"
-                    type="video/mp4" />
+               playsinline
+               poster="/dellekesHub-poster.png"
+               autoplay
+               crossorigin="anonymous">
             <track v-for="subtitle in video.subtitles"
                    :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
                    :label="subtitle.label"
