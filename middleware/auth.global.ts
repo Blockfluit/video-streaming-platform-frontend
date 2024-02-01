@@ -7,8 +7,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
     to.name = to.name ?? ""
 
-
-
     if(to.name !== "login" && accessToken === "") {
         return navigateTo("/login")
     }

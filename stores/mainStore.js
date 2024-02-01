@@ -17,7 +17,6 @@ export const useMainStore = defineStore("mainStore", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
-                    'Content-Type': 'application/json',
                     "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
@@ -35,7 +34,6 @@ export const useMainStore = defineStore("mainStore", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
-                    'Content-Type': 'application/json',
                     "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
@@ -54,7 +52,6 @@ export const useMainStore = defineStore("mainStore", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
-                    'Content-Type': 'application/json',
                     "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
@@ -78,7 +75,6 @@ export const useMainStore = defineStore("mainStore", {
                     method: "GET",
                     headers: {
                         Accept: 'application/json',
-                        'Content-Type': 'application/json',
                         "Authorization": `Bearer ${await getAccesToken()}`
                     }
                 }).then((response) => {
@@ -94,7 +90,26 @@ export const useMainStore = defineStore("mainStore", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
-                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${await getAccesToken()}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+            }).catch(e => {
+                console.log(e)
+            })
+        },
+        async getAutoCompletion(pagenumber, pagesize, options) {
+            return fetch(`${this.config.public.baseURL}/media/auto-completion` +
+                `?pagenumber=${pagenumber ?? 0}` +
+                `&pagesize=${pagesize ?? 10}` +
+                `&type=${options?.type ?? ""}` +
+                `&genres=${options?.genres ?? ""}` +
+                `&search=${options?.search ?? ""}`, {
+                method: "GET",
+                headers: {
+                    Accept: 'application/json',
                     "Authorization": `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {

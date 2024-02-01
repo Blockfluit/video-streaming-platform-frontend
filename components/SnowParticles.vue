@@ -32,6 +32,7 @@ function init() {
     ctx = canvas.value.getContext("2d")
     width = window.innerWidth
     height = window.innerHeight
+
     sizeMod = 1.1 - ((1920 / width) * 0.09)
     ctx.canvas.width = width
     ctx.canvas.height = height

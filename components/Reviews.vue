@@ -22,13 +22,13 @@ const showReviewButtons = (username) => {
     return username === getSubject() || isAdmin()
 }
 
-const addReview = (title, comment) => {
+async function addReview(title, comment) {
     fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
         method: "POST",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${getAccesToken()}`
+            Authorization: `Bearer ${await getAccesToken()}`
         },
         body: JSON.stringify({
             title: title,
@@ -44,13 +44,13 @@ const addReview = (title, comment) => {
     })
 }
 
-const updateReview = (id, title, comment) => {
+async function updateReview(id, title, comment) {
     fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
         method: "PUT",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${getAccesToken()}`
+            "Authorization": `Bearer ${await getAccesToken()}`
         },
         body: JSON.stringify({
             id: id,
@@ -67,7 +67,7 @@ const updateReview = (id, title, comment) => {
     })
 }
 
-const deleteReview = (id) => {
+async function deleteReview(id) {
     if (!confirm("Are you sure you want to delete this review?")) return
 
     fetch(`${config.public.baseURL}/media/${props.media.id}/review`, {
@@ -75,7 +75,7 @@ const deleteReview = (id) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${getAccesToken()}`
+            "Authorization": `Bearer ${await getAccesToken()}`
         },
         body: JSON.stringify({
             id: id,

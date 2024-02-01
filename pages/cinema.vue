@@ -3,6 +3,8 @@ import { getSubject, isAdmin } from "#imports"
 import Hyperbeam from '@hyperbeam/web';
 import { io } from "socket.io-client";
 
+useHead({ title: "Cinema" })
+
 const volumeInput = ref(50)
 const HbCloudComputer = ref()
 const chatMessages = ref([])
@@ -74,8 +76,8 @@ onBeforeMount(() => {
     socket.on("clear-chat", (messages) => chatMessages.value = messages)
 })
 
-onMounted(async () => {
-    await setSession()
+onMounted(() => {
+    setSession()
 })
 
 onUnmounted(() => {

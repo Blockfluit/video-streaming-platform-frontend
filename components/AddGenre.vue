@@ -16,7 +16,7 @@ const showAddGenre = ref(false)
 
 const inputGenre = ref()
 
-const addGenre = (genre) => {
+async function addGenre(genre) {
     if (allGenres.value.find(genre => genre.name === genre.value) !== undefined) {
         genres.value.push(genre)
         alert("Genre already exists")
@@ -28,7 +28,7 @@ const addGenre = (genre) => {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${getAccesToken()}`
+            Authorization: `Bearer ${await getAccesToken()}`
         },
         body: JSON.stringify({
             genre: genre,

@@ -31,6 +31,7 @@ onBeforeMount(() => {
         currentMediaId = parseInt(route.params.mediaId)
 
         mediaStore.setMedia(currentMediaId)
+            .then(() => useHead({ title: media.value.name }))
         mainStore.setWatched()
             .then(() => setLastVideo())
     }

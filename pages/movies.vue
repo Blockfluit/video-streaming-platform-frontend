@@ -2,6 +2,8 @@
 import { storeToRefs } from "pinia";
 import { useMainStore } from "~/stores/mainStore";
 
+useHead({ title: "Movies" })
+
 const mainStore = useMainStore()
 const filterElement = ref()
 
@@ -51,6 +53,12 @@ onBeforeUnmount(() => {
             <CardRow :supplier="(number, size) => mainStore.getMedia('recent-uploaded', number, size, { type: 'MOVIE' })"
                      :showLastVideo=false
                      title="Recently Uploaded" />
+            <CardRow :supplier="(number, size) => mainStore.getMedia('last-watched', number, size, { type: 'MOVIE' })"
+                     :showLastVideo=false
+                     title="What others are watching" />
+            <CardRow :supplier="(number, size) => mainStore.getMedia('most-watched', number, size, { type: 'MOVIE' })"
+                     :showLastVideo=false
+                     title="Most Viewed" />
             <CardRow :supplier="(number, size) => mainStore.getMedia('best-rated', number, size, { type: 'MOVIE' })"
                      :showLastVideo=false
                      title="Best Rated" />

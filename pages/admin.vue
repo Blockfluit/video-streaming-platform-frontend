@@ -2,6 +2,8 @@
 import { storeToRefs } from 'pinia';
 import { useAdminStore } from '~/stores/adminStore';
 
+useHead({ title: "Admin" })
+
 const adminStore = useAdminStore()
 
 const { users, tokens } = storeToRefs(adminStore)

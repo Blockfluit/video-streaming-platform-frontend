@@ -37,6 +37,7 @@ onBeforeMount(() => {
 
         mediaStore.setMedia(currentMediaId).then(() => {
             resetInputFields()
+            useHead({ title: `Editing: ${media.value.name}` })
         })
         mainStore.setAllActors()
         mainStore.setAllGenres()

@@ -22,13 +22,13 @@ watch(props, (n, o) => {
     resetRating()
 })
 
-const addRating = (rating) => {
-    fetch(`${config.public.baseURL}/media/${props.media?.id}/rate`, {
+async function addRating(rating) {
+    return fetch(`${config.public.baseURL}/media/${props.media?.id}/rate`, {
         method: "POST",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${getAccesToken()}`
+            Authorization: `Bearer ${await getAccesToken()}`
         },
         body: JSON.stringify({
             rating: rating,
