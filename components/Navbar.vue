@@ -14,10 +14,6 @@ const showDropdown = ref(false)
 const filter = ref(['/movies', '/series', '/'])
 const admin = ref(isAdmin())
 
-onMounted(() => {
-    window.addEventListener("keypress", console.log)
-})
-
 function logout() {
     destroyTokens()
     navigateTo("/login")
@@ -94,10 +90,11 @@ function navigateToMedia(id) {
                         <ul v-if="autoCompletionList.length !== 0"
                             class="search-bar-suggestions">
                             <li v-for="entry in autoCompletionList"
+                                class="search-bar-suggestions-item"
                                 @click="navigateToMedia(entry[0])"
                                 style="list-style: none; cursor: pointer;">
                                 <span style="font-weight: bold;">{{ entry[1].substring(0, searchbox.length) }}</span>
-                                <span>{{ entry[1].substring(searchbox.length) }}</span>
+                                <span style="overflow: hidden;">{{ entry[1].substring(searchbox.length) }}</span>
                             </li>
                         </ul>
                     </div>

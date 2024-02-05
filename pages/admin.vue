@@ -122,7 +122,7 @@ function logoutUser(userId) {
                             <td class="last-active">{{ new Date(user.lastActiveAt).toLocaleString() }}</td>
                             <td class="email">{{ new Date(user.lastLoginAt).toLocaleString() }}</td>
                             <td>
-                                <button v-if="user.refreshTokens.length > 0 && new Date(user.refreshTokens[0].expiration) > Date.now()"
+                                <button v-if="user.refreshTokens.length > 0 && new Date(user.refreshTokens[0].expiration).getTime() > Date.now()"
                                         @click="logoutUser(user.id)">logout</button>
                             </td>
                             <td class="delete"
@@ -173,7 +173,7 @@ function logoutUser(userId) {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for=" token  in  tokens ">
+                    <tr v-for="token in tokens">
                         <td>{{ token.token }}</td>
                         <td>{{ token.used }}</td>
                         <td>{{ token.role }}</td>
