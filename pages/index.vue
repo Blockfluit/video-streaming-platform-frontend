@@ -2,6 +2,8 @@
 import { useMainStore } from "~/stores/mainStore";
 import { storeToRefs } from 'pinia'
 
+useHead({ title: "DellekesHub" })
+
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 
@@ -34,6 +36,9 @@ onBeforeUnmount(() => {
             <CardRow :supplier="(number, size) => mainStore.getMedia('recent-watched', number, size)"
                      :showLastVideo=true
                      title="Continue Watching" />
+            <CardRow :supplier="(number, size) => mainStore.getMedia('recent-uploaded', number, size)"
+                     :showLastVideo=false
+                     title="Recently Uploaded" />
             <CardRow :supplier="(number, size) => mainStore.getMedia('last-watched', number, size)"
                      :showLastVideo=false
                      title="What others are watching" />
@@ -68,6 +73,7 @@ onBeforeUnmount(() => {
 } */
 
 .search-results {
+    width: 100%;
     position: absolute;
     top: 55px;
     left: 0px;

@@ -86,6 +86,7 @@ async function playVideo(videoId, time) {
                 videoElement.value.load()
                 //Changes url without reloading
                 useRouter().push(`/media/${currentMediaId}/watch/${videoId}`)
+                useHead({ title: video.value.name })
             })
     }
 }
@@ -198,15 +199,13 @@ function navigateToMedia(mediaId) {
     position: absolute;
     width: 100%;
     height: calc(100% - var(--navbar-height));
-    z-index: 100;
     background-color: rgb(0, 0, 0);
 }
 
-.container video {
-    position: absolute;
-    top: 0;
-    width: 100%;
+video {
+    display: block;
     height: 100%;
+    width: 100%;
 }
 
 .container-center {

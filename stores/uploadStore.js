@@ -14,12 +14,12 @@ export const useUploadStore = defineStore("uploadStore", {
         actors: useLocalStorage("upload-actors", []),
     }),
     actions: {
-        deleteActor(actor) {
-            fetch(this.config.public.baseURL + "/actors/" + actor.id, {
+        async deleteActor(actor) {
+            return fetch(this.config.public.baseURL + "/actors/" + actor.id, {
                 method: "DELETE",
                 headers: {
                     Accept: 'application/json',
-                    Authorization: `Bearer ${getAccesToken()}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -34,12 +34,12 @@ export const useUploadStore = defineStore("uploadStore", {
                 alert(e)
             })
         },
-        deleteGenre(genre) {
-            fetch(this.config.public.baseURL + "/genres/" + genre, {
+        async deleteGenre(genre) {
+            return fetch(this.config.public.baseURL + "/genres/" + genre, {
                 method: "DELETE",
                 headers: {
                     Accept: 'application/json',
-                    Authorization: `Bearer ${getAccesToken()}`
+                    Authorization: `Bearer ${await getAccesToken()}`
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {

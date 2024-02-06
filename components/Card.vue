@@ -5,8 +5,14 @@ import { isAdmin } from '#imports';
 import { useWatchlistStore } from "~/stores/watchlistStore";
 
 const props = defineProps({
-    shownMedia: {},
-    showLastVideo: false,
+    shownMedia: {
+        default: {},
+        type: Object
+    },
+    showLastVideo: {
+        default: false,
+        type: Boolean
+    }
 })
 
 const mainStore = useMainStore()
@@ -22,25 +28,24 @@ const onWatchlist = ref(false)
 const admin = ref(isAdmin())
 
 onBeforeMount(() => {
-    const lastWatched = getLastVideo(props.shownMedia.id)
-    if (timePercentage.value !== undefined) {
-        timePercentage.value = lastWatched.timestamp / lastWatched.duration * 100
-    }
-
+    if (props.showLastVideo) setTimePercentage()
     setOnWatchlist()
 })
 
-watch(watched, (o, n) => {
-    const lastWatched = getLastVideo(props.shownMedia.id)
-    if (timePercentage.value !== undefined) {
-        timePercentage.value = lastWatched.timestamp / lastWatched.duration * 100
-    }
+watch(watched, (n, o) => {
+    if (props.showLastVideo) setTimePercentage()
 },
-    { deep: true })
+    { deep: true }
+)
 
 watch(watchlist, (n, o) => {
     setOnWatchlist()
 })
+
+function setTimePercentage() {
+    const lastWatched = getLastVideo(props.shownMedia.id)
+    timePercentage.value = lastWatched.timestamp / lastWatched.duration * 100
+}
 
 function setOnWatchlist() {
     onWatchlist.value = watchlist.value.find(media => props.shownMedia.id === media.id) !== undefined

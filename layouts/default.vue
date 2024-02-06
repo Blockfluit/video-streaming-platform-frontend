@@ -13,6 +13,6 @@
 
 <style scoped>
 .content {
-    margin-top: 80px;
+    padding-top: var(--navbar-height);
 }
 </style>

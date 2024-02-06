@@ -4,6 +4,8 @@ import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
 import { storeToRefs } from 'pinia';
 
+useHead({ title: "Upload" })
+
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
@@ -58,7 +60,7 @@ async function filterActors(search) {
         })
 }
 
-const addMedia = () => {
+async function addMedia() {
     if (!acceptedFileExt.includes(thumbnail.value.type.split("/")[1])) {
         alert("Invalid File extension")
         return
@@ -80,11 +82,11 @@ const addMedia = () => {
     formData.append("year", year.value)
     formData.append("plot", plot.value)
 
-    fetch(config.public.baseURL + "/media", {
+    return fetch(config.public.baseURL + "/media", {
         method: "POST",
         headers: {
             Accept: 'application/json',
-            Authorization: `Bearer ${getAccesToken()}`
+            Authorization: `Bearer ${await getAccesToken()}`
         },
         body: formData,
     }).then((response) => {

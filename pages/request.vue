@@ -3,6 +3,8 @@ import { useMainStore } from '~/stores/mainStore';
 import { useRequestStore } from '~/stores/requestStore';
 import { getSubject, isAdmin, getRole } from '#imports';
 
+useHead({ title: "Request" })
+
 const mainStore = useMainStore()
 const requestStore = useRequestStore()
 
@@ -108,6 +110,32 @@ async function deleteRequest(id) {
             fetchNextRequestPage(true)
         })
 }
+
+function parseStatus(status) {
+    switch (status) {
+        case "NEW":
+            return "New"
+        case "ADDED":
+            return "Added"
+        case "PROCESSING":
+            return "Processing"
+        case "NOT_AVAILABLE":
+            return "Not available"
+    }
+}
+
+function getStatusColor(status) {
+    switch (status) {
+        case "NEW":
+            return "yellow"
+        case "ADDED":
+            return "green"
+        case "PROCESSING":
+            return "orange"
+        case "NOT_AVAILABLE":
+            return "red"
+    }
+}
 </script>
 
 <template>
@@ -168,9 +196,11 @@ async function deleteRequest(id) {
                         <td>{{ new Date(request.createdAt).toLocaleDateString() }}</td>
                         <td class="requester"
                             style="text-transform: capitalize;">{{ request.createdBy }}</td>
-                        <td v-if="!admin">{{ request.status }}</td>
+                        <td v-if="!admin"
+                            :style="`color: ${getStatusColor(request.status)}`">{{ parseStatus(request.status) }}</td>
                         <td v-else>
-                            <select @change="e => requestStore.updateRequest(request.id, { status: e.target.value })">
+                            <select @change="e => requestStore.updateRequest(request.id, { status: e.target.value })"
+                                    :style="`color: ${getStatusColor(request.status)}`">
                                 <option :selected="request.status === 'NEW'"
                                         value="NEW">New</option>
                                 <option :selected="request.status === 'PROCESSING'"
@@ -327,8 +357,9 @@ table thead {
 
 select {
     background-color: transparent;
-    color: var(--primary-color-100);
-    border: 1px solid var(--primary-color-100);
+    /* color: var(--primary-color-100); */
+    /* border: 1px solid var(--primary-color-100); */
+    border: 1px solid;
     border-radius: 5px;
     padding: 3px;
     font-family: var(--font-family-1);

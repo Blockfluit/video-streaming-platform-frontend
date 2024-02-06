@@ -1,6 +1,7 @@
 <script setup>
 import { setTokens } from "#imports"
 
+useHead({ title: "Register" })
 definePageMeta({
     layout: false,
 });

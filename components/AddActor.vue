@@ -17,7 +17,7 @@ const firstNameRef = ref()
 const inputFirstname = ref("")
 const inputLastname = ref("")
 
-const addActor = (firstname, lastname) => {
+async function addActor(firstname, lastname) {
     const predicate = (actor) => {
         const first = actor.firstname === null ? "" : actor.firstname
         const last = actor.lastname === null ? "" : actor.lastname
@@ -34,12 +34,12 @@ const addActor = (firstname, lastname) => {
         return
     }
 
-    fetch(config.public.baseURL + "/actors", {
+    return fetch(config.public.baseURL + "/actors", {
         method: "POST",
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${getAccesToken()}`
+            Authorization: `Bearer ${await getAccesToken()}`
         },
         body: JSON.stringify({
             firstname: firstname,
@@ -129,4 +129,5 @@ button:hover {
     cursor: pointer;
     color: var(--primary-color-100);
     border: 1px solid var(--primary-color-100);
-}</style>
+}
+</style>

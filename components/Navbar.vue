@@ -6,17 +6,39 @@ import { storeToRefs } from "pinia";
 const mainStore = useMainStore()
 const { currentRoute } = useRouter();
 
-const { searchbox, showSearchBox } = storeToRefs(mainStore)
-const searchBar = ref()
+const { searchbox, showSearchBox, selectedGenres } = storeToRefs(mainStore)
+const inputElement = ref()
+const autoCompletionList = ref([])
 
 const showDropdown = ref(false)
 const filter = ref(['/movies', '/series', '/'])
 const admin = ref(isAdmin())
 
-const logout = () => {
+function logout() {
     destroyTokens()
     navigateTo("/login")
-} 
+}
+
+function openSearchBox() {
+    showSearchBox.value = true;
+    nextTick(() => inputElement.value.focus())
+}
+
+function hideSearchBox() {
+    autoCompletionList.value.splice(0, autoCompletionList.value.length)
+    showSearchBox.value = false;
+}
+
+async function updateAutoCompletion() {
+    const data = await mainStore.getAutoCompletion(0, 10, { genres: selectedGenres.value, search: searchbox.value })
+    autoCompletionList.value.splice(0, autoCompletionList.value.length)
+    autoCompletionList.value.push(...data.content)
+}
+
+function navigateToMedia(id) {
+    hideSearchBox()
+    navigateTo(`/media/${id}`)
+}
 </script>
 
 <template>
@@ -56,21 +78,34 @@ const logout = () => {
                          class="home-icon" />
                 </NuxtLink>
                 <transition name="fade">
-                    <input ref="searchBar"
-                           key="1"
-                           class="search-bar"
-                           v-if="showSearchBox"
-                           v-model="searchbox"
-                           type="text"
-                           style="margin-left: 20px;">
+                    <div v-if="filter.includes(currentRoute.path) && showSearchBox"
+                         class="search-bar">
+                        <input ref="inputElement"
+                               @keyup.enter="hideSearchBox()"
+                               @keyup="updateAutoCompletion()"
+                               class="search-bar-input"
+                               v-model="searchbox"
+                               type="text"
+                               placeholder="Movie, Series, Genre, Actor">
+                        <ul v-if="autoCompletionList.length !== 0"
+                            class="search-bar-suggestions">
+                            <li v-for="entry in autoCompletionList"
+                                class="search-bar-suggestions-item"
+                                @click="navigateToMedia(entry[0])"
+                                style="list-style: none; cursor: pointer;">
+                                <span style="font-weight: bold;">{{ entry[1].substring(0, searchbox.length) }}</span>
+                                <span style="overflow: hidden;">{{ entry[1].substring(searchbox.length) }}</span>
+                            </li>
+                        </ul>
+                    </div>
                 </transition>
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
-                      @click="showSearchBox = true;"
+                      @click="openSearchBox()"
                       name="ph:magnifying-glass"
                       size="25px"
                       class="search-icon-mobile" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                      @click="showSearchBox = false; searchbox = ''"
+                      @click="hideSearchBox()"
                       name="radix-icons:cross-2"
                       size="25px"
                       class="search-icon" />
@@ -91,19 +126,34 @@ const logout = () => {
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
                 <transition name="fade">
-                    <input key="1"
-                           class="search-bar"
-                           v-if="filter.includes(currentRoute.path) && showSearchBox"
-                           v-model="searchbox"
-                           type="text">
+                    <div v-if="filter.includes(currentRoute.path) && showSearchBox"
+                         class="search-bar">
+                        <input ref="inputElement"
+                               @keyup.enter="hideSearchBox()"
+                               @keyup="updateAutoCompletion()"
+                               class="search-bar-input"
+                               v-model="searchbox"
+                               type="text"
+                               placeholder="Movie, Series, Genre, Actor">
+                        <ul v-if="autoCompletionList.length !== 0"
+                            class="search-bar-suggestions">
+                            <li v-for="entry in autoCompletionList"
+                                class="search-bar-suggestions-item"
+                                @click="navigateToMedia(entry[0])"
+                                style="list-style: none; cursor: pointer;">
+                                <span style="font-weight: bold;">{{ entry[1].substring(0, searchbox.length) }}</span>
+                                <span style="overflow: hidden;">{{ entry[1].substring(searchbox.length) }}</span>
+                            </li>
+                        </ul>
+                    </div>
                 </transition>
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
-                      @click="showSearchBox = true"
+                      @click="openSearchBox()"
                       name="ph:magnifying-glass"
                       size="25px"
                       class="search-icon" />
                 <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                      @click="showSearchBox = false; searchbox = ''"
+                      @click="hideSearchBox()"
                       name="radix-icons:cross-2"
                       size="25px"
                       class="search-icon" />
@@ -127,8 +177,8 @@ nav {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    min-height: var(--navbar-height);
+    width: 100%;
+    height: var(--navbar-height);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -143,11 +193,11 @@ svg {
 }
 
 .search-icon {
-    margin-left: 10px;
+    margin-left: 6px;
 }
 
 .search-icon-mobile {
-    margin-left: 30px;
+    margin-left: 25px;
 }
 
 .desktop-nav {
@@ -165,6 +215,7 @@ svg {
     padding-right: 15px;
 }
 
+/* 
 .profile {
     display: flex;
     justify-content: center;
@@ -182,14 +233,47 @@ svg {
 
 .profile:hover svg {
     color: var(--primary-color-100);
-}
+} */
 
 .search-bar {
+    position: relative;
+
     border: 1px solid white;
     border-radius: 5px;
-    padding-left: 20px;
+}
+
+.search-bar-input {
+    border: none;
+    padding-left: 5px;
+    max-width: 220px;
+}
+
+.search-bar-input:focus {
+    outline: none;
+}
+
+.search-bar-input::placeholder {
+    font-size: 16px;
+}
+
+.search-bar-suggestions {
+    position: absolute;
     width: 100%;
-    max-width: 300px;
+    top: 54px;
+    padding: 5px;
+    margin: 0;
+    background-color: var(--transparent-background-color-100);
+    font-family: var(--font-family-1);
+    font-size: var(--font-size-4);
+    color: var(--text-color-2);
+    border-radius: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.search-bar-suggestions-item:hover {
+    color: var(--primary-color-100);
 }
 
 .logo-center {

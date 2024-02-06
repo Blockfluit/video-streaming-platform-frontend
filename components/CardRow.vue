@@ -49,7 +49,7 @@ function scrollHandler() {
     const cards = cardsElement.value.children
     const carouselRight = cardsElement.value.getBoundingClientRect().right
 
-    if (cards[cards.length / 2].getBoundingClientRect().left < (carouselRight * 2) &&
+    if (cards[cards.length / 2]?.getBoundingClientRect().left < (carouselRight * 2) &&
         !fetching &&
         nextPage < totalPages) {
         fetching = true
@@ -111,7 +111,7 @@ const hoverButtonHandler = (showButton) => {
                       width="25px"
                       height="25px" />
                 <div v-if="showRecommendationsInput"
-                     style="position: absolute; z-index: 1; background-color: rgba(28, 28, 28, 0.95); margin-left: 40px; padding: 10px; border-radius: var(--border-radius-1); border: 1px solid var(--background-color-100);">
+                     style="position: absolute; z-index: 1; background-color: var(--transparent-background-color-100); margin-left: 40px; padding: 10px; border-radius: var(--border-radius-1); border: 1px solid var(--background-color-100);">
                     <h2 style="margin-top: 0;">Based on:</h2>
                     <ul style="margin: 0; padding: 0; list-style: none;">
                         <li v-for="input in recommendationsInput"><span style="font-weight: bold;">{{ input.name }} |</span>

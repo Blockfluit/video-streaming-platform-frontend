@@ -2,6 +2,8 @@
 import { storeToRefs } from 'pinia';
 import { useWatchlistStore } from '~/stores/watchlistStore';
 
+useHead({ title: "Watchlist" })
+
 const watchlistStore = useWatchlistStore()
 
 const { watchlist } = storeToRefs(watchlistStore)

@@ -1,6 +1,7 @@
 <script setup>
 import { initTokens } from "#imports";
 
+useHead({ title: "Login" })
 definePageMeta({
     layout: false,
 });
