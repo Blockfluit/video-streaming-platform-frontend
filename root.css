@@ -107,7 +107,7 @@ input {
 
 /* Firefox */
 * {
-  scrollbar-width: thin;
+  /* scrollbar-width: thin; */
   scrollbar-color: var(--primary-color-100);
 }
 
