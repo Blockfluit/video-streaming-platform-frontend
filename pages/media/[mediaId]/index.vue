@@ -134,7 +134,7 @@ const calcTimePercentage = (video) => {
                         <h1 style=" text-transform: uppercase; margin-bottom: -10px;">{{ media.name }}</h1>
                     </div>
                     <span class="info">{{ media?.year }} <span v-if="media.videos?.length === 1">• {{
-                        formatTime(media.videos.find(video => video.index === 0).duration) }}</span> • {{
+                        formatTime(media.videos[0].duration) }}</span> • {{
         media.genres?.join(", ") }}</span>
                     <p class="plot-text hide-on-phone">{{ media?.plot }}</p>
                     <div class="container-cast hide-on-phone"
