@@ -110,82 +110,49 @@ function navigateToMedia(mediaId) {
 
 <template>
     <div class="container">
-        <header v-if="showOverlay || !isPlaying"
-                class="container-header">
+        <header v-if="showOverlay || !isPlaying" class="container-header">
             <div style="display: flex; flex-direction: column;">
                 <h3 style="pointer-events: none; margin: 0; font-weight: 700;">{{ video.name }}</h3>
-                <h4 v-if="video.season !== -1"
-                    style="margin: 0; font-weight: 300;">Season {{ video.season }}</h4>
+                <h4 v-if="video.season !== -1" style="margin: 0; font-weight: 300;">Season {{ video.season }}</h4>
             </div>
-            <button @click="navigateToMedia(currentMediaId)"
-                    class="back-button">
-                <Icon name="radix-icons:cross-1"
-                      class="back-icon"
-                      size="1.5rem"
-                      style="color: var(--text-color-1);" />
+            <button @click="navigateToMedia(currentMediaId)" class="back-button">
+                <Icon name="radix-icons:cross-1" class="back-icon" size="1.5rem" style="color: var(--text-color-1);" />
             </button>
         </header>
         <div class="container-next-video">
             <div v-if="(showOverlay || !isPlaying) && previousVideo !== undefined"
-                 @click="playVideo(previousVideo.id, 0)"
-                 class="container-next-video-left">
-                <Icon name="bi:chevron-left"
-                      class="back-icon"
-                      size="2rem" />
-                <h3 class="hide-on-desktop">Previous</h3>
-                <div class="container-vertical hide-on-phone">
-                    <span class="title"
-                          style="font-size: var(--font-size-4);">{{ previousVideo.name
-                          }}</span>
-                    <span v-if="previousVideo.season !== -1"
-                          style="font-size: var(--font-size-5);">Season
-                        {{ previousVideo.season }}</span>
+                @click="playVideo(previousVideo.id, 0)" class="container-next-video-left">
+                <h3 class="hide-on-desktop prev-btn" style="font-size: var(--font-size-4); font-weight: 600;">Previous
+                </h3>
+                <div class="container-vertical hide-on-phone prev-btn">
+                    <span class="title" style="font-size: var(--font-size-4); font-weight: 600;">Previous episode</span>
+                    <span v-if="previousVideo.season !== -1" style="font-size: var(--font-size-5);">
+                        {{ previousVideo.name }}</span>
                 </div>
             </div>
             <div style="flex-grow: 1;"></div>
-            <div v-if="(showOverlay || !isPlaying) && nextVideo !== undefined"
-                 @click="playVideo(nextVideo.id, 0)"
-                 class="container-next-video-right">
-                <div class="container-vertical hide-on-phone">
-                    <span class="title"
-                          style="font-size: var(--font-size-4);">{{ nextVideo.name
-                          }}</span>
-                    <span v-if="nextVideo.season !== -1"
-                          style="font-size: var(--font-size-5);">Season
-                        {{ nextVideo.season }}</span>
+            <div v-if="(showOverlay || !isPlaying) && nextVideo !== undefined" @click="playVideo(nextVideo.id, 0)"
+                class="container-next-video-right">
+                <div class="container-vertical hide-on-phone next-btn">
+                    <span class="title" style="font-size: var(--font-size-4); font-weight: 600;">Next episode</span>
+                    <span v-if="nextVideo.season !== -1" style="font-size: var(--font-size-5);">
+                        {{ nextVideo.name }}</span>
                 </div>
-                <h3 class="hide-on-desktop">Next</h3>
-                <Icon name="bi:chevron-right"
-                      class="back-icon"
-                      size="2rem" />
+                <h3 class="hide-on-desktop next-btn" style="font-size: var(--font-size-4); font-weight: 600;">Next</h3>
             </div>
         </div>
-        <video @play="isPlaying = true"
-               @pause="isPlaying = false"
-               @ended="playVideoWithCountdown(nextVideo?.id)"
-               ref="videoElement"
-               controls
-               playsinline
-               poster="/dellekesHub-poster.png"
-               autoplay
-               crossorigin="anonymous">
-            <track v-for="subtitle in video.subtitles"
-                   :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
-                   :label="subtitle.label"
-                   kind="subtitles"
-                   :srclang="subtitle.srcLang"
-                   :default="subtitle.defaultSub" />
+        <video @play="isPlaying = true" @pause="isPlaying = false" @ended="playVideoWithCountdown(nextVideo?.id)"
+            ref="videoElement" controls playsinline poster="/dellekesHub-poster.png" autoplay crossorigin="anonymous">
+            <track v-for="subtitle in video.subtitles" :src="`${config.public.baseURL}/stream/subtitle/${subtitle.id}`"
+                :label="subtitle.label" kind="subtitles" :srclang="subtitle.srcLang" :default="subtitle.defaultSub" />
         </video>
-        <div v-if="countdownTimer > 0"
-             class="container-center">
-            <div v-if="nextVideo !== undefined"
-                 class="container-countdown">
+        <div v-if="countdownTimer > 0" class="container-center">
+            <div v-if="nextVideo !== undefined" class="container-countdown">
                 <h3>Next video:</h3>
                 <h3 style="font-weight: 100;">{{ nextVideo.name }}</h3>
                 <h1>{{ countdownTimer }}</h1>
             </div>
-            <div v-else
-                 class="container-countdown">
+            <div v-else class="container-countdown">
                 <h3>Returning to:</h3>
                 <h3 style="font-weight: 100;">{{ media.name }}</h3>
                 <h1>{{ countdownTimer }}</h1>
@@ -252,8 +219,14 @@ video {
     cursor: pointer;
 }
 
-.container-next-video-left:hover {
+.container-next-video-left:hover,
+.container-next-video-right:hover {
     color: var(--primary-color-100);
+}
+
+.container-next-video-left:hover .prev-btn,
+.container-next-video-right:hover .next-btn {
+    border: 1px solid var(--primary-color-100);
 }
 
 .container-next-video-right {
@@ -264,10 +237,6 @@ video {
     cursor: pointer;
 }
 
-.container-next-video-right:hover {
-    color: var(--primary-color-100);
-}
-
 .container-header {
     width: 100%;
     z-index: 10;
@@ -275,6 +244,14 @@ video {
     display: flex;
     justify-content: space-between;
     padding: 30px;
+}
+
+.prev-btn,
+.next-btn {
+    border: 1px solid white;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: 300;
 }
 
 .title {

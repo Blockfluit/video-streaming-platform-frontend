@@ -1,5 +1,7 @@
 <script setup>
 import { initTokens } from "#imports";
+import { Vue3Lottie } from "vue3-lottie";
+import gsap from "gsap"
 
 useHead({ title: "Login" })
 definePageMeta({
@@ -8,34 +10,46 @@ definePageMeta({
 
 const username = ref()
 const password = ref()
+const logoLottie = ref()
+const animationWrapper = ref()
 
 function login(username, password) {
     initTokens(username, password)
+        .then(async () => {
+            const tl = gsap.timeline()
+            await tl.to(animationWrapper.value, { x: '0', ease: "power4.inOut", duration: 1 })
+        })
         .then(() => {
             navigateTo("/")
         })
 }
+
+
+function intervalLogo() {
+    logoLottie.value.stop()
+    setTimeout(() => {
+        logoLottie.value.play()
+    }, 7000)
+}
+
+onMounted(() => {
+    console.log(logoLottie.value.autoPlay)
+})
 </script>
 
 <template>
     <div class="container">
-        <a href="https://dellekes.nl">
-            <img src="/icons/dellekes_logo.png"
-                 alt="logo"
-                 class="logo">
-        </a>
+        <div ref="animationWrapper" class="animation">
+            <img src="/icons/dellekes_logo.png" style="width: 150px" alt="logo">
+        </div>
+        <Vue3Lottie style="padding-bottom: 12px;" animationLink="/animations/dellekes_logo.json" ref="logoLottie"
+            :height="150" :width="150" :delay="3000" @on-loop-complete="intervalLogo" />
         <form @submit.prevent="login(username, password)">
             <div class="container-login">
                 <!-- <header>Login</header> -->
                 <span style="text-align: center; margin-bottom: 10px;">Please enter your username and password</span>
-                <input v-model="username"
-                       type="text"
-                       placeholder="Username"
-                       required>
-                <input v-model="password"
-                       type="password"
-                       placeholder="Password"
-                       required>
+                <input v-model="username" type="text" placeholder="Username" required>
+                <input v-model="password" type="password" placeholder="Password" required>
                 <!-- <div style="display: flex; justify-content: center;">
                     <span class="forgot-password">Forgot password? <NuxtLink to="/change-password">Click here</NuxtLink>
                     </span>
@@ -49,6 +63,20 @@ function login(username, password) {
 </template>
 
 <style scoped>
+.animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    z-index: 999999999;
+    background-color: #090909;
+    transform: translateX(100%);
+}
+
 header {
     font-size: var(--font-size-1);
     font-weight: 700;

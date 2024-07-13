@@ -3,8 +3,8 @@ const canvas = ref()
 
 const fps = 60
 const deltaFps = 1000 / fps
-const maxParticles = 15
-const avgParticles = 5
+const maxParticles = 20
+const avgParticles = 10
 
 let particles = new Set()
 let ctx, width, height, sizeMod
@@ -48,9 +48,9 @@ function init() {
 
 function getImage() {
     const img = new Image()
-    img.src = "dellekesHubSnowflake.svg"
-    img.width = 100
-    img.height = 100
+    img.src = "/icons/dellekes_logo.png"
+    img.width = 50
+    img.height = 30
     return img
 }
 
