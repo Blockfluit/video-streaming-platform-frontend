@@ -24,26 +24,22 @@ function login(username, password) {
         })
 }
 
-
 function intervalLogo() {
     logoLottie.value.stop()
     setTimeout(() => {
         logoLottie.value.play()
-    }, 7000)
+    }, 10000)
 }
-
-onMounted(() => {
-    console.log(logoLottie.value.autoPlay)
-})
 </script>
 
 <template>
     <div class="container">
         <div ref="animationWrapper" class="animation">
-            <img src="/icons/dellekes_logo.png" style="width: 150px" alt="logo">
+            <img src="/icons/dellekes_logo.png" style="width: 50px; position: absolute;" alt="logo">
+            <img src="/animations/loader.svg" style="width: 85px;" alt="loader">
         </div>
         <Vue3Lottie style="padding-bottom: 12px;" animationLink="/animations/dellekes_logo.json" ref="logoLottie"
-            :height="150" :width="150" :delay="3000" @on-loop-complete="intervalLogo" />
+            :height="150" :width="150" :delay="5000" @on-loop-complete="intervalLogo" />
         <form @submit.prevent="login(username, password)">
             <div class="container-login">
                 <!-- <header>Login</header> -->
@@ -67,6 +63,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     position: fixed;
     top: 0;
     left: 0;
