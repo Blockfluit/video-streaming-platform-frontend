@@ -51,10 +51,8 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             build: Math.floor(100000 + Math.random() * 900000).toString(),
-            baseURL: 'https://api-beta.dellekes.nl/api/v1',
-            cinemaURL: 'https://cinema.dellekes.nl/',
-            // baseURL: process.env.BASE_URL || 'http://192.168.2.4:8085/api/v1',
-            // cinemaURL: 'https://cinema.dellekes.nl/'
+            baseURL: 'https://api-tv.hs.nielsb.nl/api/v1',
+            cinemaURL: ''
         },
     },
     css: [

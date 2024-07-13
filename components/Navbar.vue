@@ -2,6 +2,12 @@
 import { isAdmin, destroyTokens } from "#imports"
 import { useMainStore } from "~/stores/mainStore";
 import { storeToRefs } from "pinia";
+import { Vue3Lottie } from 'vue3-lottie'
+
+import { useWindowSize } from '@vueuse/core'
+const windowWidth = useWindowSize().width
+
+const config = useRuntimeConfig()
 
 const mainStore = useMainStore()
 const { currentRoute } = useRouter();
@@ -10,9 +16,58 @@ const { searchbox, showSearchBox, selectedGenres } = storeToRefs(mainStore)
 const inputElement = ref()
 const autoCompletionList = ref([])
 
+
+const logoLottie = ref()
+const logoLottieMobile = ref()
+const hamburgerLottie = ref()
+const hamburgerLottie2 = ref()
+
 const showDropdown = ref(false)
 const filter = ref(['/movies', '/series', '/'])
 const admin = ref(isAdmin())
+
+function toggleMenu() {
+    showDropdown.value = !showDropdown.value
+    if (windowWidth.value < 992) {
+        if (showDropdown.value === true) {
+            hamburgerLottie2.value.setDirection('forward')
+            hamburgerLottie2.value.play()
+        }
+        else {
+            hamburgerLottie2.value.setDirection('reverse')
+            hamburgerLottie2.value.play()
+        }
+    }
+    else {
+        if (showDropdown.value === true) {
+            hamburgerLottie.value.setDirection('forward')
+            hamburgerLottie.value.play()
+        }
+        else {
+            hamburgerLottie.value.setDirection('reverse')
+            hamburgerLottie.value.play()
+        }
+    }
+}
+
+function freezeMenuAnimation() {
+    if (windowWidth.value < 992) {
+        if (showDropdown.value === true) {
+            hamburgerLottie2.value.goToAndStop(31)
+        }
+        else {
+            hamburgerLottie2.value.goToAndStop(0)
+        }
+    }
+    else {
+        if (showDropdown.value === true) {
+            hamburgerLottie.value.goToAndStop(31)
+        }
+        else {
+            hamburgerLottie.value.goToAndStop(0)
+        }
+    }
+}
 
 function logout() {
     destroyTokens()
@@ -44,126 +99,106 @@ function navigateToMedia(id) {
 <template>
     <nav>
         <transition name="fadedown">
-            <div v-if="showDropdown"
-                 @click="showDropdown = false"
-                 class="container-dropdown">
-                <NuxtLink @click="showDropdown = false"
-                          to="/"
-                          style="margin-top: 50px;">HOME</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/movies">MOVIES</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/series">SERIES</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/watchlist">WATCHLIST</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          to="/request">REQUEST</NuxtLink>
-                <NuxtLink to="/cinema">CINEMA</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          v-if="admin"
-                          to="/upload">UPLOAD</NuxtLink>
-                <NuxtLink @click="showDropdown = false"
-                          v-if="admin"
-                          to="/admin">ADMIN</NuxtLink>
-                <span class="logout"
-                      @click="logout(); showDropdown = false">LOGOUT</span>
+            <div v-if="showDropdown" @click="showDropdown = false" class="container-dropdown">
+                <NuxtLink class="menu-item" @click="toggleMenu" to="/">HOME
+                </NuxtLink>
+                <NuxtLink class="menu-item" @click="toggleMenu" to="/movies">MOVIES
+                </NuxtLink>
+                <NuxtLink class="menu-item" @click="toggleMenu" to="/series">SERIES
+                </NuxtLink>
+                <NuxtLink class="menu-item" @click="toggleMenu" to="/watchlist">
+                    WATCHLIST
+                </NuxtLink>
+                <NuxtLink class="menu-item" @click="toggleMenu" to="/request">REQUEST
+                </NuxtLink>
+                <NuxtLink class="menu-item" v-if="config.public.cinemaURL !== ''" to="/cinema">CINEMA</NuxtLink>
+                <NuxtLink class="menu-item" @click="toggleMenu" v-if="admin" to="/upload">UPLOAD
+                </NuxtLink>
+                <NuxtLink class="menu-item" @click="toggleMenu" v-if="admin" to="/admin">ADMIN
+                </NuxtLink>
+                <span class="logout menu-item" @click="logout(); showDropdown = false">LOGOUT</span>
             </div>
         </transition>
 
         <div class="mobile-menu">
             <div style="display:flex; align-items: center;">
-                <NuxtLink class="logo-mobile"
-                          to="/">
-                    <img src="/icons/dellekes_logo.png"
-                         class="home-icon" />
+                <NuxtLink class="logo-mobile" to="/">
+                    <Vue3Lottie style="padding-bottom: 12px;" animationLink="/animations/dellekes_logo.json"
+                        ref="logoLottieMobile" :height="75" :width="75" @mouseover="logoLottieMobile.play()"
+                        @on-loop-complete="logoLottieMobile.stop()" :autoPlay="false" />
+                    <!-- <img src="/icons/dellekes_logo.png" class="home-icon" /> -->
                 </NuxtLink>
                 <transition name="fade">
-                    <div v-if="filter.includes(currentRoute.path) && showSearchBox"
-                         class="search-bar">
-                        <input ref="inputElement"
-                               @keyup.enter="hideSearchBox()"
-                               @keyup="updateAutoCompletion()"
-                               class="search-bar-input"
-                               v-model="searchbox"
-                               type="text"
-                               placeholder="Movie, Series, Genre, Actor">
-                        <ul v-if="autoCompletionList.length !== 0"
-                            class="search-bar-suggestions">
-                            <li v-for="entry in autoCompletionList"
-                                class="search-bar-suggestions-item"
-                                @click="navigateToMedia(entry[0])"
-                                style="list-style: none; cursor: pointer;">
+                    <div v-if="filter.includes(currentRoute.path) && showSearchBox" class="search-bar">
+                        <input ref="inputElement" @keyup.enter="hideSearchBox()" @keyup="updateAutoCompletion()"
+                            class="search-bar-input" v-model="searchbox" type="text"
+                            placeholder="Movie, Series, Genre, Actor">
+                        <ul v-if="autoCompletionList.length !== 0" class="search-bar-suggestions">
+                            <li v-for="entry in autoCompletionList" class="search-bar-suggestions-item"
+                                @click="navigateToMedia(entry[0])" style="list-style: none; cursor: pointer;">
                                 <span style="font-weight: bold;">{{ entry[1].substring(0, searchbox.length) }}</span>
                                 <span style="overflow: hidden;">{{ entry[1].substring(searchbox.length) }}</span>
                             </li>
                         </ul>
                     </div>
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
-                      @click="openSearchBox()"
-                      name="ph:magnifying-glass"
-                      size="25px"
-                      class="search-icon-mobile" />
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                      @click="hideSearchBox()"
-                      name="radix-icons:cross-2"
-                      size="25px"
-                      class="search-icon" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="openSearchBox()"
+                    name="ph:magnifying-glass" size="25px" class="search-icon-mobile" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true" @click="hideSearchBox()"
+                    name="radix-icons:cross-2" size="25px" class="search-icon" />
             </div>
-            <Icon class="hamburger-menu"
-                  @click="showDropdown = !showDropdown"
-                  name="solar:hamburger-menu-outline"
-                  size="35px" />
+            <div>
+                <Vue3Lottie class="hamburger-menu-mobile" animationLink="/animations/hamburger.json"
+                    ref="hamburgerLottie2" :height="25" :width="25" @click="toggleMenu"
+                    @on-loop-complete="freezeMenuAnimation" :speed="2" :autoPlay="false" />
+            </div>
+            <!-- <Icon class="hamburger-menu" @click="showDropdown = !showDropdown" name="solar:hamburger-menu-outline"
+                size="35px" /> -->
         </div>
 
         <div class="desktop-nav">
             <div class="menu-left">
-                <NuxtLink class="logo-center"
-                          to="/">
-                    <img src="/icons/dellekes_logo.png"
-                         class="home-icon" />
+                <NuxtLink class="logo-center" to="/">
+                    <Vue3Lottie style="padding-bottom: 12px;" animationLink="/animations/dellekes_logo.json"
+                        ref="logoLottie" :height="75" :width="75" @mouseover="logoLottie.play()"
+                        @on-loop-complete="logoLottie.stop()" :autoPlay="false" />
+                    <!-- <img src="/icons/dellekes_logo.png" class="home-icon" /> -->
                 </NuxtLink>
                 <NuxtLink to="/movies">MOVIES</NuxtLink>
                 <NuxtLink to="/series">SERIES</NuxtLink>
                 <transition name="fade">
-                    <div v-if="filter.includes(currentRoute.path) && showSearchBox"
-                         class="search-bar">
-                        <input ref="inputElement"
-                               @keyup.enter="hideSearchBox()"
-                               @keyup="updateAutoCompletion()"
-                               class="search-bar-input"
-                               v-model="searchbox"
-                               type="text"
-                               placeholder="Movie, Series, Genre, Actor">
-                        <ul v-if="autoCompletionList.length !== 0"
-                            class="search-bar-suggestions">
-                            <li v-for="entry in autoCompletionList"
-                                class="search-bar-suggestions-item"
-                                @click="navigateToMedia(entry[0])"
-                                style="list-style: none; cursor: pointer;">
+                    <div v-if="filter.includes(currentRoute.path) && showSearchBox" class="search-bar">
+                        <input ref="inputElement" @keyup.enter="hideSearchBox()" @keyup="updateAutoCompletion()"
+                            class="search-bar-input" v-model="searchbox" type="text"
+                            placeholder="Movie, Series, Genre, Actor">
+                        <ul v-if="autoCompletionList.length !== 0" class="search-bar-suggestions">
+                            <li v-for="entry in autoCompletionList" class="search-bar-suggestions-item"
+                                @click="navigateToMedia(entry[0])" style="list-style: none; cursor: pointer;">
                                 <span style="font-weight: bold;">{{ entry[1].substring(0, searchbox.length) }}</span>
                                 <span style="overflow: hidden;">{{ entry[1].substring(searchbox.length) }}</span>
                             </li>
                         </ul>
                     </div>
                 </transition>
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false"
-                      @click="openSearchBox()"
-                      name="ph:magnifying-glass"
-                      size="25px"
-                      class="search-icon" />
-                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true"
-                      @click="hideSearchBox()"
-                      name="radix-icons:cross-2"
-                      size="25px"
-                      class="search-icon" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === false" @click="openSearchBox()"
+                    name="ph:magnifying-glass" size="25px" class="search-icon" />
+                <Icon v-if="filter.includes(currentRoute.path) && showSearchBox === true" @click="hideSearchBox()"
+                    name="radix-icons:cross-2" size="25px" class="search-icon" />
             </div>
             <div class="menu-right">
                 <div>
-                    <Icon class="hamburger-menu-desktop"
-                          @click="showDropdown = !showDropdown"
-                          name="solar:hamburger-menu-outline"
-                          size="35px" />
+                    <Vue3Lottie class="hamburger-menu-desktop" animationLink="/animations/hamburger.json"
+                        ref="hamburgerLottie" :height="25" :width="25" @click="toggleMenu"
+                        @on-loop-complete="freezeMenuAnimation" :speed="2" :autoPlay="false" />
+                    <!-- <transition name="fadeInOut">
+                        <Icon v-if="showDropdown === false" class="hamburger-menu-desktop" @click="showDropdown = true"
+                            name="solar:hamburger-menu-outline" size="35px" />
+                    </transition>
+                    <transition name="fadeInOut">
+                        <Icon v-if="showDropdown === true" class="hamburger-menu-desktop" @click="showDropdown = false"
+                            name="radix-icons:cross-1" size="35px" style="padding: 6px 3px" />
+                    </transition> -->
+
                 </div>
             </div>
         </div>
@@ -213,6 +248,29 @@ svg {
     justify-content: space-between;
     padding-left: 5px;
     padding-right: 15px;
+}
+
+.menu-item {
+    text-align: center;
+    border-bottom: 1px solid var(--background-color-200);
+    padding: 10px 0px;
+    margin: 0;
+    width: 100%;
+}
+
+.menu-item:hover {
+    background-color: rgba(17, 17, 17, 0.9);
+}
+
+.hamburger-menu-mobile,
+.hamburger-menu-desktop {
+    filter: invert(100%);
+    cursor: pointer;
+}
+
+.hamburger-menu-mobile:hover,
+.hamburger-menu-desktop:hover {
+    filter: invert(46%) sepia(58%) saturate(7088%) hue-rotate(343deg) brightness(101%) contrast(91%);
 }
 
 /* 
@@ -348,13 +406,12 @@ span:hover {
     right: 0;
     width: 300px;
     height: 100vh;
-    background-color: rgba(18, 18, 18, 0.97);
+    background-color: rgba(18, 18, 18, 0.99);
     z-index: 9;
 }
 
 .container-dropdown a,
 .container-dropdown span {
-    margin: 10px;
     font-size: 2rem;
     font-weight: 600;
 }
@@ -383,6 +440,16 @@ span:hover {
     justify-content: flex-end;
 }
 
+.fadeInOut-enter-active,
+.fadeInOut-leave-active {
+    transition: all 0.3s ease;
+}
+
+.fadeInOut-enter-from,
+.fadeInOut-leave-to {
+    opacity: 0;
+}
+
 .fade-enter-active,
 .fade-leave-active {
     transition: all 0.5s ease;
@@ -396,7 +463,7 @@ span:hover {
 
 .fadedown-enter-active,
 .fadedown-leave-active {
-    transition: all 0.5s ease;
+    transition: all 0.3s ease-in-out;
 }
 
 .fadedown-enter-from,
@@ -408,6 +475,10 @@ span:hover {
 @media screen and (max-width: 992px) {
     .mobile-menu {
         display: flex;
+    }
+
+    .menu-item:first-child {
+        border-top: 1px solid var(--background-color-200);
     }
 
     .container-dropdown {
