@@ -89,6 +89,7 @@ const chartOptions = {
     },
     xaxis: {
         type: 'datetime',
+        min: new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
         tickAmount: 1,
         labels: {
             style: {
@@ -135,11 +136,8 @@ const chartOptions = {
 
 <template>
     <div>
-        <apexchart :key="userActivityData"
-                   height="250px"
-                   width="100%"
-                   :options="chartOptions"
-                   :series="userActivityData">
+        <apexchart :key="userActivityData" height="250px" width="100%" :options="chartOptions"
+            :series="userActivityData">
         </apexchart>
     </div>
 </template>

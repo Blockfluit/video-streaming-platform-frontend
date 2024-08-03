@@ -53,7 +53,9 @@ export const useEditStore = defineStore("editStore", {
             })
         },
         async deleteMedia(mediaId) {
-            if (!confirm("are you sure you want do delete this media? This cannot be undone!")) return
+            const confirmation = confirm("are you sure you want do delete this media? This cannot be undone!")
+            console.log(confirmation)
+            if (confirmation === false) return console.log('Media is NOT deleted.')
 
             return fetch(this.config.public.baseURL + "/media/" + mediaId, {
                 method: "DELETE",
