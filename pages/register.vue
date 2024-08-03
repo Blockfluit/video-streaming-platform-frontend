@@ -51,31 +51,18 @@ const register = () => {
 
 <template>
     <div class="container">
-        <a href="https://beta.dellekes.nl">
-            <img src="/icons/dellekes_logo.png"
-                 alt="logo"
-                 class="logo">
+        <a href="https://tv.dellekes.nl">
+            <img src="/icons/dellekes_logo.png" alt="logo" class="logo">
         </a>
-        <form @submit.prevent="register"
-              autocomplete="off">
+        <form @submit.prevent="register" autocomplete="off">
             <div class="container-register">
                 <!-- <header>Register</header> -->
                 <span>Please enter an username and password</span>
-                <span style="margin-bottom: 10px;">Field with * are required.</span>
-                <input v-model="username"
-                       type="text"
-                       placeholder="Username*"
-                       required>
-                <input v-model="password"
-                       type="password"
-                       placeholder="Password*"
-                       required>
+                <span style="margin-bottom: 10px;">Fields with * are required.</span>
+                <input v-model="username" type="text" placeholder="Username*" required>
+                <input v-model="password" type="password" placeholder="Password*" required>
                 <!-- <input v-model="email" type="email" placeholder="Email"> -->
-                <input v-if="hideToken"
-                       v-model="token"
-                       type="text"
-                       placeholder="Token*"
-                       required>
+                <input v-if="hideToken" v-model="token" type="text" placeholder="Token*" required>
                 <button type="submit">Register</button>
                 <span>Back to <NuxtLink to="/login">Login</NuxtLink></span>
             </div>

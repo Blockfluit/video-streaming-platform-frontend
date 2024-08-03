@@ -13,15 +13,13 @@ const password = ref()
 const logoLottie = ref()
 const animationWrapper = ref()
 
-function login(username, password) {
-    initTokens(username, password)
-        .then(async () => {
-            const tl = gsap.timeline()
-            await tl.to(animationWrapper.value, { x: '0', ease: "power4.inOut", duration: 1 })
-        })
-        .then(() => {
-            navigateTo("/")
-        })
+async function login(username, password) {
+    await initTokens(username, password)
+    if (useCookie("refresh-token").value) {
+        const tl = gsap.timeline()
+        await tl.to(animationWrapper.value, { x: '0', ease: "power4.inOut", duration: 1 })
+        navigateTo("/")
+    }
 }
 
 function intervalLogo() {
