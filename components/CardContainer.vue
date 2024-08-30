@@ -40,8 +40,8 @@ watch(searchbox, () => {
         props.supplier(nextPage, 20, selectedGenres.value, searchbox.value).then(data => {
             allMedia.value.splice(0, allMedia.value.length)
             allMedia.value.push(...data.content)
-            totalElements.value = data.totalElements
-            totalPages = data.totalPages
+            totalElements.value = data.page.totalElements
+            totalPages = data.page.totalPages
             nextPage++
             previousSearch = searchbox.value
             fetching = false
@@ -55,8 +55,8 @@ watch(selectedGenres, () => {
     props.supplier(nextPage, 20, selectedGenres.value, searchbox.value).then(data => {
         allMedia.value.splice(0, allMedia.value.length)
         allMedia.value.push(...data.content)
-        totalElements.value = data.totalElements
-        totalPages = data.totalPages
+        totalElements.value = data.page.totalElements
+        totalPages = data.page.totalPages
         nextPage++
         previousSearch = searchbox.value
         fetching = false
@@ -66,8 +66,8 @@ watch(selectedGenres, () => {
 function fetchNextPage() {
     props.supplier(nextPage, 20, selectedGenres.value, searchbox.value).then(data => {
         allMedia.value.push(...data.content)
-        totalElements.value = data.totalElements
-        totalPages = data.totalPages
+        totalElements.value = data.page.totalElements
+        totalPages = data.page.totalPages
         nextPage++
         fetching = false
     })
