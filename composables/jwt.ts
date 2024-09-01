@@ -8,7 +8,6 @@ export async function getAccesToken(): Promise<string> {
     if(refresh.value === undefined || 
         refresh.value === null) {
         destroyTokens()
-        navigateTo("/")
     }
 
     if(!isTokenValid() && 
@@ -19,7 +18,6 @@ export async function getAccesToken(): Promise<string> {
 
     if(access.value === null) {
         destroyTokens()
-        navigateTo("/")
     }
     return Promise.resolve(access.value ?? "")
 }
