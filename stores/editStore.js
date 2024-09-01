@@ -10,7 +10,7 @@ export const useEditStore = defineStore("editStore", {
         mediaStore: useMediaStore(),
     }),
     actions: {
-        async updateMedia(mediaId, thumbnail, type, genres, actors, trailer, year, plot, videosOrder, updateVideos) {
+        async updateMedia(mediaId, thumbnail, type, genres, actors, trailer, year, plot, videosOrder, updateVideos, updateTimestamp, isHidden) {
             const { media } = storeToRefs(this.mediaStore)
 
             const actorIds = []
@@ -34,6 +34,8 @@ export const useEditStore = defineStore("editStore", {
                 formData.append(`order[${index}].index`, entry.index)
             })
             formData.append("updateFiles", updateVideos)
+            formData.append("updateTimestamp", updateTimestamp)
+            formData.append("hidden", isHidden)
 
             return fetch(this.config.public.baseURL + "/media/" + mediaId, {
                 method: "PATCH",

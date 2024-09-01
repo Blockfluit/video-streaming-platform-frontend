@@ -23,6 +23,8 @@ const actors = ref([])
 const searchGenres = ref("")
 const searchActors = ref("")
 const updateVideos = ref(false)
+const updateTimestamp = ref(false)
+const isHidden = ref(media.value.hidden)
 const videosOrder = ref([])
 const thumbnail = ref()
 const previewImageUrl = ref("")
@@ -52,6 +54,7 @@ onMounted(() => {
     if (process.client) {
         filterActors(searchActors.value)
     }
+    console.log(media.value)
 })
 
 watch(actors, (n, o) => {
@@ -67,9 +70,10 @@ function resetInputFields() {
     genres.value = media.value.genres
     actors.value = media.value.actors
     updateVideos.value = false
+    updateTimestamp.value = false
+    isHidden.value = media.value.hidden
     videosOrder.value = media.value.videos?.sort((a, b) => a.index - b.index)
     previewImageUrl.value = config.public.baseURL + "/stream/thumbnail/" + media.value.id
-
 }
 
 function selectActors(actor) {
@@ -120,8 +124,19 @@ async function filterActors(search) {
                     <input class="input-field" v-model="trailer" type="url">
                     <label>Year of release:</label>
                     <input class="input-field" v-model="year" type="number">
-                    <label>Update videos:</label>
-                    <input class="input-field" v-model="updateVideos" type="checkbox">
+                    <div style="display:flex; align-items: center;">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="updateVideos" type="checkbox">
+                        <label>Update videos</label>
+                    </div>
+                    <div style="display:flex; align-items: center;">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="updateTimestamp" id="timestamp"
+                            type="checkbox">
+                        <label for="timestamp">Update timestamp</label>
+                    </div>
+                    <div style="display:flex; align-items: center;">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="isHidden" type="checkbox">
+                        <label>Hidden</label>
+                    </div>
                 </div>
                 <div style="margin: 20px 0px'; display: flex; align-items: center; flex-direction: column">
                     <img style="margin: 50px; margin-bottom: 0; border-radius: 15px;" :src="previewImageUrl"
@@ -197,7 +212,8 @@ async function filterActors(search) {
                         </template>
                     </div>
                     <button @click="editStore.updateMedia(currentMediaId, thumbnail, type, genres, actors, trailer,
-                        year, plot, videosOrder, updateVideos)" class="submit-btn" type="submit">Update Media</button>
+                        year, plot, videosOrder, updateVideos, updateTimestamp, isHidden)" class="submit-btn"
+                        type="submit">Update Media</button>
                     <button @click="editStore.deleteMedia(media.id)" class="submit-btn"
                         style="background-color: var(--primary-color-100);">Delete Media</button>
                 </div>
