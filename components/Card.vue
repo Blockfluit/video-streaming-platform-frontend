@@ -70,6 +70,15 @@ function navigationHandler(mediaId, showLastVideo, e) {
     navigateTo(`/media/${mediaId}`)
 }
 
+function quality(res) {
+    if(res >= 2160) return "UHD"; // UHD
+    else if(res >= 1440) return "QHD"; // QHD
+    else if(res >= 1080) return "FHD"; // FHD
+    else if(res >= 740) return "HD"; // HD
+    else return ""; // Fallback
+    
+}
+
 async function addToWatchlist(mediaId) {
     onWatchlist.value = true
 
@@ -105,7 +114,12 @@ async function removeFromWatchlist(mediaId) {
                  @mouseleave="showExtraInformation = false"
                  v-if="showExtraInformation"
                  class="show-rating">
-                <button @click="onWatchlist ? removeFromWatchlist(shownMedia.id) : addToWatchlist(shownMedia.id)"
+                 <div class="container-horizontal">
+                    <div>
+                        <span v-if="admin" style="font-weight: bolder;">{{ quality(shownMedia.videos[0].yresolution) }}</span>
+                        <span v-if="admin && shownMedia.videos[0].yresolution" style="padding-left: 0;">• {{ shownMedia.videos[0].yresolution }}p</span>
+                    </div>
+                    <button @click="onWatchlist ? removeFromWatchlist(shownMedia.id) : addToWatchlist(shownMedia.id)"
                         id="ignore-navigation"
                         class="watchlist-button">
                     <Icon name="fa-solid:heart"
@@ -113,6 +127,7 @@ async function removeFromWatchlist(mediaId) {
                           class="watchlist-icon"
                           :style="{ color: onWatchlist ? 'var(--primary-color-100)' : 'var(--text-color-2)' }" />
                 </button>
+                 </div>
                 <div style="flex-grow: 1;"></div>
                 <div v-if="shownMedia.avgRating >= 1">
                     <template v-for="star in 5">
@@ -221,6 +236,13 @@ img {
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 30px;
+}
+
+.container-horizontal {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .container-img {

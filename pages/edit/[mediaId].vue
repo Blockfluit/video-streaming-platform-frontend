@@ -54,12 +54,10 @@ onMounted(() => {
     if (process.client) {
         filterActors(searchActors.value)
     }
-    console.log(media.value)
 })
 
 watch(actors, (n, o) => {
     filterActors(searchActors.value)
-    console.log(actors.value)
 })
 
 function resetInputFields() {
