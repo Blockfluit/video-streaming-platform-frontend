@@ -1,174 +1,111 @@
 <script setup>
-import { getAccesToken } from '#imports';
 import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
 import { storeToRefs } from 'pinia';
 
 useHead({ title: "Upload" })
 
-const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
 
-const { allGenres, allActors } = storeToRefs(mainStore)
-const { name, type, plot, trailer, year, genres, actors } = storeToRefs(uploadStore)
+const { allGenres } = storeToRefs(mainStore)
+const { name, thumbnail, type, plot, trailer, year, genres, directors, writers, creators, stars, cast, hidden, scrapeImdb, imdbId } = storeToRefs(uploadStore)
 
 const acceptedFileExt = ["jpeg", "png", "jpg"]
-
 const searchGenres = ref("")
-const searchActors = ref("")
-const isHidden = ref(false)
-
-const thumbnail = ref()
 const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
-const filteredActors = ref([])
 
 onBeforeMount(() => {
     if (process.client) {
-        mainStore.setAllActors()
+        mainStore.setAllPersons()
         mainStore.setAllGenres()
+        initThumbnail()
     }
 })
 
-onMounted(() => {
-    if (process.client) {
-        filterActors(searchActors.value)
-    }
-})
-
-watch(allActors, (n, o) => {
-    filterActors(searchActors.value)
-})
-
-const thumbnailHandler = (e) => {
-    if (!acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
-        alert("Invalid File extension")
+async function initThumbnail() {
+    if(thumbnail.value === undefined || thumbnail.value === "") {
         return
     }
-    thumbnail.value = e.target.files[0]
-    previewImageUrl.value = URL.createObjectURL(e.target.files[0])
-}
 
-async function filterActors(search) {
-    filteredActors.value = allActors.value.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(search.toLowerCase()))
-        .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))
-        .sort((a, b) => {
-            const cond1 = actors.value.findIndex(c => c.firstname === a.firstname && c.lastname === a.lastname) !== -1
-            const cond2 = actors.value.findIndex(c => c.firstname === b.firstname && c.lastname === b.lastname) !== -1
-            if (cond1 && !cond2) return -1
-            if (!cond1 && cond2) return 1
-            if (!cond1 === cond2) return 0
+    return await fetch(thumbnail.value)
+        .then(res => res.blob())
+        .then(image => {
+            previewImageUrl.value = URL.createObjectURL(image)
         })
 }
 
-async function addMedia() {
-    if (!acceptedFileExt.includes(thumbnail.value.type.split("/")[1])) {
+async function thumbnailHandler(e) {
+    if (thumbnail.value !== undefined &&
+        !acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
         alert("Invalid File extension")
+        thumbnail.value = undefined
         return
     }
+    previewImageUrl.value = URL.createObjectURL(e.target.files[0])
+    thumbnail.value = await parseImageToBase64(e.target.files[0])
+}
 
-    let actorIds = []
-    actors.value.forEach(a => {
-        actorIds.push(allActors.value.find(b => a.firstname === b.firstname &&
-            a.lastname === b.lastname).id)
-    })
+function resetInputFields() {
+    thumbnail.value = undefined
+    type.value = "MOVIE"
+    plot.value = ""
+    trailer.value = ""
+    year.value = ""
+    genres.value = []
+    directors.value = []
+    writers.value = []
+    creators.value = []
+    stars.value = []
+    cast.value = []
+    hidden.value = false
+    scrapeImdb.value = false
+    imdbId.value = ""
+    previewImageUrl.value = "https://s.w-x.co/in-cat_in_glasses.jpg"
+}
 
-    const formData = new FormData()
-    formData.append("name", name.value)
-    formData.append("thumbnail", thumbnail.value)
-    formData.append("type", type.value)
-    formData.append("genres", genres.value)
-    formData.append("actors", actorIds)
-    formData.append("trailer", trailer.value)
-    formData.append("year", year.value)
-    formData.append("plot", plot.value)
-    formData.append("hidden", isHidden.value)
-
-    return fetch(config.public.baseURL + "/media", {
-        method: "POST",
-        headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${await getAccesToken()}`
-        },
-        body: formData,
-    }).then((response) => {
-        if (response.status >= 200 && response.status < 300) {
-            name.value = ""
-            type.value = "MOVIE"
-            actors.value = []
-            genres.value = []
-            plot.value = ""
-            trailer.value = ""
-            year.value = ""
-            thumbnail.value = null
-            previewImageUrl.value = "https://s.w-x.co/in-cat_in_glasses.jpg"
-            alert("Upload successful")
-        }
-    }).catch(e => {
-        console.log(e)
-        alert(e)
-    })
+async function uploadMedia() {
+    uploadStore.addMedia()
+        .then(() => resetInputFields())
 }
 </script>
 
 <template>
     <div class="container">
         <div class="container-add-media">
-            <form @submit.prevent="addMedia" class="upload-form">
+            <form @submit.prevent="console.log('Form action submitted')" class="upload-form">
                 <div style="max-width: 280px;">
                     <label>Thumbnail:</label>
                     <input @change="e => thumbnailHandler(e)" style="width: 100%;" type="file"
                         accept="image/jpeg, image/png" required>
                     <label>Name:</label>
                     <input class="input-field" v-model="name" placeholder="Name" type="text" required>
+                    <label>Imdb id:</label>
+                    <input class="input-field" v-model="imdbId" placeholder="Imdb id" type="text">
                     <label>Type:</label>
                     <div>
                         <input type="radio" v-model="type" required selected name="type"
                             value="MOVIE"><label>Movie</label>
                         <input type="radio" v-model="type" required name="type" value="SERIES"><label>Series</label>
                     </div>
-                    <!-- <select v-model="type" required>
-                        <option value="MOVIE" selected>Movie</option>
-                        <option value="SERIES">Series</option>
-                    </select> -->
                     <label>Plot:</label>
                     <textarea class="input-field plot-text" v-model="plot"></textarea>
                     <label>Trailer URL:</label>
                     <input class="input-field" v-model="trailer" placeholder="Trailer" type="url" required>
                     <label>Year of release:</label>
-                    <input class="input-field" v-model="year" placeholder="Year" type="number" required>
+                    <input class="input-field" v-model="year" placeholder="Year" type="number">
                     <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="isHidden" type="checkbox">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="hidden" type="checkbox">
                         <label>Hidden</label>
+                    </div>
+                    <div style="display:flex; align-items: center;">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="scrapeImdb" type="checkbox">
+                        <label>Scrape Imdb</label>
                     </div>
                 </div>
                 <img style="margin: 50px; border-radius: 15px;" :src="previewImageUrl" class="preview-image">
                 <div>
-                    <label>Search actor:</label>
-                    <input class="input-field" @keyup="filterActors(searchActors)" v-model="searchActors"
-                        placeholder="Search actor" type="search">
-                    <div class="title">
-                        <div style="display: flex; align-items: center;">
-                            <label style="margin-right: 10px;">Actors:</label>
-                            <AddActor />
-                        </div>
-                        <span>Selected: {{ actors.length }}</span>
-                    </div>
-                    <div class="actor-list">
-                        <template v-for="actor in filteredActors">
-                            <div class="actor">
-                                <div>
-                                    <input class="actor-checkbox" v-model="actors" type="checkbox" :id="actor.id"
-                                        :value="{ firstname: actor.firstname, lastname: actor.lastname ?? null }">
-                                    <label class="actor-checkbox" style="margin-left: 10px;" :for="actor.id">{{
-                                        `${actor.firstname} ${actor.lastname}` }}</label>
-                                </div>
-                                <Icon class="icon" @click="uploadStore.deleteActor(actor)"
-                                    name="material-symbols:delete">
-                                </Icon>
-                            </div>
-                        </template>
-                    </div>
+                   <PersonSearchBox :store="uploadStore"/>
                     <div class="title">
                         <div style="display: flex; align-items: center;">
                             <span style="margin-right: 10px;">Genres:</span>
@@ -201,7 +138,7 @@ async function addMedia() {
                             </div>
                         </template>
                     </div>
-                    <button class="submit-btn" type="submit">Upload Media</button>
+                    <button @click="uploadMedia()" class="submit-btn" type="submit">Upload Media</button>
                 </div>
             </form>
         </div>

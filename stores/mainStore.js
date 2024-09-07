@@ -5,7 +5,7 @@ export const useMainStore = defineStore("mainStore", {
     state: () => ({
         config: useRuntimeConfig(),
         allGenres: useLocalStorage("all-genres", []),
-        allActors: useLocalStorage("all-actors", []),
+        allPersons: useLocalStorage("all-persons", []),
         watched: useLocalStorage("watched", []),
         showSearchBox: false,
         searchbox: "",
@@ -47,8 +47,8 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        async setAllActors() {
-            return fetch(this.config.public.baseURL + "/actors", {
+        async setAllPersons() {
+            return fetch(this.config.public.baseURL + "/persons", {
                 method: "GET",
                 headers: {
                     Accept: 'application/json',
@@ -59,7 +59,7 @@ export const useMainStore = defineStore("mainStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.allActors = data.allActors
+                this.allPersons = data.allPersons
             }).catch(e => {
                 console.log(e)
             })

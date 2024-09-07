@@ -11,93 +11,68 @@ const uploadStore = useUploadStore()
 const mediaStore = useMediaStore()
 const editStore = useEditStore()
 
-const { allGenres, allActors } = storeToRefs(mainStore)
-const { media } = storeToRefs(mediaStore)
+const { thumbnail, type, plot, trailer, year, genres, directors, writers, creators, stars, cast, updateTimestamp, updateFiles, hidden, order, scrapeImdb, imdbId } = storeToRefs(editStore)
+const { allGenres } = storeToRefs(mainStore)
 
-const type = ref("MOVIE")
-const plot = ref("")
-const trailer = ref("")
-const year = ref(0)
-const genres = ref([])
-const actors = ref([])
 const searchGenres = ref("")
-const searchActors = ref("")
-const updateVideos = ref(false)
-const updateTimestamp = ref(false)
-const isHidden = ref(media.value.hidden)
-const videosOrder = ref([])
-const thumbnail = ref()
 const previewImageUrl = ref("")
 
-const filteredActors = ref([])
-let currentMediaId
-
-const isSelectedActor = computed((actor) => {
-    return actors.includes(actor)
-})
+const media = ref({})
+let mediaId
 
 onBeforeMount(() => {
     if (process.client) {
         const route = useRoute()
-        currentMediaId = route.params.mediaId
+        mediaId = route.params.mediaId
 
-        mediaStore.setMedia(currentMediaId).then(() => {
+        mediaStore.setMedia(mediaId).then(m => {
+            useHead({ title: `Editing: ${m.name}` })
+            media.value = m
             resetInputFields()
-            useHead({ title: `Editing: ${media.value.name}` })
         })
-        mainStore.setAllActors()
+        mainStore.setAllPersons()
         mainStore.setAllGenres()
     }
 })
 
-onMounted(() => {
-    if (process.client) {
-        filterActors(searchActors.value)
-    }
-})
-
-watch(actors, (n, o) => {
-    filterActors(searchActors.value)
-})
-
 function resetInputFields() {
+    console.log(media.value)
+    thumbnail.value = undefined
     type.value = media.value.type
     plot.value = media.value.plot
     trailer.value = media.value.trailer
     year.value = media.value.year
     genres.value = media.value.genres
-    actors.value = media.value.actors
-    updateVideos.value = false
+    directors.value = media.value.directors.map(p => p.id)
+    writers.value = media.value.writers.map(p => p.id)
+    creators.value = media.value.creators.map(p => p.id)
+    stars.value = media.value.stars.map(p => p.id)
+    cast.value = media.value.cast.map(p => p.id)
+    updateFiles.value = false
     updateTimestamp.value = false
-    isHidden.value = media.value.hidden
-    videosOrder.value = media.value.videos?.sort((a, b) => a.index - b.index)
+    hidden.value = media.value.hidden
+    scrapeImdb.value = false
+    imdbId.value = media.value.imdbId
+    order.value = media.value.videos?.sort((a, b) => a.index - b.index)
     previewImageUrl.value = config.public.baseURL + "/stream/thumbnail/" + media.value.id
 }
 
-function selectActors(actor) {
-    return actors.value.includes(actor)
-}
-
-const thumbnailHandler = (e) => {
+async function thumbnailHandler(e) {
     if (thumbnail.value !== undefined &&
         !acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
         alert("Invalid File extension")
         thumbnail.value = undefined
         return
     }
-    thumbnail.value = e.target.files[0]
     previewImageUrl.value = URL.createObjectURL(e.target.files[0])
+    thumbnail.value = await parseImageToBase64(e.target.files[0])
 }
 
-async function filterActors(search) {
-    filteredActors.value = allActors.value.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(search.toLowerCase()))
-        .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))
-        .sort((a, b) => {
-            const cond1 = actors.value.findIndex(c => c.firstname === a.firstname && c.lastname === a.lastname) !== -1
-            const cond2 = actors.value.findIndex(c => c.firstname === b.firstname && c.lastname === b.lastname) !== -1
-            if (cond1 && !cond2) return -1
-            if (!cond1 && cond2) return 1
-            if (!cond1 === cond2) return 0
+async function updateMedia(mediaId) {
+    editStore.updateMedia(mediaId)
+        .then(async () => {
+            await mediaStore.setMedia(mediaId)
+            resetInputFields()
         })
 }
 </script>
@@ -111,6 +86,8 @@ async function filterActors(search) {
                     <input @change="e => thumbnailHandler(e)" type="file" accept="image/jpeg, image/png">
                     <label>Name:</label>
                     <p>{{ media.name }}</p>
+                    <label>Imdb id:</label>
+                    <input class="input-field" v-model="imdbId" placeholder="Imdb id" type="text">
                     <label>Type:</label>
                     <div>
                         <input type="radio" v-model="type" selected name="type" value="MOVIE"><label>Movie</label>
@@ -119,11 +96,11 @@ async function filterActors(search) {
                     <label>Plot:</label>
                     <input class="input-field" v-model="plot" type="text">
                     <label>Trailer URL:</label>
-                    <input class="input-field" v-model="trailer" type="url">
+                    <input class="input-field" v-model="trailer" type="url" required>
                     <label>Year of release:</label>
                     <input class="input-field" v-model="year" type="number">
                     <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="updateVideos" type="checkbox">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="updateFiles" type="checkbox">
                         <label>Update videos</label>
                     </div>
                     <div style="display:flex; align-items: center;">
@@ -132,8 +109,12 @@ async function filterActors(search) {
                         <label for="timestamp">Update timestamp</label>
                     </div>
                     <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="isHidden" type="checkbox">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="hidden" type="checkbox">
                         <label>Hidden</label>
+                    </div>
+                    <div style="display:flex; align-items: center;">
+                        <input class="input-field" style="margin:0 6px 0 0;" v-model="scrapeImdb" type="checkbox">
+                        <label>Scrape Imdb</label>
                     </div>
                 </div>
                 <div style="margin: 20px 0px'; display: flex; align-items: center; flex-direction: column">
@@ -141,9 +122,9 @@ async function filterActors(search) {
                         class="preview-image">
                     <span style="margin: 10px 0px;">Video Order:</span>
                     <ul class="video-order">
-                        <div v-for="(video, index) in videosOrder"
+                        <div v-for="(video, index) in order"
                             style="display: flex; align-items: center; border-bottom: 1px solid white;">
-                            <input @change="e => videosOrder[index].index = e.target.valueAsNumber" type="number"
+                            <input @change="e => order[index].index = e.target.valueAsNumber" type="number"
                                 :value="video.index"
                                 style="width: 50px; border: none; border-right: 1px solid white; display: flex; text-align: center;">
                             <li style="list-style-type: none; margin-left: 10px;">{{ video.name }}</li>
@@ -151,32 +132,7 @@ async function filterActors(search) {
                     </ul>
                 </div>
                 <div>
-                    <label>Search actor:</label>
-                    <input class="input-field" v-model="searchActors" placeholder="Search actor" type="search"
-                        @keyup="filterActors(searchActors)">
-                    <div class="title">
-                        <div style="display: flex; align-items: center;">
-                            <label style="margin-right: 10px;">Actors:</label>
-                            <AddActor />
-                        </div>
-                        <span>Selected: {{ actors?.length }}</span>
-                    </div>
-                    <div class="actor-list">
-                        <template v-for="actor in filteredActors">
-                            <div class="actor">
-                                <div>
-                                    <input class="actor-checkbox" v-model="actors" type="checkbox" :id="actor.id"
-                                        :value="actor">
-                                    <span>{{ actor.id }}</span>
-                                    <label class=" actor-checkbox" style="margin-left: 10px;" :for="actor.id">{{
-                                        `${actor.firstname} ${actor.lastname}` }}</label>
-                                </div>
-                                <Icon class="icon" @click="uploadStore.deleteActor(actor)"
-                                    name="material-symbols:delete">
-                                </Icon>
-                            </div>
-                        </template>
-                    </div>
+                    <PersonSearchBox :store="editStore" :key="media" />
                     <div class="title">
                         <div style="display: flex; align-items: center;">
                             <span style="margin-right: 10px;">Genres:</span>
@@ -209,10 +165,9 @@ async function filterActors(search) {
                             </div>
                         </template>
                     </div>
-                    <button @click="editStore.updateMedia(currentMediaId, thumbnail, type, genres, actors, trailer,
-                        year, plot, videosOrder, updateVideos, updateTimestamp, isHidden)" class="submit-btn"
+                    <button @click="updateMedia(mediaId)" class="submit-btn"
                         type="submit">Update Media</button>
-                    <button @click="editStore.deleteMedia(media.id)" class="submit-btn"
+                    <button @click="editStore.deleteMedia(mediaId)" class="submit-btn"
                         style="background-color: var(--primary-color-100);">Delete Media</button>
                 </div>
             </form>
@@ -259,22 +214,6 @@ async function filterActors(search) {
 
 .video-order div:last-child {
     border-bottom: none !important;
-}
-
-.actor {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px;
-}
-
-.actor-checkbox {
-    -webkit-user-select: none;
-    /* Safari */
-    -ms-user-select: none;
-    /* IE 10 and IE 11 */
-    user-select: none;
-    /* Standard syntax */
 }
 
 .genre-checkbox {
@@ -326,14 +265,6 @@ async function filterActors(search) {
 .container-add-media {
     max-width: 90vw;
     margin: 40px;
-}
-
-.actor-list {
-    height: 200px;
-    overflow-y: scroll;
-    border: 1px solid white;
-    border-radius: 4px;
-    margin-bottom: 15px;
 }
 
 .genre-list {

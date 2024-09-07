@@ -74,7 +74,7 @@ function quality(res) {
     if(res >= 2160) return "UHD"; // UHD
     else if(res >= 1440) return "QHD"; // QHD
     else if(res >= 1080) return "FHD"; // FHD
-    else if(res >= 740) return "HD"; // HD
+    else if(res >= 720) return "HD"; // HD
     else return ""; // Fallback
     
 }
@@ -95,7 +95,7 @@ async function removeFromWatchlist(mediaId) {
 </script>
 
 <template>
-    <div class="card">
+    <div class="card" :class="shownMedia.hidden ? 'card-hidden' : ''">
         <div @mouseover="showExtraInformation = true"
              class="container-information">
             <div class="container-img">
@@ -116,7 +116,7 @@ async function removeFromWatchlist(mediaId) {
                  class="show-rating">
                  <div class="container-horizontal">
                     <div>
-                        <span v-if="admin" style="font-weight: bolder;">{{ quality(shownMedia.videos[0].yresolution) }}</span>
+                        <span style="font-weight: bolder;">{{ quality(shownMedia.videos[0].yresolution) }}</span>
                         <span v-if="admin && shownMedia.videos[0].yresolution" style="padding-left: 0;">• {{ shownMedia.videos[0].yresolution }}p</span>
                     </div>
                     <button @click="onWatchlist ? removeFromWatchlist(shownMedia.id) : addToWatchlist(shownMedia.id)"
@@ -146,6 +146,7 @@ async function removeFromWatchlist(mediaId) {
         <div @click="navigationHandler(shownMedia.id)"
              class="title">
             <span class="name">{{ shownMedia.name }}</span>
+            <span v-if="shownMedia.hidden" style="flex-grow: 1;">&nbsp;(Hidden)</span>
             <span v-if="shownMedia.videoCount > 1"
                   class="total-videos">{{ shownMedia.videoCount }}</span>
             <span v-else
@@ -292,6 +293,10 @@ svg {
     width: 250px;
     border-radius: 15px;
     background-color: var(--background-color-100);
+}
+
+.card-hidden {
+    background-color: rgb(50, 150, 25)
 }
 
 .card:hover {

@@ -5,17 +5,60 @@ export const useUploadStore = defineStore("uploadStore", {
     state: () => ({
         config: useRuntimeConfig(),
         mainStore: useMainStore(),
+
+        thumbnail: useLocalStorage("upload-thumbnail", undefined),
         name: useLocalStorage("upload-name", ""),
         type: useLocalStorage("upload-type", "MOVIE"),
         plot: useLocalStorage("upload-plot", ""),
         trailer: useLocalStorage("upload-trailer", ""),
         year: useLocalStorage("upload-year", ""),
         genres: useLocalStorage("upload-genres", []),
-        actors: useLocalStorage("upload-actors", []),
+        directors: useLocalStorage("upload-directors", []),
+        writers: useLocalStorage("upload-writers", []),
+        creators: useLocalStorage("upload-creators", []),
+        stars: useLocalStorage("upload-stars", []),
+        cast: useLocalStorage("upload-cast", []),
+        hidden: useLocalStorage("upload-hidden", false),
+        scrapeImdb: useLocalStorage("upload-scrapeImdb", false),
+        imdbId: useLocalStorage("upload-imdbId", "")
     }),
     actions: {
-        async deleteActor(actor) {
-            return fetch(this.config.public.baseURL + "/actors/" + actor.id, {
+        async addMedia() {
+            return fetch(this.config.public.baseURL + "/media", {
+                method: "POST",
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${await getAccesToken()}`
+                },
+                body: JSON.stringify({
+                    name: this.name,
+                    thumbnail: this.thumbnail,
+                    type: this.type,
+                    genres: this.genres,
+                    directors: this.directors,
+                    writers: this.writers,
+                    creators: this.creators,
+                    stars: this.stars,
+                    cast: this.cast,
+                    trailer: this.trailer,
+                    year: this.year,
+                    plot: this.plot,
+                    hidden: this.hidden,
+                    scrapeImdb: this.scrapeImdb,
+                    imdbId: this.imdbId
+                }),
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    alert("Upload successful")
+                }
+            }).catch(e => {
+                console.log(e)
+                alert(e)
+            })
+        },
+        async deletePerson(id) {
+            return fetch(this.config.public.baseURL + "/persons/" + id, {
                 method: "DELETE",
                 headers: {
                     Accept: 'application/json',
@@ -23,11 +66,8 @@ export const useUploadStore = defineStore("uploadStore", {
                 }
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
-                    this.mainStore.setAllActors()
-                    const index = this.actors.findIndex(entry => entry.firstname === actor.firstname &&
-                        entry.lastname === actor.lastname)
-                    this.actors.splice(index, 1)
-                    alert("Successfully deleted actor")
+                    this.mainStore.setAllPersons()
+                    alert("Successfully deleted person")
                 }
             }).catch(e => {
                 console.log(e)
