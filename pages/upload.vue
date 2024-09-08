@@ -14,6 +14,7 @@ const { name, thumbnail, type, plot, trailer, year, genres, directors, writers, 
 const acceptedFileExt = ["jpeg", "png", "jpg"]
 const searchGenres = ref("")
 const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
+const imgInput = ref()
 
 onBeforeMount(() => {
     if (process.client) {
@@ -23,7 +24,7 @@ onBeforeMount(() => {
 })
 
 async function initThumbnail() {
-    if(thumbnail.value === undefined || thumbnail.value === "") {
+    if (thumbnail.value === undefined || thumbnail.value === "") {
         return
     }
 
@@ -70,41 +71,41 @@ async function uploadMedia() {
 </script>
 
 <template>
-    <div class="container">
-        <div class="container-add-media">
-            <form @submit.prevent="console.log('Form action submitted')" class="upload-form">
-                <div style="max-width: 280px;">
-                    <label>Thumbnail:</label>
-                    <input @change="e => thumbnailHandler(e)" style="width: 100%;" type="file"
-                        accept="image/jpeg, image/png" required>
-                    <label>Name:</label>
-                    <input class="input-field" v-model="name" placeholder="Name" type="text" required>
-                    <label>Imdb id:</label>
-                    <input class="input-field" v-model="imdbId" placeholder="Imdb id" type="text">
+    <form @submit.prevent="console.log('Form action submitted')" class="upload-form">
+        <div class="grid-container">
+            <div class="grid-container-info">
+                <h1
+                    style="margin: 0 0 12px 0; padding-bottom: 12px; border-bottom: 1px solid white; line-height: 1; position: sticky; top: 0; background-color: var(--background-color-100); z-index:999;">
+                    Upload Movie/Serie</h1>
+                <label>Name:</label>
+                <input class="input-field" v-model="name" placeholder="Lord of the Rings" type="text" required>
+                <label>IMDb ID:</label>
+                <input class="input-field" v-model="imdbId" placeholder="tt7631058" type="text">
+
+                <div style="display: flex; align-items: center;">
                     <label>Type:</label>
-                    <div>
-                        <input type="radio" v-model="type" required selected name="type"
-                            value="MOVIE"><label>Movie</label>
-                        <input type="radio" v-model="type" required name="type" value="SERIES"><label>Series</label>
-                    </div>
+                    <input type="radio" v-model="type" required selected name="type" value="MOVIE"><label>Movie</label>
+                    <input type="radio" v-model="type" required name="type" value="SERIES"><label>Series</label>
+                </div>
+                <div style="display:flex; align-items: center;">
+                    <label style="margin-right: 6px">Hidden:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="hidden" type="checkbox">
+                </div>
+                <div style="display:flex; align-items: center; margin-bottom: 12px;">
+                    <label style="margin-right: 6px">Scrape IMDb:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="scrapeImdb" type="checkbox">
+                </div>
+                <label>Trailer URL:</label>
+                <input class="input-field" v-model="trailer"
+                    placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=18" type="url" required>
+
+                <div v-if="scrapeImdb === false">
                     <label>Plot:</label>
-                    <textarea class="input-field plot-text" v-model="plot"></textarea>
-                    <label>Trailer URL:</label>
-                    <input class="input-field" v-model="trailer" placeholder="Trailer" type="url" required>
+                    <textarea class="input-field plot-text" v-model="plot" placeholder="Plot"></textarea>
                     <label>Year of release:</label>
                     <input class="input-field" v-model="year" placeholder="Year" type="number">
-                    <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="hidden" type="checkbox">
-                        <label>Hidden</label>
-                    </div>
-                    <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="scrapeImdb" type="checkbox">
-                        <label>Scrape Imdb</label>
-                    </div>
-                </div>
-                <img style="margin: 50px; border-radius: 15px;" :src="previewImageUrl" class="preview-image">
-                <div>
-                   <PersonSearchBox :store="uploadStore"/>
+
+                    <PersonSearchBox :store="uploadStore" />
                     <div class="title">
                         <div style="display: flex; align-items: center;">
                             <span style="margin-right: 10px;">Genres:</span>
@@ -137,19 +138,59 @@ async function uploadMedia() {
                             </div>
                         </template>
                     </div>
-                    <button @click="uploadMedia()" class="submit-btn" type="submit">Upload Media</button>
                 </div>
-            </form>
+            </div>
+            <div class="grid-container-img">
+                <div class="img-wrapper">
+                    <img :src="previewImageUrl" class="preview-image">
+                </div>
+                <div style="display: flex; ">
+                    <button style="margin: 12px;" class="button" @click="imgInput.click()">
+                        <Icon name="material-symbols:add-photo-alternate-outline" /> Add Image
+                    </button>
+                    <button @click="uploadMedia()" class="submit-btn">
+                        <Icon name="material-symbols:upload-rounded" /> Upload Media
+                    </button>
+                    <input @change="e => thumbnailHandler(e)" type="file"
+                        style="visibility: hidden; height: 0px; width: 0px;" accept="image/jpeg, image/png"
+                        ref="imgInput" required>
+                </div>
+            </div>
         </div>
-
-    </div>
+    </form>
 </template>
 
 <style scoped>
-.container {
+.upload-form {
+    margin: 50px;
+    padding: 30px;
+    border-radius: 6px;
+    background-color: var(--background-color-100);
+    height: 80vh;
+    overflow: hidden;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+    gap: 50px;
+    width: 100%;
+    height: 100%;
+}
+
+.grid-container-img {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    order: 2;
+}
+
+.grid-container-info {
+    width: 100%;
+    overflow-y: scroll;
+    padding-right: 24px;
+    order: 1;
 }
 
 .input-field {
@@ -159,6 +200,41 @@ async function uploadMedia() {
     display: flex;
     justify-content: flex-start;
     margin-bottom: 15px;
+    width: 100%;
+}
+
+.button {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    font-family: 'Poppins';
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button:hover {
+    border: 1px solid var(--primary-color-100);
+    color: var(--primary-color-100);
+
+}
+
+.submit-btn {
+    margin: 12px;
+    background-color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: var(--font-family-1);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--background-color-100);
+}
+
+.submit-btn:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
 }
 
 .plot-text {
@@ -166,16 +242,16 @@ async function uploadMedia() {
     color: white;
     font-family: var(--font-family-1);
     min-width: 235px;
+    width: 100%;
 }
 
 .icon:hover {
     color: var(--primary-color-100);
 }
 
-.upload-form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
+textarea:focus,
+input:focus {
+    outline: none;
 }
 
 .actor {
@@ -217,21 +293,7 @@ async function uploadMedia() {
     align-items: center;
 }
 
-.submit-btn {
-    margin: 10px;
-    background-color: white;
-    border: none;
-    border-radius: 15px;
-    padding: 10px 20px;
-    font-family: var(--font-family-1);
-    font-weight: 600;
-    color: var(--background-color-100)
-}
 
-.submit-btn:hover {
-    cursor: pointer;
-    background-color: var(--primary-color-100);
-}
 
 .genre {
     display: flex;
@@ -269,9 +331,38 @@ async function uploadMedia() {
     flex-direction: column;
 }
 
+.img-wrapper {
+    height: 100%;
+}
+
 .preview-image {
+    border-radius: 5px;
+    aspect-ratio: 2/3;
     object-fit: cover;
-    width: 300px;
-    height: 450px;
+    max-height: 65vh;
+}
+
+@media screen and (max-width: 993px) {
+    .upload-form {
+        margin: 25px 5px;
+        overflow: hidden;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 100%);
+        gap: 50px;
+        overflow-y: scroll;
+        overflow-x: hidden
+    }
+
+    .grid-container-info {
+        overflow: visible;
+        padding-right: 10px;
+    }
+
+    .preview-image {
+        max-height: 50vh;
+    }
 }
 </style>

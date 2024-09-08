@@ -14,8 +14,10 @@ const editStore = useEditStore()
 const { thumbnail, type, plot, trailer, year, genres, directors, writers, creators, stars, cast, updateTimestamp, updateFiles, hidden, order, scrapeImdb, imdbId } = storeToRefs(editStore)
 const { allGenres } = storeToRefs(mainStore)
 
+const acceptedFileExt = ["jpeg", "png", "jpg"]
 const searchGenres = ref("")
 const previewImageUrl = ref("")
+const imgInput = ref()
 
 const media = ref({})
 let mediaId
@@ -76,49 +78,44 @@ async function updateMedia(mediaId) {
 </script>
 
 <template>
-    <div class="container">
-        <div class="container-add-media">
-            <form @submit.prevent="console.log('Form action submitted')" class="edit-form">
-                <div style="max-width: 280px;">
-                    <label>Thumbnail:</label>
-                    <input @change="e => thumbnailHandler(e)" type="file" accept="image/jpeg, image/png">
-                    <label>Name:</label>
-                    <p>{{ media.name }}</p>
-                    <label>Imdb id:</label>
-                    <input class="input-field" v-model="imdbId" placeholder="Imdb id" type="text">
+    <form @submit.prevent="console.log('Form action submitted')" class="edit-form">
+        <div class="grid-container">
+            <div class="grid-container-info">
+                <h1
+                    style="margin: 0 0 12px 0; padding-bottom: 12px; border-bottom: 1px solid white; line-height: 1; position: sticky; top: 0; background-color: var(--background-color-100); z-index:999;">
+                    Edit Movie/Serie</h1>
+                <label>Name:</label>
+                <p>{{ media.name }}</p>
+                <label>IMDb ID:</label>
+                <input class="input-field" v-model="imdbId" placeholder="tt7631058" type="text">
+
+                <div style="display: flex; align-items: center;">
                     <label>Type:</label>
-                    <div>
-                        <input type="radio" v-model="type" selected name="type" value="MOVIE"><label>Movie</label>
-                        <input type="radio" v-model="type" name="type" value="SERIES"><label>Series</label>
-                    </div>
-                    <label>Plot:</label>
-                    <input class="input-field" v-model="plot" type="text">
-                    <label>Trailer URL:</label>
-                    <input class="input-field" v-model="trailer" type="url" required>
-                    <label>Year of release:</label>
-                    <input class="input-field" v-model="year" type="number">
-                    <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="updateFiles" type="checkbox">
-                        <label>Update videos</label>
-                    </div>
-                    <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="updateTimestamp" id="timestamp"
-                            type="checkbox">
-                        <label for="timestamp">Update timestamp</label>
-                    </div>
-                    <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="hidden" type="checkbox">
-                        <label>Hidden</label>
-                    </div>
-                    <div style="display:flex; align-items: center;">
-                        <input class="input-field" style="margin:0 6px 0 0;" v-model="scrapeImdb" type="checkbox">
-                        <label>Scrape Imdb</label>
-                    </div>
+                    <input type="radio" v-model="type" required selected name="type" value="MOVIE"><label>Movie</label>
+                    <input type="radio" v-model="type" required name="type" value="SERIES"><label>Series</label>
                 </div>
-                <div style="margin: 20px 0px'; display: flex; align-items: center; flex-direction: column">
-                    <img style="margin: 50px; margin-bottom: 0; border-radius: 15px;" :src="previewImageUrl"
-                        class="preview-image">
-                    <span style="margin: 10px 0px;">Video Order:</span>
+                <div style="display:flex; align-items: center;">
+                    <label style="margin-right: 6px">Update videos:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="updateFiles" type="checkbox">
+                </div>
+                <div style="display:flex; align-items: center;">
+                    <label style="margin-right: 6px">Update timestamp:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="updateTimestamp" type="checkbox">
+                </div>
+                <div style="display:flex; align-items: center;">
+                    <label style="margin-right: 6px">Hidden:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="hidden" type="checkbox">
+                </div>
+                <div style="display:flex; align-items: center; margin-bottom: 12px;">
+                    <label style="margin-right: 6px">Scrape IMDb:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="scrapeImdb" type="checkbox">
+                </div>
+                <label>Trailer URL:</label>
+                <input class="input-field" v-model="trailer"
+                    placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=18" type="url" required>
+
+                <div style="display: flex; flex-direction: column">
+                    <span>Video Order:</span>
                     <ul class="video-order">
                         <div v-for="(video, index) in order"
                             style="display: flex; align-items: center; border-bottom: 1px solid white;">
@@ -129,7 +126,13 @@ async function updateMedia(mediaId) {
                         </div>
                     </ul>
                 </div>
-                <div>
+
+                <div v-if="scrapeImdb === false">
+                    <label>Plot:</label>
+                    <textarea class="input-field plot-text" v-model="plot" placeholder="Plot"></textarea>
+                    <label>Year of release:</label>
+                    <input class="input-field" v-model="year" placeholder="Year" type="number">
+
                     <PersonSearchBox :store="editStore" :key="media" />
                     <div class="title">
                         <div style="display: flex; align-items: center;">
@@ -163,30 +166,107 @@ async function updateMedia(mediaId) {
                             </div>
                         </template>
                     </div>
-                    <button @click="updateMedia(mediaId)" class="submit-btn"
-                        type="submit">Update Media</button>
-                    <button @click="editStore.deleteMedia(mediaId)" class="submit-btn"
-                        style="background-color: var(--primary-color-100);">Delete Media</button>
                 </div>
-            </form>
+            </div>
+            <div class="grid-container-img">
+                <div class="img-wrapper">
+                    <img :src="previewImageUrl" class="preview-image">
+                </div>
+                <div style="display: flex; ">
+                    <button style="margin: 12px;" class="button" @click="imgInput.click()">
+                        <Icon name="material-symbols:add-photo-alternate-outline" /> Add Image
+                    </button>
+                    <button @click="updateMedia(mediaId)" class="submit-btn">
+                        <Icon name="mdi:pencil" /> Update Media
+                    </button>
+                    <button @click="editStore.deleteMedia(mediaId)" class="submit-btn delete"
+                        style="background-color: var(--primary-color-100)">
+                        <Icon name="material-symbols:delete" /> Delete Media
+                    </button>
+                    <input @change="e => thumbnailHandler(e)" type="file"
+                        style="visibility: hidden; height: 0px; width: 0px;" accept="image/jpeg, image/png"
+                        ref="imgInput" required>
+                </div>
+            </div>
         </div>
-    </div>
+    </form>
 </template>
 
 <style scoped>
-.container {
+.edit-form {
+    margin: 50px;
+    padding: 30px;
+    border-radius: 6px;
+    background-color: var(--background-color-100);
+    height: 80vh;
+    overflow: hidden;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+    gap: 50px;
+    width: 100%;
+    height: 100%;
+}
+
+.grid-container-img {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    order: 2;
+}
+
+.grid-container-info {
+    width: 100%;
+    overflow-y: scroll;
+    padding-right: 24px;
+    order: 1;
 }
 
 .input-field {
     border: 1px solid white;
-    border-radius: 25px;
-    padding-left: 15px;
+    border-radius: 5px;
+    padding-left: 6px;
     display: flex;
     justify-content: flex-start;
     margin-bottom: 15px;
+    width: 100%;
+}
+
+.button {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    font-family: 'Poppins';
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button:hover {
+    border: 1px solid var(--primary-color-100);
+    color: var(--primary-color-100);
+
+}
+
+.submit-btn {
+    margin: 12px;
+    background-color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: var(--font-family-1);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--background-color-100);
+}
+
+.submit-btn:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
 }
 
 .edit-form {
@@ -195,19 +275,32 @@ async function updateMedia(mediaId) {
     justify-content: space-evenly;
 }
 
-.icon:hover {
-    color: var(--primary-color-100);
+.plot-text {
+    background-color: transparent;
+    color: white;
+    font-family: var(--font-family-1);
+    min-width: 235px;
+    width: 100%;
+}
+
+.delete:hover {
+    background-color: #d62215 !important;
+}
+
+textarea:focus,
+input:focus {
+    outline: none;
 }
 
 .video-order {
     display: flex;
     flex-direction: column;
-    margin: 0px 50px;
     padding: 0;
     max-height: 200px;
     overflow-y: scroll;
     border: 1px solid white;
     border-radius: 5px;
+    margin-top: 0;
 }
 
 .video-order div:last-child {
@@ -235,22 +328,6 @@ async function updateMedia(mediaId) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.submit-btn {
-    margin: 10px;
-    background-color: white;
-    border: none;
-    border-radius: 15px;
-    padding: 10px 20px;
-    font-family: var(--font-family-1);
-    font-weight: 600;
-    color: var(--background-color-100)
-}
-
-.submit-btn:hover {
-    cursor: pointer;
-    background-color: var(--primary-color-100);
 }
 
 .genre {
@@ -282,8 +359,33 @@ async function updateMedia(mediaId) {
 }
 
 .preview-image {
+    border-radius: 5px;
+    aspect-ratio: 2/3;
     object-fit: cover;
-    width: 300px;
-    height: 450px;
+    max-height: 65vh;
+}
+
+@media screen and (max-width: 993px) {
+    .upload-form {
+        margin: 25px 5px;
+        overflow: hidden;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 100%);
+        gap: 50px;
+        overflow-y: scroll;
+        overflow-x: hidden
+    }
+
+    .grid-container-info {
+        overflow: visible;
+        padding-right: 10px;
+    }
+
+    .preview-image {
+        max-height: 50vh;
+    }
 }
 </style>
