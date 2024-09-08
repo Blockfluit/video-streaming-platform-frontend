@@ -17,7 +17,6 @@ const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
 
 onBeforeMount(() => {
     if (process.client) {
-        mainStore.setAllPersons()
         mainStore.setAllGenres()
         initThumbnail()
     }

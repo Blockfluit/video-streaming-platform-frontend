@@ -47,22 +47,24 @@ export const useMainStore = defineStore("mainStore", {
                 console.log(e)
             })
         },
-        async setAllPersons() {
-            return fetch(this.config.public.baseURL + "/persons", {
-                method: "GET",
-                headers: {
-                    Accept: 'application/json',
-                    "Authorization": `Bearer ${await getAccesToken()}`
-                }
-            }).then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    return response.json()
-                }
-            }).then((data) => {
-                this.allPersons = data.allPersons
-            }).catch(e => {
-                console.log(e)
-            })
+        async getPerson(pagenumber, pagesize, options) {
+            return fetch(`${this.config.public.baseURL}/persons/` +
+                `?pagenumber=${pagenumber ?? 0}` +
+                `&pagesize=${pagesize ?? 30}` +
+                `&search=${options?.search ?? ""}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Accept: 'application/json',
+                        "Authorization": `Bearer ${await getAccesToken()}`
+                    }
+                }).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json()
+                    }
+                }).catch(e => {
+                    console.log(e)
+                })
         },
         async getMedia(endpoint, pagenumber, pagesize, options) {
             return fetch(`${this.config.public.baseURL}/media/${endpoint ?? ""}` +

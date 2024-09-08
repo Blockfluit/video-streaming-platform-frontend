@@ -30,13 +30,11 @@ onBeforeMount(() => {
             media.value = m
             resetInputFields()
         })
-        mainStore.setAllPersons()
         mainStore.setAllGenres()
     }
 })
 
 function resetInputFields() {
-    console.log(media.value)
     thumbnail.value = undefined
     type.value = media.value.type
     plot.value = media.value.plot

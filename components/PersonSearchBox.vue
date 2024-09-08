@@ -13,43 +13,64 @@ const props = defineProps({
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
 
-const { allPersons } = storeToRefs(mainStore)
-const { directors, writers, creators, stars, cast } = props.store
+const { directors, writers, creators, stars, cast } = storeToRefs(props.store)
 
-const filteredPersons = ref([...allPersons.value])
-const search = ref()
+const totalPersons = ref(0)
+const totalPages = ref(0)
+let pageNumber = 0
+const persons = ref([])
+
+const table = ref({})
+const search = ref("")
 
 onBeforeMount(() => {
-    filterPerson("")
+    searchPersons("")
 })
 
-async function filterPerson(search) {
-    filteredPersons.value = allPersons.value.filter(person => `${person.firstname} ${person.lastname}`.toLowerCase().includes(search.toLowerCase()))
-        .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))
-        .sort((a, b) => {
-            const cond1 = allPersons.value.findIndex(c => c.firstname === a.firstname && c.lastname === a.lastname) !== -1
-            const cond2 = allPersons.value.findIndex(c => c.firstname === b.firstname && c.lastname === b.lastname) !== -1
-            if (cond1 && !cond2) return -1
-            if (!cond1 && cond2) return 1
-            if (!cond1 === cond2) return 0
+function searchPersons() {
+    pageNumber = 0
+    persons.value.splice(0, persons.value.length)
+    fetchPage()
+}
+
+function fetchPage() {
+    if(pageNumber > totalPages.value) return
+
+    mainStore.getPerson(pageNumber, 100, {search: search.value})
+        .then(res => {
+            persons.value.push(...res.content)
+            totalPersons.value = res.page.totalElements
+            totalPages.value = res.page.totalPages
         })
+
+    pageNumber++
+}
+
+function scrollHandler(e) {
+    const d = e.target.getBoundingClientRect().bottom * 2 - table.value.getBoundingClientRect().bottom
+
+    if(d > 0) {
+        fetchPage()
+    }
 }
 </script>
-
 
 <template>
     <label>Search persons:</label>
     <input class="input-field" v-model="search" placeholder="Search person" type="search"
-        @keyup="filterPerson(search)">
+        @keyup="searchPersons()">
     <div class="title">
         <div style="display: flex; align-items: center;">
-            <label style="margin-right: 10px;">Actors:</label>
+            <label style="margin-right: 10px;">Persons:</label>
             <AddPerson />
         </div>
-        <span>Selected: {{ directors.length + writers.length + creators.length + stars.length + cast.length }}</span>
+        <div style="display: flex; justify-content: space-between;">
+            <span>Selected: {{ directors.length + writers.length + creators.length + stars.length + cast.length }}</span>
+            <span>Total: {{ totalPersons }}</span>
+        </div>
     </div>
-    <div class="person-list">
-        <table>
+    <div class="person-list" @scroll="scrollHandler">
+        <table ref="table">
             <tr>
                 <th>id</th>
                 <th>name</th>
@@ -60,7 +81,7 @@ async function filterPerson(search) {
                 <th style="writing-mode:vertical-rl">cast</th>
                 <th></th>
             </tr>
-            <template v-for="person in filteredPersons">
+            <template v-for="person in persons">
                 <tr>
                     <td><span>{{ person.id }}</span></td>
                     <td><label class=" person-checkbox" style="margin-left: 10px;">{{
