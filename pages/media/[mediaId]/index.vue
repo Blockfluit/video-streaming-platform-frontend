@@ -138,8 +138,10 @@ const calcTimePercentage = (video) => {
                     <p class="plot-text hide-on-phone">{{ media?.plot }}</p>
                     <div class="container-cast hide-on-phone" style="display: flex; flex-direction: column;">
                         <!-- <template v-for="role in ['directors', 'creators', 'stars', 'cast']"></template> -->
-                            <template v-for="role in ['cast']">
-                            <span v-if="media[role]?.length > 0" class="hide-on-phone" style="text-transform: capitalize;">{{ role }}: {{ media[role]?.slice(0,5).map(p => `${p.firstname} ${p.lastname}`).join(", ") }}</span>
+                        <template v-for="role in ['cast']">
+                            <span v-if="media[role]?.length > 0" class="hide-on-phone"
+                                style="text-transform: capitalize;">{{ role }}: {{ media[role]?.slice(0, 5).map(p =>
+                                    `${p.firstname} ${p.lastname}`).join(", ") }}</span>
                         </template>
                     </div>
                     <div style="display: flex; align-items: center;">
@@ -166,7 +168,8 @@ const calcTimePercentage = (video) => {
                     </div>
                 </div>
                 <div class="overlay"></div>
-                <iframe ref="iframe" class="preview-trailer" :src="parseTrailer(media.trailer, false, false)"
+                <iframe ref="iframe" class="preview-trailer"
+                    :src="media.trailer ? parseTrailer(media.trailer, false, false) : parseTrailer('https://www.youtube.com/watch?v=dQw4w9WgXcQ', false, false)"
                     allow="autoplay; encrypted-media;"></iframe>
             </div>
 

@@ -18,6 +18,8 @@ const acceptedFileExt = ["jpeg", "png", "jpg"]
 const searchGenres = ref("")
 const previewImageUrl = ref("")
 const imgInput = ref()
+const isEditing = ref(false)
+const isDeleting = ref(false)
 
 const media = ref({})
 let mediaId
@@ -69,9 +71,20 @@ async function thumbnailHandler(e) {
 }
 
 async function updateMedia(mediaId) {
+    isEditing.value = true
     editStore.updateMedia(mediaId)
         .then(async () => {
             await mediaStore.setMedia(mediaId)
+            isEditing.value = false
+            resetInputFields()
+        })
+}
+
+async function deleteMedia(mediaId) {
+    isDeleting.value = true
+    editStore.deleteMedia(mediaId)
+        .then(async () => {
+            isDeleting.value = false
             resetInputFields()
         })
 }
@@ -177,11 +190,22 @@ async function updateMedia(mediaId) {
                         <Icon name="material-symbols:add-photo-alternate-outline" /> Add Image
                     </button>
                     <button @click="updateMedia(mediaId)" class="submit-btn">
-                        <Icon name="mdi:pencil" /> Update Media
+                        <div v-if="!isEditing">
+                            <Icon name="mdi:pencil" /> Update Media
+                        </div>
+                        <div v-if="isEditing">
+                            <Icon class="loading-spinner" name="ri:loader-2-line" /> Updating...
+                        </div>
                     </button>
-                    <button @click="editStore.deleteMedia(mediaId)" class="submit-btn delete"
+                    <button @click="deleteMedia(mediaId)" class="submit-btn delete"
                         style="background-color: var(--primary-color-100)">
-                        <Icon name="material-symbols:delete" /> Delete Media
+                        <div v-if="!isDeleting">
+                            <Icon name="material-symbols:delete" /> Delete Media
+                        </div>
+                        <div v-if="isDeleting">
+                            <Icon class="loading-spinner" name="mdi:pencil" /> Deleting...
+                        </div>
+
                     </button>
                     <input @change="e => thumbnailHandler(e)" type="file"
                         style="visibility: hidden; height: 0px; width: 0px;" accept="image/jpeg, image/png"
@@ -365,6 +389,11 @@ input:focus {
     max-height: 65vh;
 }
 
+.loading-spinner {
+    transform-origin: center;
+    animation: spinner 2s ease-in-out infinite;
+}
+
 @media screen and (max-width: 993px) {
     .upload-form {
         margin: 25px 5px;
@@ -386,6 +415,20 @@ input:focus {
 
     .preview-image {
         max-height: 50vh;
+    }
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }
 </style>

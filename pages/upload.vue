@@ -15,6 +15,7 @@ const acceptedFileExt = ["jpeg", "png", "jpg"]
 const searchGenres = ref("")
 const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
 const imgInput = ref()
+const isUploading = ref(false)
 
 onBeforeMount(() => {
     if (process.client) {
@@ -65,8 +66,12 @@ function resetInputFields() {
 }
 
 async function uploadMedia() {
+    isUploading.value = true
     uploadStore.addMedia()
-        .then(() => resetInputFields())
+        .then(() => {
+            isUploading.value = false
+            resetInputFields()
+        })
 }
 </script>
 
@@ -149,7 +154,12 @@ async function uploadMedia() {
                         <Icon name="material-symbols:add-photo-alternate-outline" /> Add Image
                     </button>
                     <button @click="uploadMedia()" class="submit-btn">
-                        <Icon name="material-symbols:upload-rounded" /> Upload Media
+                        <div v-if="!isUploading">
+                            <Icon name="material-symbols:upload-rounded" /> Upload Media
+                        </div>
+                        <div v-if="isUploading">
+                            <Icon class="loading-spinner" name="ri:loader-2-line" /> Uploading...
+                        </div>
                     </button>
                     <input @change="e => thumbnailHandler(e)" type="file"
                         style="visibility: hidden; height: 0px; width: 0px;" accept="image/jpeg, image/png"
@@ -342,6 +352,11 @@ input:focus {
     max-height: 65vh;
 }
 
+.loading-spinner {
+    transform-origin: center;
+    animation: spinner 2s ease-in-out infinite;
+}
+
 @media screen and (max-width: 993px) {
     .upload-form {
         margin: 25px 5px;
@@ -363,6 +378,20 @@ input:focus {
 
     .preview-image {
         max-height: 50vh;
+    }
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }
 </style>
