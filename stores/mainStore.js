@@ -121,6 +121,22 @@ export const useMainStore = defineStore("mainStore", {
             }).catch(e => {
                 console.log(e)
             })
+        },
+        async scraperSearch(search) {
+            return fetch(`${this.config.public.baseURL}/scraper/search` + 
+                `?title=${search}`, {
+                method: "GET",
+                headers: {
+                    Accept: 'application/json',
+                    "Authorization": `Bearer ${await getAccesToken()}`
+                }
+            }).then((response) => {
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json()
+                }
+            }).catch(e => {
+                console.log(e)
+            })
         }
     }
 })
