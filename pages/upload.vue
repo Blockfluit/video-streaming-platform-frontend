@@ -16,6 +16,9 @@ const searchGenres = ref("")
 const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
 const imgInput = ref()
 const isUploading = ref(false)
+const suggestionContainer = ref()
+const suggestions = ref()
+const loadingSuggestions = ref(false)
 
 onBeforeMount(() => {
     if (process.client) {
@@ -73,6 +76,18 @@ async function uploadMedia() {
             resetInputFields()
         })
 }
+
+async function giveSuggestions() {
+    loadingSuggestions.value = true
+    suggestions.value = await mainStore.scraperSearch(name.value)
+    loadingSuggestions.value = false
+}
+
+function scrollHorizontal(e) {
+    e.preventDefault();
+    suggestionContainer.value.scrollLeft += e.deltaY;
+}
+
 </script>
 
 <template>
@@ -83,7 +98,21 @@ async function uploadMedia() {
                     style="margin: 0 0 12px 0; padding-bottom: 12px; border-bottom: 1px solid white; line-height: 1; position: sticky; top: 0; background-color: var(--background-color-100); z-index:999;">
                     Upload Movie/Serie</h1>
                 <label>Name:</label>
-                <input class="input-field" v-model="name" placeholder="Lord of the Rings" type="text" required>
+                <div style="display: flex;">
+                    <input class="input-field" v-model="name" placeholder="Lord of the Rings" type="text" required>
+                    <button @click.prevent="giveSuggestions" class="button" style="display: flex; align-items: center; padding: 6.5px; margin-left: 8px; height: 100%;"><Icon v-if="!loadingSuggestions" name="material-symbols:search-rounded" style="margin-right: 4px;" /><Icon v-if="loadingSuggestions" class="loading-spinner" name="ri:loader-2-line" style="margin-right: 4px;" /><span style="line-height: 1;">Suggestions</span> </button>
+                </div>
+                
+                <div v-if="suggestions" @wheel="scrollHorizontal" class="suggestions-container" ref="suggestionContainer">
+                    <template v-for="item in suggestions?.content">
+                        <div @click.prevent="imdbId = item.imdbId; scrapeImdb = true" :class="{ 'active-suggestion': item.imdbId === imdbId}" class="suggestion-card">
+                            <img :src="item.thumbnail" alt="movie-thumbnail" style="width: 100%;">
+                            <div style="padding: 4px 16px 12px 16px;">
+                                <span>{{ item.title }} · {{item.releaseYear}} · <span v-if="item.type">{{item.type}}</span><span v-else>Movie</span></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
                 <label>IMDb ID:</label>
                 <input class="input-field" v-model="imdbId" placeholder="tt7631058" type="text">
 
@@ -211,6 +240,29 @@ async function uploadMedia() {
     justify-content: flex-start;
     margin-bottom: 15px;
     width: 100%;
+}
+
+.suggestions-container {
+    display: flex;
+    gap: 16px;
+    overflow: scroll hidden;
+    padding: 8px 0px;
+}
+
+.suggestion-card {
+    width: 200px;
+    border: 2px solid white;
+    border-radius: 8px;
+    flex-shrink: 0;
+    overflow: hidden;
+    cursor: pointer;
+}
+.active-suggestion {
+    border: 2px solid var(--primary-color-100);
+}
+
+.input-field::placeholder {
+    color: rgb(89, 89, 89);
 }
 
 .button {
