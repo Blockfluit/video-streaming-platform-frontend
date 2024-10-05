@@ -1,47 +1,59 @@
-import { getAccesToken } from "#imports";
+import { getAccesToken, parseImageToBase64 } from "#imports";
 import { useMainStore } from "./mainStore"
 import { useMediaStore } from "./mediaStore"
-import { storeToRefs } from 'pinia';
 
 export const useEditStore = defineStore("editStore", {
     state: () => ({
         config: useRuntimeConfig(),
         mainStore: useMainStore(),
         mediaStore: useMediaStore(),
+
+        thumbnail: undefined,
+        type: "MOVIE",
+        genres: [],
+        directors: [],
+        writers: [],
+        creators: [],
+        stars: [],
+        cast: [],
+        trailer: "",
+        year: 0,
+        plot: "",
+        updateFiles: false,
+        updateTimestamp: false,
+        hidden: false,
+        order: [],
+        scrapeImdb: false,
+        imdbId: ""
     }),
     actions: {
-        async updateMedia(mediaId, thumbnail, type, genres, actors, trailer, year, plot, videosOrder, updateVideos) {
-            const { media } = storeToRefs(this.mediaStore)
-
-            const actorIds = []
-            actors.forEach(a => {
-                actorIds.push(this.mainStore.allActors.find(b => a.firstname === b.firstname &&
-                    a.lastname === b.lastname).id)
-            })
-
-            const formData = new FormData()
-            if (thumbnail !== undefined) formData.append("thumbnail", thumbnail)
-            if (type !== media.value.type) formData.append("type", type)
-            formData.append("genres", genres)
-            formData.append("actors", actorIds)
-            if (trailer !== media.value.trailer) formData.append("trailer", trailer)
-            if (year !== media.value.year) formData.append("year", year)
-            if (plot !== media.value.plot) formData.append("plot", plot)
-
-            const order = videosOrder.map(video => { return { id: video.id, index: video.index } })
-            order.forEach((entry, index) => {
-                formData.append(`order[${index}].id`, entry.id)
-                formData.append(`order[${index}].index`, entry.index)
-            })
-            formData.append("updateFiles", updateVideos)
-
+        async updateMedia(mediaId) {
             return fetch(this.config.public.baseURL + "/media/" + mediaId, {
                 method: "PATCH",
                 headers: {
                     Accept: 'application/json',
+                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${await getAccesToken()}`
                 },
-                body: formData,
+                body: JSON.stringify({
+                    thumbnail: this.thumbnail,
+                    type: this.type,
+                    genres: this.genres,
+                    directors: this.directors,
+                    writers: this.writers,
+                    creators: this.creators,
+                    stars: this.stars,
+                    cast: this.cast,
+                    trailer: this.trailer,
+                    year: this.year,
+                    plot: this.plot,
+                    updateFiles: this.updateFiles,
+                    updateTimestamp: this.updateTimestamp,
+                    hidden: this.hidden,
+                    order: this.order.map(video => {return {id: video.id, index: video.index}}),
+                    scrapeImdb: this.scrapeImdb,
+                    imdbId: this.imdbId
+                }),
             }).then((response) => {
                 if (response.status >= 200 && response.status < 300) {
                     this.mediaStore.setMedia(mediaId)

@@ -112,7 +112,7 @@ export const useAdminStore = defineStore("adminStore", {
                     return response.json()
                 }
             }).then((data) => {
-                this.tokens = data.allInviteTokens
+                this.tokens = data.inviteTokens
             }).catch(e => {
                 console.log(e)
             })

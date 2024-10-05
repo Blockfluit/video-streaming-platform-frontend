@@ -1,207 +1,116 @@
 <script setup>
-import { getAccesToken } from '#imports';
 import { useMainStore } from '~/stores/mainStore';
 import { useUploadStore } from '~/stores/uploadStore';
 import { storeToRefs } from 'pinia';
 
 useHead({ title: "Upload" })
 
-const config = useRuntimeConfig()
 const mainStore = useMainStore()
 const uploadStore = useUploadStore()
 
-const { allGenres, allActors } = storeToRefs(mainStore)
-const { name, type, plot, trailer, year, genres, actors } = storeToRefs(uploadStore)
+const { allGenres } = storeToRefs(mainStore)
+const { name, thumbnail, type, plot, trailer, year, genres, directors, writers, creators, stars, cast, hidden, scrapeImdb, imdbId } = storeToRefs(uploadStore)
 
 const acceptedFileExt = ["jpeg", "png", "jpg"]
-
 const searchGenres = ref("")
-const searchActors = ref("")
-
-const thumbnail = ref()
 const previewImageUrl = ref("https://s.w-x.co/in-cat_in_glasses.jpg")
-const filteredActors = ref([])
+const imgInput = ref()
+const isUploading = ref(false)
 
 onBeforeMount(() => {
     if (process.client) {
-        mainStore.setAllActors()
         mainStore.setAllGenres()
+        initThumbnail()
     }
 })
 
-onMounted(() => {
-    if (process.client) {
-        filterActors(searchActors.value)
-    }
-})
-
-watch(allActors, (n, o) => {
-    filterActors(searchActors.value)
-})
-
-const thumbnailHandler = (e) => {
-    if (!acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
-        alert("Invalid File extension")
+async function initThumbnail() {
+    if (thumbnail.value === undefined || thumbnail.value === "") {
         return
     }
-    thumbnail.value = e.target.files[0]
-    previewImageUrl.value = URL.createObjectURL(e.target.files[0])
-}
 
-async function filterActors(search) {
-    filteredActors.value = allActors.value.filter(actor => `${actor.firstname} ${actor.lastname}`.toLowerCase().includes(search.toLowerCase()))
-        .sort((a, b) => `${a.firstname}${a.lastname}`.localeCompare(`${b.firstname}${b.lastname}`))
-        .sort((a, b) => {
-            const cond1 = actors.value.findIndex(c => c.firstname === a.firstname && c.lastname === a.lastname) !== -1
-            const cond2 = actors.value.findIndex(c => c.firstname === b.firstname && c.lastname === b.lastname) !== -1
-            if (cond1 && !cond2) return -1
-            if (!cond1 && cond2) return 1
-            if (!cond1 === cond2) return 0
+    return await fetch(thumbnail.value)
+        .then(res => res.blob())
+        .then(image => {
+            previewImageUrl.value = URL.createObjectURL(image)
         })
 }
 
-async function addMedia() {
-    if (!acceptedFileExt.includes(thumbnail.value.type.split("/")[1])) {
+async function thumbnailHandler(e) {
+    if (thumbnail.value !== undefined &&
+        !acceptedFileExt.includes(e.target.files[0].type.split("/")[1])) {
         alert("Invalid File extension")
+        thumbnail.value = undefined
         return
     }
+    previewImageUrl.value = URL.createObjectURL(e.target.files[0])
+    thumbnail.value = await parseImageToBase64(e.target.files[0])
+}
 
-    let actorIds = []
-    actors.value.forEach(a => {
-        actorIds.push(allActors.value.find(b => a.firstname === b.firstname &&
-            a.lastname === b.lastname).id)
-    })
+function resetInputFields() {
+    thumbnail.value = undefined
+    type.value = "MOVIE"
+    plot.value = ""
+    trailer.value = ""
+    year.value = ""
+    genres.value = []
+    directors.value = []
+    writers.value = []
+    creators.value = []
+    stars.value = []
+    cast.value = []
+    hidden.value = false
+    scrapeImdb.value = false
+    imdbId.value = ""
+    previewImageUrl.value = "https://s.w-x.co/in-cat_in_glasses.jpg"
+}
 
-    const formData = new FormData()
-    formData.append("name", name.value)
-    formData.append("thumbnail", thumbnail.value)
-    formData.append("type", type.value)
-    formData.append("genres", genres.value)
-    formData.append("actors", actorIds)
-    formData.append("trailer", trailer.value)
-    formData.append("year", year.value)
-    formData.append("plot", plot.value)
-
-    return fetch(config.public.baseURL + "/media", {
-        method: "POST",
-        headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${await getAccesToken()}`
-        },
-        body: formData,
-    }).then((response) => {
-        if (response.status >= 200 && response.status < 300) {
-            name.value = ""
-            type.value = "MOVIE"
-            actors.value = []
-            genres.value = []
-            plot.value = ""
-            trailer.value = ""
-            year.value = ""
-            thumbnail.value = null
-            previewImageUrl.value = "https://s.w-x.co/in-cat_in_glasses.jpg"
-            alert("Upload successful")
-        }
-    }).catch(e => {
-        console.log(e)
-        alert(e)
-    })
+async function uploadMedia() {
+    isUploading.value = true
+    uploadStore.addMedia()
+        .then(() => {
+            isUploading.value = false
+            resetInputFields()
+        })
 }
 </script>
 
 <template>
-    <div class="container">
-        <div class="container-add-media">
-            <form @submit.prevent="addMedia"
-                  class="upload-form">
-                <div style="max-width: 280px;">
-                    <label>Thumbnail:</label>
-                    <input @change="e => thumbnailHandler(e)"
-                           style="width: 100%;"
-                           type="file"
-                           accept="image/jpeg, image/png"
-                           required>
-                    <label>Name:</label>
-                    <input class="input-field"
-                           v-model="name"
-                           placeholder="Name"
-                           type="text"
-                           required>
+    <form @submit.prevent="console.log('Form action submitted')" class="upload-form">
+        <div class="grid-container">
+            <div class="grid-container-info">
+                <h1
+                    style="margin: 0 0 12px 0; padding-bottom: 12px; border-bottom: 1px solid white; line-height: 1; position: sticky; top: 0; background-color: var(--background-color-100); z-index:999;">
+                    Upload Movie/Serie</h1>
+                <label>Name:</label>
+                <input class="input-field" v-model="name" placeholder="Lord of the Rings" type="text" required>
+                <label>IMDb ID:</label>
+                <input class="input-field" v-model="imdbId" placeholder="tt7631058" type="text">
+
+                <div style="display: flex; align-items: center;">
                     <label>Type:</label>
-                    <div>
-                        <input type="radio"
-                               v-model="type"
-                               required
-                               selected
-                               name="type"
-                               value="MOVIE"><label>Movie</label>
-                        <input type="radio"
-                               v-model="type"
-                               required
-                               name="type"
-                               value="SERIES"><label>Series</label>
-                    </div>
-                    <!-- <select v-model="type" required>
-                        <option value="MOVIE" selected>Movie</option>
-                        <option value="SERIES">Series</option>
-                    </select> -->
-                    <label>Plot:</label>
-                    <input class="input-field"
-                           v-model="plot"
-                           placeholder="Plot"
-                           type="text"
-                           required>
-                    <label>Trailer URL:</label>
-                    <input class="input-field"
-                           v-model="trailer"
-                           placeholder="Trailer"
-                           type="url"
-                           required>
-                    <label>Year of release:</label>
-                    <input class="input-field"
-                           v-model="year"
-                           placeholder="Year"
-                           type="number"
-                           required>
+                    <input type="radio" v-model="type" required selected name="type" value="MOVIE"><label>Movie</label>
+                    <input type="radio" v-model="type" required name="type" value="SERIES"><label>Series</label>
                 </div>
-                <img style="margin: 50px; border-radius: 15px;"
-                     :src="previewImageUrl"
-                     class="preview-image">
-                <div>
-                    <label>Search actor:</label>
-                    <input class="input-field"
-                           @keyup="filterActors(searchActors)"
-                           v-model="searchActors"
-                           placeholder="Search actor"
-                           type="search">
-                    <div class="title">
-                        <div style="display: flex; align-items: center;">
-                            <label style="margin-right: 10px;">Actors:</label>
-                            <AddActor />
-                        </div>
-                        <span>Selected: {{ actors.length }}</span>
-                    </div>
-                    <div class="actor-list">
-                        <template v-for="actor in filteredActors">
-                            <div class="actor">
-                                <div>
-                                    <input class="actor-checkbox"
-                                           v-model="actors"
-                                           type="checkbox"
-                                           :id="actor.id"
-                                           :value="{ firstname: actor.firstname, lastname: actor.lastname ?? null }">
-                                    <label class="actor-checkbox"
-                                           style="margin-left: 10px;"
-                                           :for="actor.id">{{
-                                               `${actor.firstname} ${actor.lastname}` }}</label>
-                                </div>
-                                <Icon class="icon"
-                                      @click="uploadStore.deleteActor(actor)"
-                                      name="material-symbols:delete">
-                                </Icon>
-                            </div>
-                        </template>
-                    </div>
+                <div style="display:flex; align-items: center;">
+                    <label style="margin-right: 6px">Hidden:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="hidden" type="checkbox">
+                </div>
+                <div style="display:flex; align-items: center; margin-bottom: 12px;">
+                    <label style="margin-right: 6px">Scrape IMDb:</label>
+                    <input class="checkbox" style="margin:0 6px 0 0;" v-model="scrapeImdb" type="checkbox">
+                </div>
+                <label>Trailer URL:</label>
+                <input class="input-field" v-model="trailer"
+                    placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=18" type="url" required>
+
+                <div v-if="scrapeImdb === false">
+                    <label>Plot:</label>
+                    <textarea class="input-field plot-text" v-model="plot" placeholder="Plot"></textarea>
+                    <label>Year of release:</label>
+                    <input class="input-field" v-model="year" placeholder="Year" type="number">
+
+                    <PersonSearchBox :store="uploadStore" />
                     <div class="title">
                         <div style="display: flex; align-items: center;">
                             <span style="margin-right: 10px;">Genres:</span>
@@ -209,10 +118,7 @@ async function addMedia() {
                         </div>
                         <span>Selected: {{ genres.length }}</span>
                     </div>
-                    <input v-model="searchGenres"
-                           class="input-field"
-                           placeholder="Search genre"
-                           type="search">
+                    <input v-model="searchGenres" class="input-field" placeholder="Search genre" type="search">
 
                     <div class="genre-list">
                         <template v-for="genre in allGenres.filter(genre => genre.toLowerCase().includes(searchGenres.toLowerCase()))
@@ -226,56 +132,136 @@ async function addMedia() {
                             })">
                             <div class="genre">
                                 <div>
-                                    <input class="genre-checkbox"
-                                           v-model="genres"
-                                           type="checkbox"
-                                           :id="genre"
-                                           :value="genre">
-                                    <label class="genre-checkbox"
-                                           style="margin-left: 10px;"
-                                           :for="genre">{{
-                                               genre }}</label>
+                                    <input class="genre-checkbox" v-model="genres" type="checkbox" :id="genre"
+                                        :value="genre">
+                                    <label class="genre-checkbox" style="margin-left: 10px;" :for="genre">{{
+                                        genre }}</label>
                                 </div>
-                                <Icon class="icon"
-                                      @click="uploadStore.deleteGenre(genre)"
-                                      name="material-symbols:delete">
+                                <Icon class="icon" @click="uploadStore.deleteGenre(genre)"
+                                    name="material-symbols:delete">
                                 </Icon>
                             </div>
                         </template>
                     </div>
-                    <button class="submit-btn"
-                            type="submit">Upload Media</button>
                 </div>
-            </form>
+            </div>
+            <div class="grid-container-img">
+                <div class="img-wrapper">
+                    <img :src="previewImageUrl" class="preview-image">
+                </div>
+                <div style="display: flex; ">
+                    <button style="margin: 12px;" class="button" @click="imgInput.click()">
+                        <Icon name="material-symbols:add-photo-alternate-outline" /> Add Image
+                    </button>
+                    <button @click="uploadMedia()" class="submit-btn">
+                        <div v-if="!isUploading">
+                            <Icon name="material-symbols:upload-rounded" /> Upload Media
+                        </div>
+                        <div v-if="isUploading">
+                            <Icon class="loading-spinner" name="ri:loader-2-line" /> Uploading...
+                        </div>
+                    </button>
+                    <input @change="e => thumbnailHandler(e)" type="file"
+                        style="visibility: hidden; height: 0px; width: 0px;" accept="image/jpeg, image/png"
+                        ref="imgInput" required>
+                </div>
+            </div>
         </div>
-
-    </div>
+    </form>
 </template>
 
 <style scoped>
-.container {
+.upload-form {
+    margin: 50px;
+    padding: 30px;
+    border-radius: 6px;
+    background-color: var(--background-color-100);
+    height: 80vh;
+    overflow: hidden;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+    gap: 50px;
+    width: 100%;
+    height: 100%;
+}
+
+.grid-container-img {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    order: 2;
+}
+
+.grid-container-info {
+    width: 100%;
+    overflow-y: scroll;
+    padding-right: 24px;
+    order: 1;
 }
 
 .input-field {
     border: 1px solid white;
-    border-radius: 25px;
-    padding-left: 15px;
+    border-radius: 5px;
+    padding-left: 6px;
     display: flex;
     justify-content: flex-start;
     margin-bottom: 15px;
+    width: 100%;
+}
+
+.button {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    font-family: 'Poppins';
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button:hover {
+    border: 1px solid var(--primary-color-100);
+    color: var(--primary-color-100);
+
+}
+
+.submit-btn {
+    margin: 12px;
+    background-color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: var(--font-family-1);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--background-color-100);
+}
+
+.submit-btn:hover {
+    cursor: pointer;
+    background-color: var(--primary-color-100);
+}
+
+.plot-text {
+    background-color: transparent;
+    color: white;
+    font-family: var(--font-family-1);
+    min-width: 235px;
+    width: 100%;
 }
 
 .icon:hover {
     color: var(--primary-color-100);
 }
 
-.upload-form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
+textarea:focus,
+input:focus {
+    outline: none;
 }
 
 .actor {
@@ -317,21 +303,7 @@ async function addMedia() {
     align-items: center;
 }
 
-.submit-btn {
-    margin: 10px;
-    background-color: white;
-    border: none;
-    border-radius: 15px;
-    padding: 10px 20px;
-    font-family: var(--font-family-1);
-    font-weight: 600;
-    color: var(--background-color-100)
-}
 
-.submit-btn:hover {
-    cursor: pointer;
-    background-color: var(--primary-color-100);
-}
 
 .genre {
     display: flex;
@@ -369,9 +341,57 @@ async function addMedia() {
     flex-direction: column;
 }
 
+.img-wrapper {
+    height: 100%;
+}
+
 .preview-image {
+    border-radius: 5px;
+    aspect-ratio: 2/3;
     object-fit: cover;
-    width: 300px;
-    height: 450px;
+    max-height: 65vh;
+}
+
+.loading-spinner {
+    transform-origin: center;
+    animation: spinner 2s ease-in-out infinite;
+}
+
+@media screen and (max-width: 993px) {
+    .upload-form {
+        margin: 25px 5px;
+        overflow: hidden;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 100%);
+        gap: 50px;
+        overflow-y: scroll;
+        overflow-x: hidden
+    }
+
+    .grid-container-info {
+        overflow: visible;
+        padding-right: 10px;
+    }
+
+    .preview-image {
+        max-height: 50vh;
+    }
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 </style>

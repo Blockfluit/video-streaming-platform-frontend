@@ -36,10 +36,11 @@ onBeforeMount(() => {
 
 function fetchNextPage() {
     props.supplier(nextPage, 20).then(data => {
+        if(data === undefined) return
         allMedia.value.push(...data.content)
         if (props.recommendations) recommendationsInput.value.push(...data.input)
-        totalElements.value = data.page.totalElements
-        totalPages = data.page.totalPages
+        totalElements.value = data.page?.totalElements
+        totalPages = data.page?.totalPages
         nextPage++
         fetching = false
     })

@@ -119,7 +119,6 @@ const calcTimePercentage = (video) => {
     if (currentWatched !== undefined) return currentWatched.timestamp / video.duration * 100
     return 0
 }
-
 </script>
 
 <template>
@@ -137,12 +136,13 @@ const calcTimePercentage = (video) => {
                         formatTime(media.videos[0].duration) }}</span> • {{
                                 media.genres?.join(", ") }}</span>
                     <p class="plot-text hide-on-phone">{{ media?.plot }}</p>
-                    <div class="container-cast hide-on-phone" style="display: flex;">
-                        <span class="hide-on-phone">Cast:&nbsp;</span>
-                        <span class="hide-on-phone" v-for="(actor, index) in media.actors">{{ actor.firstname }}<span
-                                v-if="actor.lastname">&nbsp;{{
-                                    actor.lastname }}</span><span
-                                v-if="index < media.actors?.length - 1">,&nbsp;</span></span>
+                    <div class="container-cast hide-on-phone" style="display: flex; flex-direction: column;">
+                        <!-- <template v-for="role in ['directors', 'creators', 'stars', 'cast']"></template> -->
+                        <template v-for="role in ['cast']">
+                            <span v-if="media[role]?.length > 0" class="hide-on-phone"
+                                style="text-transform: capitalize;">{{ role }}: {{ media[role]?.slice(0, 5).map(p =>
+                                    `${p.firstname} ${p.lastname}`).join(", ") }}</span>
+                        </template>
                     </div>
                     <div style="display: flex; align-items: center;">
                         <Rating :media="media" :average="true" />
@@ -168,7 +168,8 @@ const calcTimePercentage = (video) => {
                     </div>
                 </div>
                 <div class="overlay"></div>
-                <iframe ref="iframe" class="preview-trailer" :src="parseTrailer(media.trailer, false, false)"
+                <iframe ref="iframe" class="preview-trailer"
+                    :src="media.trailer ? parseTrailer(media.trailer, false, false) : parseTrailer('https://www.youtube.com/watch?v=dQw4w9WgXcQ', false, false)"
                     allow="autoplay; encrypted-media;"></iframe>
             </div>
 

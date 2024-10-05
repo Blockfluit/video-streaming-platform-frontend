@@ -47,7 +47,7 @@ async function addActor(firstname, lastname) {
         })
     }).then((response) => {
         if (response.status >= 200 && response.status < 300) {
-            mainStore.setAllActors()
+            mainStore.setAllPersons()
             actors.value.push({ firstname: firstname, lastname: lastname })
             inputFirstname.value = ""
             inputLastname.value = ""

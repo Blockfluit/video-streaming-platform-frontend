@@ -12,6 +12,7 @@ export default defineNuxtConfig({
         pageTransition: { name: 'page', mode: 'out-in' },
     },
     pwa: {
+        registerType: 'autoUpdate',
         manifest: {
             name: "Video streaming",
             short_name: "Video streaming",
@@ -41,6 +42,7 @@ export default defineNuxtConfig({
             ],
         },
         workbox: {
+            runtimeCaching: [],
             navigateFallback: "/"
         },
         devOptions: {
