@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 import { useMainStore } from '~/stores/mainStore';
 import { isAdmin } from '#imports';
 import { useWatchlistStore } from "~/stores/watchlistStore";
+import { Vue3Lottie } from 'vue3-lottie';
 
 const props = defineProps({
     shownMedia: {
@@ -24,6 +25,7 @@ const { watchlist } = storeToRefs(watchlistStore)
 const config = useRuntimeConfig()
 const showExtraInformation = ref(false)
 const timePercentage = ref(0)
+const logoLottie = ref()
 const onWatchlist = ref(false)
 const admin = ref(isAdmin())
 
@@ -71,12 +73,12 @@ function navigationHandler(mediaId, showLastVideo, e) {
 }
 
 function quality(res) {
-    if(res >= 2160) return "UHD"; // UHD
-    else if(res >= 1440) return "QHD"; // QHD
-    else if(res >= 1080) return "FHD"; // FHD
-    else if(res >= 720) return "HD"; // HD
+    if (res >= 2160) return "UHD"; // UHD
+    else if (res >= 1440) return "QHD"; // QHD
+    else if (res >= 1080) return "FHD"; // FHD
+    else if (res >= 720) return "HD"; // HD
     else return ""; // Fallback
-    
+
 }
 
 async function addToWatchlist(mediaId) {
@@ -92,66 +94,69 @@ async function removeFromWatchlist(mediaId) {
     await watchlistStore.deleteWatchlist(mediaId)
     watchlistStore.setWatchlist()
 }
+
+function intervalLogo() {
+    logoLottie.value.stop()
+    setTimeout(() => {
+        logoLottie.value.play()
+    }, 10000)
+}
 </script>
 
 <template>
     <div class="card" :class="shownMedia.hidden ? 'card-hidden' : ''">
-        <div @mouseover="showExtraInformation = true"
-             class="container-information">
+        <div @mouseover="showExtraInformation = true" class="container-information">
             <div class="container-img">
-                <NuxtImg :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id"
-                         loading="lazy" />
+                <NuxtImg :src="config.public.baseURL + '/stream/thumbnail/' + shownMedia.id" loading="lazy" />
             </div>
-            <div v-if="showLastVideo"
-                 class="information">
+            <div v-if="showLastVideo" class="information">
                 <div style="background-color: rgba(255, 255, 255, 0.3)">
-                    <div class="time"
-                         :style="`width: ${timePercentage}%`"></div>
+                    <div class="time" :style="`width: ${timePercentage}%`"></div>
                 </div>
                 <span class="last-video-name">{{ getLastVideo(shownMedia.id).name }}</span>
             </div>
             <div @click="(e) => navigationHandler(shownMedia.id, showLastVideo, e)"
-                 @mouseleave="showExtraInformation = false"
-                 v-if="showExtraInformation"
-                 class="show-rating">
-                 <div class="container-horizontal">
+                @mouseleave="showExtraInformation = false" v-if="showExtraInformation" class="show-rating">
+                <div class="container-horizontal">
                     <div>
                         <span style="font-weight: bolder;">{{ quality(shownMedia.videos[0].yresolution) }}</span>
-                        <span v-if="admin && shownMedia.videos[0].yresolution" style="padding-left: 0;">• {{ shownMedia.videos[0].yresolution }}p</span>
+                        <span v-if="admin && shownMedia.videos[0].yresolution" style="padding-left: 0;">• {{
+                            shownMedia.videos[0].yresolution }}p</span>
                     </div>
                     <button @click="onWatchlist ? removeFromWatchlist(shownMedia.id) : addToWatchlist(shownMedia.id)"
-                        id="ignore-navigation"
-                        class="watchlist-button">
-                    <Icon name="fa-solid:heart"
-                          id="ignore-navigation"
-                          class="watchlist-icon"
-                          :style="{ color: onWatchlist ? 'var(--primary-color-100)' : 'var(--text-color-2)' }" />
-                </button>
-                 </div>
+                        id="ignore-navigation" class="watchlist-button">
+                        <Icon name="fa-solid:heart" id="ignore-navigation" class="watchlist-icon"
+                            :style="{ color: onWatchlist ? 'var(--primary-color-100)' : 'var(--text-color-2)' }" />
+                    </button>
+                </div>
                 <div style="flex-grow: 1;"></div>
-                <div v-if="shownMedia.avgRating >= 1">
-                    <template v-for="star in 5">
-                        <Icon class="star"
-                              :style="{ color: shownMedia.avgRating / 2 >= star ? 'var(--primary-color-100)' : 'var(--text-color-2)' }"
-                              name="mdi:star" />
-                    </template>
+                <span v-if="shownMedia.imdbRating" style="font-weight: 800; color: #F5C518;">
+                    IMDb <span style="color: white; margin-left: 4px; padding: 0;">{{ shownMedia.imdbRating }}<span
+                            style="font-weight: normal; color: #aaaaaa; padding: 0;">/10</span> </span>
+                </span>
+                <div v-if="shownMedia.avgRating >= 1" style="display: flex; align-items: center;">
+                    <Vue3Lottie style="margin: 0 4px 0 0; padding: 0 0 6px 0;"
+                        animationLink="/animations/dellekes_logo.json" ref="logoLottie" :height="30" :width="30"
+                        :delay="500" @on-loop-complete="intervalLogo" />
+                    <span style="font-weight: 800; margin: 0 0 0 5px; padding: 0;">{{ shownMedia.avgRating < 0 ? 0 :
+                        (shownMedia.avgRating / 2).toFixed(1) }}<span
+                            style="font-weight: normal; color: #aaaaaa; padding: 0; margin: 0;">/5</span>
+                    </span>
                 </div>
                 <div v-else>
-                    <h3>No Rating</h3>
+                    <span>No Rating</span>
                 </div>
                 <span v-if="admin">{{ shownMedia.views }} unique views</span>
                 <div style="flex-grow: 1;"></div>
             </div>
         </div>
-        <div @click="navigationHandler(shownMedia.id)"
-             class="title">
+        <div @click="navigationHandler(shownMedia.id)" class="title">
             <span class="name">{{ shownMedia.name }}</span>
             <span v-if="shownMedia.hidden" style="flex-grow: 1;">&nbsp;(Hidden)</span>
-            <span v-if="shownMedia.videoCount > 1"
-                  class="total-videos">{{ shownMedia.videoCount }}</span>
-            <span v-else
-                  class="total-videos">{{ new Date(shownMedia.videos[0].duration * 1000).toISOString().slice(12, 16)
-                  }}</span>
+            <span v-if="shownMedia.videoCount > 1" class="total-videos">{{ shownMedia.videoCount }}</span>
+            <span v-else class="total-videos">{{ new Date(shownMedia.videos[0].duration * 1000).toISOString().slice(12,
+                16)
+                }}</span>
         </div>
     </div>
 </template>
