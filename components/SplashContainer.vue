@@ -49,18 +49,18 @@ function setProgress() {
     clearInterval(intervalId)
 
     intervalId = setInterval(() => {
-        if(progress.value < 1) progress.value += 50 / duration
+        if (progress.value < 1) progress.value += 50 / duration
     }, 50)
 }
 
 function getProgressWidth(curr, i) {
-    if(curr < i) return 'width: 0'
-    else if(curr > i) return 'width: 100%'
+    if (curr < i) return 'width: 0'
+    else if (curr > i) return 'width: 100%'
     return `width: ${progress.value * 100}%`
 }
 
 function setTrailer(i) {
-    if(i !== undefined) index.value = i
+    if (i !== undefined) index.value = i
 
     clearTimeout(timeoutId)
     media.value = recentMedia.value[index.value % recentMedia.value.length]
@@ -93,7 +93,9 @@ const parseTrailer = (trailer) => {
 <template>
     <div class="container-trailer">
         <div class="container-information">
-            <h2 class="now-available">Now available:</h2>
+            <h2 class="now-available">
+                NOW AVAILABLE
+            </h2>
             <div @click="navigateToMedia(media.id)" class="container-information-title">
                 <span class="trailer-name">{{ media?.name }}</span>
                 <span class="watch-now">| WATCH NOW</span>
@@ -126,34 +128,36 @@ h2 {
 
 .container-progress {
     cursor: pointer;
-    width: 34px; 
-    margin: 6px 4px; 
-    padding: 6px 0; 
+    width: 34px;
+    margin: 6px 4px;
+    padding: 6px 0;
     position: relative;
-    
+
 }
 
-.container-progress, .container-progress > * {
+.container-progress,
+.container-progress>* {
     border-radius: 10px;
 }
 
-.container-progress-bottom, .container-progress-top {
+.container-progress-bottom,
+.container-progress-top {
     pointer-events: none;
     height: 4px;
 }
 
 .container-progress-bottom {
-    position: absolute; 
-    background-color: grey; 
-    width: 100%; 
+    position: absolute;
+    background-color: grey;
+    width: 100%;
 }
 
 .container-progress-top {
-    position: relative; 
-    background-color: white; 
+    position: relative;
+    background-color: white;
 }
 
-.container-progress:hover > * {
+.container-progress:hover>* {
     background-color: var(--primary-color-100);
 }
 

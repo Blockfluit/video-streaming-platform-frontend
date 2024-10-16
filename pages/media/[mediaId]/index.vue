@@ -3,6 +3,7 @@ import { useMainStore } from "~/stores/mainStore";
 import { useMediaStore } from "~/stores/mediaStore";
 import { storeToRefs } from 'pinia'
 import { isAdmin } from '#imports'
+import { Vue3Lottie } from 'vue3-lottie'
 
 const config = useRuntimeConfig()
 const mainStore = useMainStore()
@@ -16,6 +17,7 @@ let scrollAttempts = 10
 
 const iframe = ref(null)
 const lastVideo = ref()
+const logoLottie = ref()
 const selectedSeason = ref(1)
 const showDropdown = ref(false)
 const episodeContainer = ref()
@@ -119,6 +121,13 @@ const calcTimePercentage = (video) => {
     if (currentWatched !== undefined) return currentWatched.timestamp / video.duration * 100
     return 0
 }
+
+function intervalLogo() {
+    logoLottie.value.stop()
+    setTimeout(() => {
+        logoLottie.value.play()
+    }, 10000)
+}
 </script>
 
 <template>
@@ -145,8 +154,19 @@ const calcTimePercentage = (video) => {
                         </template>
                     </div>
                     <div style="display: flex; align-items: center;">
+                        <Vue3Lottie style="margin: 0 4px 0 0; padding-bottom: 4px;"
+                            animationLink="/animations/dellekes_logo.json" ref="logoLottie" :height="30" :width="30"
+                            :delay="5000" @on-loop-complete="intervalLogo" />
                         <Rating :media="media" :average="true" />
-                        <span>• {{ media.avgRating < 0 ? 0 : (media.avgRating / 2).toFixed(1) }}/5</span>
+                        <span style="font-weight: 800; margin-left: 5px">{{ media.avgRating < 0 ? 0 : (media.avgRating /
+                            2).toFixed(1) }}<span style="font-weight: normal; color: #aaaaaa">/5</span>
+                        </span>
+                        <span v-if="media.imdbRating" style=" margin: 0 12px;">•</span>
+                        <a v-if="media.imdbRating" :href="`https://www.imdb.com/title/${media.imdbId}/`" target="_blank"
+                            style="font-weight: 800; color: #F5C518; cursor: pointer; pointer-events: all; text-decoration: none; font-size: 16px;">
+                            IMDb <span style="color: white; margin-left: 4px;">{{ media.imdbRating
+                                }}<span style="font-weight: normal; color: #aaaaaa">/10</span> </span>
+                        </a>
                     </div>
 
                     <div class="button-container">
