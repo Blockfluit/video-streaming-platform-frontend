@@ -161,8 +161,8 @@ function intervalLogo() {
                         <span style="font-weight: 800; margin-left: 5px">{{ media.avgRating < 0 ? 0 : (media.avgRating /
                             2).toFixed(1) }}<span style="font-weight: normal; color: #aaaaaa">/5</span>
                         </span>
-                        <span style=" margin: 0 12px;">•</span>
-                        <a :href="`https://www.imdb.com/title/${media.imdbId}/`" target="_blank"
+                        <span v-if="media.imdbRating" style=" margin: 0 12px;">•</span>
+                        <a v-if="media.imdbRating" :href="`https://www.imdb.com/title/${media.imdbId}/`" target="_blank"
                             style="font-weight: 800; color: #F5C518; cursor: pointer; pointer-events: all; text-decoration: none; font-size: 16px;">
                             IMDb <span style="color: white; margin-left: 4px;">{{ media.imdbRating
                                 }}<span style="font-weight: normal; color: #aaaaaa">/10</span> </span>
