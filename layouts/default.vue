@@ -30,6 +30,7 @@ onMounted(() => {
 <style scoped>
 .content {
     padding-top: var(--navbar-height);
+    padding-bottom: 1px;
 }
 
 .animation {
