@@ -250,6 +250,15 @@ svg {
     padding-right: 15px;
 }
 
+.menu-item:first-child {
+    text-align: center;
+    border-top: 1px solid var(--background-color-200);
+    border-bottom: 1px solid var(--background-color-200);
+    padding: 10px 0px;
+    margin: 0;
+    width: 100%;
+}
+
 .menu-item {
     text-align: center;
     border-bottom: 1px solid var(--background-color-200);
