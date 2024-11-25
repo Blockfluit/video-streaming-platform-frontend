@@ -163,7 +163,6 @@ function logoutUser(userId) {
                         <thead>
                             <tr>
                                 <td>Username</td>
-                                <!-- <td class="email">Email</td> -->
                                 <td>Role</td>
                                 <td>Last Watched</td>
                                 <td>Last Active</td>
@@ -176,7 +175,6 @@ function logoutUser(userId) {
                             <tr class="row"
                                 v-for="(user, index) in [...users].sort((a, b) => new Date(b.lastActiveAt) - new Date(a.lastActiveAt))">
                                 <td class="username">{{ user.username }}</td>
-                                <!-- <td class="email">{{ user.email }}</td> -->
                                 <td ref="updateRoleElement" class="role">
                                     <select style="margin-right: 12px;"
                                         @change="e => adminStore.updateUser(user.username, null, e.target.value)">
