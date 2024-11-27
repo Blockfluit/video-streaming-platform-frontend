@@ -135,8 +135,8 @@ function logoutUser(userId) {
                 </div>
             </div>
         </div>
-        <div class="container-horizontal">
 
+        <div class="container-horizontal">
             <div class="container-vertical" style="width: 100%;">
                 <div class="toolbar">
                     <h1
