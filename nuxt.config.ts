@@ -14,9 +14,9 @@ export default defineNuxtConfig({
     pwa: {
         registerType: 'autoUpdate',
         manifest: {
-            name: "Video streaming",
-            short_name: "Video streaming",
-            description: "Video streaming service",
+            name: "DellekesHub",
+            short_name: "DellekesHub",
+            description: "DellekesHub",
             background_color: "#121212",
             icons: [
                 {

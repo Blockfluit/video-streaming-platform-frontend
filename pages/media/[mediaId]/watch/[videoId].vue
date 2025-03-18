@@ -14,6 +14,7 @@ const videoElement = ref()
 const showOverlay = ref(true)
 const countdownTimer = ref(0)
 const isPlaying = ref(false)
+const completeUrl = ref(null)
 
 let intervalId
 let timeoutId
@@ -80,6 +81,7 @@ async function playVideo(videoId, time) {
     if (videoId !== undefined) {
         watchStore.setVideo(currentMediaId, videoId)
             .then(() => {
+                completeUrl.value = `${config.public.baseURL}/stream/video/${videoId}?token=${videoToken.value}`
                 videoElement.value.src = `${config.public.baseURL}/stream/video/${videoId}?token=${videoToken.value}`
                 videoElement.value.currentTime = time ?? getStartTime()
                 videoElement.value.volume = volume.value
@@ -115,9 +117,13 @@ function navigateToMedia(mediaId) {
                 <h3 style="pointer-events: none; margin: 0; font-weight: 700;">{{ video.name }}</h3>
                 <h4 v-if="video.season !== -1" style="margin: 0; font-weight: 300;">Season {{ video.season }}</h4>
             </div>
-            <button @click="navigateToMedia(currentMediaId)" class="back-button">
-                <Icon name="radix-icons:cross-1" class="back-icon" size="1.5rem" style="color: var(--text-color-1);" />
-            </button>
+            <div style="display: flex; align-items: center;">
+                <CastButton v-if="completeUrl" :url="completeUrl" />
+                <button @click="navigateToMedia(currentMediaId)" class="back-button">
+                    <Icon name="radix-icons:cross-1" class="back-icon" size="1.5rem"
+                        style="color: var(--text-color-1);" />
+                </button>
+            </div>
         </header>
         <div class="container-next-video">
             <div v-if="(showOverlay || !isPlaying) && previousVideo !== undefined"
