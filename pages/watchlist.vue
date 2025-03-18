@@ -17,8 +17,8 @@ onMounted(() => {
     <div class="container">
         <div style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">
             <span style="font-size: 3rem; font-weight: 800;">Watchlist</span>
-            <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{
-                watchlist.length }}</span>
+            <span style="font-size: 1rem; margin: 0px 0px 0px 10px; color: var(--text-color-2)">{{ watchlist.length
+                }}</span>
         </div>
         <ul>
             <li v-for="media in watchlist">
